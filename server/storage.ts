@@ -241,6 +241,13 @@ export class DatabaseStorage implements IStorage {
     correctAttempts: number;
     averageScore: number;
     improvementTrend: number;
+    categoryStats: Array<{
+      category: string;
+      totalQuestions: number;
+      correctAnswers: number;
+      accuracy: number;
+      lastAttempted: Date | null;
+    }>;
   }> {
     const stats = await db
       .select({
@@ -260,11 +267,39 @@ export class DatabaseStorage implements IStorage {
 
     const result = stats[0];
     
+    // Get category-specific statistics
+    const categoryStats = await db
+      .select({
+        teksStandard: questions.teksStandard,
+        totalQuestions: count(),
+        correctAnswers: sql<number>`SUM(CASE WHEN ${practiceAttempts.isCorrect} = true THEN 1 ELSE 0 END)`,
+        lastAttempted: sql<Date>`MAX(${practiceAttempts.createdAt})`,
+      })
+      .from(practiceAttempts)
+      .innerJoin(questions, eq(practiceAttempts.questionId, questions.id))
+      .where(
+        and(
+          eq(practiceAttempts.userId, userId),
+          eq(questions.grade, grade),
+          eq(questions.subject, subject)
+        )
+      )
+      .groupBy(questions.teksStandard);
+
+    const categoryStatsFormatted = categoryStats.map(stat => ({
+      category: stat.teksStandard,
+      totalQuestions: stat.totalQuestions,
+      correctAnswers: stat.correctAnswers,
+      accuracy: stat.totalQuestions > 0 ? Math.round((stat.correctAnswers / stat.totalQuestions) * 100) : 0,
+      lastAttempted: stat.lastAttempted
+    }));
+
     return {
       totalAttempts: result.totalAttempts || 0,
       correctAttempts: Number(result.correctAttempts) || 0,
       averageScore: Number(result.averageScore) || 0,
       improvementTrend: 0, // TODO: Calculate trend over time
+      categoryStats: categoryStatsFormatted
     };
   }
 }

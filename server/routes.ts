@@ -348,6 +348,18 @@ Respond with JSON array:
     }
   });
 
+  // Initialize mock exams for all grades
+  app.post('/api/exams/initialize', async (req, res) => {
+    try {
+      const { initializeMockExams } = await import('./examGenerator');
+      await initializeMockExams();
+      res.json({ message: "Mock exams initialized successfully" });
+    } catch (error) {
+      console.error("Error initializing mock exams:", error);
+      res.status(500).json({ message: "Failed to initialize mock exams" });
+    }
+  });
+
   app.post('/api/exams/attempt', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
