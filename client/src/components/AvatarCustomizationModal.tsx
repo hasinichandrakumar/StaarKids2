@@ -30,11 +30,21 @@ export default function AvatarCustomizationModal({ user, onClose }: AvatarCustom
   ];
 
   const colorOptions = [
-    "#FF5B00", // Primary
-    "#FCC201", // Secondary
-    "#10B981", // Success
-    "#3B82F6", // Blue
+    "#FF5B00", // Primary Orange
+    "#FCC201", // Golden Yellow
+    "#10B981", // Emerald Green
+    "#3B82F6", // Sky Blue
     "#8B5CF6", // Purple
+    "#EF4444", // Red
+    "#F97316", // Orange
+    "#84CC16", // Lime
+    "#06B6D4", // Cyan
+    "#EC4899", // Pink
+    "#6366F1", // Indigo
+    "#14B8A6", // Teal
+    "#F59E0B", // Amber
+    "#8B5A2B", // Brown
+    "#6B7280", // Gray
   ];
 
   const updateProfileMutation = useMutation({
@@ -82,19 +92,19 @@ export default function AvatarCustomizationModal({ user, onClose }: AvatarCustom
           </div>
           
           {/* Avatar Options */}
-          <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-3 gap-3 mb-6">
             {avatarOptions.map((avatar) => (
               <button
                 key={avatar.id}
                 onClick={() => setSelectedAvatar(avatar.id)}
-                className={`relative p-4 border-2 rounded-xl transition-colors ${
+                className={`relative p-3 border-2 rounded-xl transition-colors ${
                   selectedAvatar === avatar.id ? "border-primary" : "border-gray-200 hover:border-primary"
                 }`}
               >
-                <div className="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-2 flex items-center justify-center text-2xl">
+                <div className="w-12 h-12 bg-gray-100 rounded-full mx-auto mb-2 flex items-center justify-center text-xl">
                   {avatar.emoji}
                 </div>
-                <p className="text-sm font-medium text-gray-700">{avatar.name}</p>
+                <p className="text-xs font-medium text-gray-700 text-center">{avatar.name}</p>
               </button>
             ))}
           </div>
@@ -102,12 +112,12 @@ export default function AvatarCustomizationModal({ user, onClose }: AvatarCustom
           {/* Color Options */}
           <div className="mb-6">
             <h4 className="text-lg font-semibold text-gray-700 mb-3">Choose Color</h4>
-            <div className="flex space-x-3 justify-center">
+            <div className="grid grid-cols-5 gap-3 justify-center">
               {colorOptions.map((color) => (
                 <button
                   key={color}
                   onClick={() => setSelectedColor(color)}
-                  className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${
+                  className={`w-10 h-10 rounded-full border-2 transition-transform hover:scale-110 ${
                     selectedColor === color ? "border-gray-700 scale-110" : "border-gray-300"
                   }`}
                   style={{ backgroundColor: color }}

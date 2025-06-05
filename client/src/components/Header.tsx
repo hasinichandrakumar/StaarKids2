@@ -84,6 +84,10 @@ function getAvatarEmoji(avatarType: string): string {
     case "sparkles": return "✨";
     case "comet": return "☄️";
     case "constellation": return "🌌";
+    case "dizzy": return "💫";
+    case "glowing-star": return "🌠";
+    case "bright-star": return "⭐";
+    case "magic-wand": return "🪄";
     default: return "🌟";
   }
 }
