@@ -17,6 +17,9 @@ export default function QuestionPracticeModal({ grade, subject, onClose }: Quest
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [hintsUsed, setHintsUsed] = useState(0);
   const [showHint, setShowHint] = useState(false);
+  const [showExplanation, setShowExplanation] = useState(false);
+  const [aiExplanation, setAiExplanation] = useState("");
+  const [loadingExplanation, setLoadingExplanation] = useState(false);
   const [startTime] = useState(Date.now());
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -39,7 +42,26 @@ export default function QuestionPracticeModal({ grade, subject, onClose }: Quest
     },
   });
 
-  const handleSubmitAnswer = () => {
+  const getAiExplanation = async (question: any, userAnswer: string, correctAnswer: string) => {
+    setLoadingExplanation(true);
+    try {
+      const response = await apiRequest("POST", "/api/chat/explain", {
+        question: question.question_text,
+        userAnswer,
+        correctAnswer,
+        grade,
+        subject,
+      });
+      setAiExplanation(response.explanation);
+    } catch (error) {
+      console.error("Error getting AI explanation:", error);
+      setAiExplanation("Sorry, I couldn't generate an explanation right now. Please try again later.");
+    } finally {
+      setLoadingExplanation(false);
+    }
+  };
+
+  const handleSubmitAnswer = async () => {
     if (!selectedAnswer || !currentQuestion) {
       toast({
         title: "Please select an answer",
@@ -61,20 +83,38 @@ export default function QuestionPracticeModal({ grade, subject, onClose }: Quest
       skipped: false,
     });
 
-    toast({
-      title: isCorrect ? "Correct!" : "Incorrect",
-      description: isCorrect 
-        ? `Great job! You earned ${hintsUsed === 0 ? 60 : Math.max(20, 60 - (hintsUsed * 10))} Star Power points!`
-        : "Keep practicing! Review the explanation and try again.",
-      variant: isCorrect ? "default" : "destructive",
-    });
+    if (isCorrect) {
+      toast({
+        title: "Correct!",
+        description: `Great job! You earned ${hintsUsed === 0 ? 60 : Math.max(20, 60 - (hintsUsed * 10))} Star Power points!`,
+      });
 
-    // Move to next question or close modal
+      // Move to next question or close modal
+      if (currentQuestionIndex < (questions?.length || 0) - 1) {
+        setCurrentQuestionIndex(prev => prev + 1);
+        setSelectedAnswer("");
+        setHintsUsed(0);
+        setShowHint(false);
+      } else {
+        onClose();
+      }
+    } else {
+      // Show AI explanation for incorrect answer
+      setShowExplanation(true);
+      const userAnswerChoice = currentQuestion.answer_choices.find((choice: any) => choice.id === selectedAnswer);
+      await getAiExplanation(currentQuestion, userAnswerChoice?.text || selectedAnswer, currentQuestion.correctAnswer);
+    }
+  };
+
+  const handleNextQuestion = () => {
+    setSelectedAnswer("");
+    setHintsUsed(0);
+    setShowHint(false);
+    setShowExplanation(false);
+    setAiExplanation("");
+    
     if (currentQuestionIndex < (questions?.length || 0) - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
-      setSelectedAnswer("");
-      setHintsUsed(0);
-      setShowHint(false);
     } else {
       onClose();
     }

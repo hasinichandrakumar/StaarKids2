@@ -182,6 +182,100 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // AI Study Assistant routes
+  app.post('/api/chat/explain', isAuthenticated, async (req: any, res) => {
+    try {
+      const { question, userAnswer, correctAnswer, grade, subject } = req.body;
+      
+      const prompt = `You are a helpful tutor for Texas ${grade}th grade ${subject}. A student answered "${userAnswer}" but the correct answer is "${correctAnswer}" for this question: "${question}". 
+
+Please provide a clear, age-appropriate explanation in 2-3 sentences that:
+1. Explains why the correct answer is right
+2. Helps the student understand the concept
+3. Encourages them to keep learning
+
+Keep your response simple and encouraging for a ${grade}th grader.`;
+
+      const response = await fetch('https://api.perplexity.ai/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'llama-3.1-sonar-small-128k-online',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a patient, encouraging tutor for elementary students preparing for STAAR tests in Texas.'
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          max_tokens: 150,
+          temperature: 0.3,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Perplexity API error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const explanation = data.choices[0].message.content;
+
+      res.json({ explanation });
+    } catch (error) {
+      console.error('Error generating explanation:', error);
+      res.status(500).json({ message: 'Failed to generate explanation' });
+    }
+  });
+
+  app.post('/api/chat/help', isAuthenticated, async (req: any, res) => {
+    try {
+      const { topic, grade, subject } = req.body;
+      
+      const prompt = `Explain ${topic} to a ${grade}th grade student in Texas studying for the STAAR ${subject} test. Use simple language, examples, and encourage practice. Keep it brief and helpful.`;
+
+      const response = await fetch('https://api.perplexity.ai/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'llama-3.1-sonar-small-128k-online',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a helpful tutor for Texas elementary students. Provide clear, age-appropriate explanations.'
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          max_tokens: 200,
+          temperature: 0.3,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Perplexity API error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const help = data.choices[0].message.content;
+
+      res.json({ help });
+    } catch (error) {
+      console.error('Error generating help:', error);
+      res.status(500).json({ message: 'Failed to generate help' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
