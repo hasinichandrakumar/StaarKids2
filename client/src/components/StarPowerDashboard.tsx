@@ -54,36 +54,36 @@ export default function StarPowerDashboard() {
       </Card>
 
       {/* Weekly Starpower */}
-      <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 hover:shadow-lg transition-shadow">
+      <Card className="bg-gradient-to-br from-orange-50 to-yellow-50 border-orange-200 hover:shadow-lg transition-shadow">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-blue-700 flex items-center">
+          <CardTitle className="text-sm font-medium text-orange-700 flex items-center">
             <Clock className="w-4 h-4 mr-2" />
             This Week's Starpower
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center space-x-2">
-            <Star className="w-6 h-6 text-blue-500 fill-current" />
-            <span className="text-2xl font-bold text-blue-800">{stats.weeklyStarPower}</span>
+            <Star className="w-6 h-6 text-orange-500 fill-current" />
+            <span className="text-2xl font-bold text-orange-800">{stats.weeklyStarPower}</span>
           </div>
-          <p className="text-xs text-blue-600 mt-1">Starpower earned this week</p>
+          <p className="text-xs text-orange-600 mt-1">Starpower earned this week</p>
         </CardContent>
       </Card>
 
       {/* All-Time Starpower */}
-      <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200 hover:shadow-lg transition-shadow">
+      <Card className="bg-gradient-to-br from-yellow-50 to-amber-50 border-yellow-200 hover:shadow-lg transition-shadow">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-purple-700 flex items-center">
+          <CardTitle className="text-sm font-medium text-yellow-700 flex items-center">
             <Trophy className="w-4 h-4 mr-2" />
             All Time Starpower
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center space-x-2">
-            <Star className="w-6 h-6 text-purple-500 fill-current" />
-            <span className="text-2xl font-bold text-purple-800">{stats.allTimeStarPower.toLocaleString()}</span>
+            <Star className="w-6 h-6 text-yellow-500 fill-current" />
+            <span className="text-2xl font-bold text-yellow-800">{stats.allTimeStarPower.toLocaleString()}</span>
           </div>
-          <p className="text-xs text-purple-600 mt-1">Total starpower earned</p>
+          <p className="text-xs text-yellow-600 mt-1">Total starpower earned</p>
         </CardContent>
       </Card>
     </div>
