@@ -231,6 +231,7 @@ export const updateUserSchema = createInsertSchema(users).pick({
   currentGrade: true,
   avatarType: true,
   avatarColor: true,
+  starPower: true,
 }).partial();
 
 // Types

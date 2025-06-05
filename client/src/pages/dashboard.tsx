@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/Header";
 import WelcomeSection from "@/components/WelcomeSection";
+import StarPowerDashboard from "@/components/StarPowerDashboard";
 import GradeSelector from "@/components/GradeSelector";
 import NavigationTabs from "@/components/NavigationTabs";
 import PracticeTab from "@/components/PracticeTab";
@@ -48,6 +49,8 @@ export default function Dashboard() {
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <WelcomeSection user={user} />
+        
+        <StarPowerDashboard />
         
         <GradeSelector 
           selectedGrade={selectedGrade} 

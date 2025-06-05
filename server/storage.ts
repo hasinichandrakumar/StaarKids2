@@ -64,6 +64,14 @@ export interface IStorage {
       lastAttempted: Date | null;
     }>;
   }>;
+  
+  // Star Power tracking
+  addStarPowerHistory(entry: InsertStarPowerHistory): Promise<StarPowerHistory>;
+  getStarPowerStats(userId: string): Promise<{
+    dailyStarPower: number;
+    weeklyStarPower: number;
+    allTimeStarPower: number;
+  }>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -310,6 +318,73 @@ export class DatabaseStorage implements IStorage {
       averageScore: Number(result.averageScore) || 0,
       improvementTrend: 0, // TODO: Calculate trend over time
       categoryStats: categoryStatsFormatted
+    };
+  }
+
+  // Star Power tracking
+  async addStarPowerHistory(entry: InsertStarPowerHistory): Promise<StarPowerHistory> {
+    const [newEntry] = await db
+      .insert(starPowerHistory)
+      .values(entry)
+      .returning();
+    return newEntry;
+  }
+
+  async getStarPowerStats(userId: string): Promise<{
+    dailyStarPower: number;
+    weeklyStarPower: number;
+    allTimeStarPower: number;
+  }> {
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfWeek = new Date(startOfDay);
+    startOfWeek.setDate(startOfDay.getDate() - startOfDay.getDay());
+
+    // Get daily star power (earned today)
+    const dailyResult = await db
+      .select({
+        total: sql<number>`COALESCE(SUM(${starPowerHistory.amount}), 0)`
+      })
+      .from(starPowerHistory)
+      .where(
+        and(
+          eq(starPowerHistory.userId, userId),
+          sql`${starPowerHistory.date} >= ${startOfDay}`,
+          sql`${starPowerHistory.amount} > 0` // Only count earned star power
+        )
+      );
+
+    // Get weekly star power (earned this week)
+    const weeklyResult = await db
+      .select({
+        total: sql<number>`COALESCE(SUM(${starPowerHistory.amount}), 0)`
+      })
+      .from(starPowerHistory)
+      .where(
+        and(
+          eq(starPowerHistory.userId, userId),
+          sql`${starPowerHistory.date} >= ${startOfWeek}`,
+          sql`${starPowerHistory.amount} > 0` // Only count earned star power
+        )
+      );
+
+    // Get all-time star power (total earned ever)
+    const allTimeResult = await db
+      .select({
+        total: sql<number>`COALESCE(SUM(${starPowerHistory.amount}), 0)`
+      })
+      .from(starPowerHistory)
+      .where(
+        and(
+          eq(starPowerHistory.userId, userId),
+          sql`${starPowerHistory.amount} > 0` // Only count earned star power
+        )
+      );
+
+    return {
+      dailyStarPower: Number(dailyResult[0]?.total) || 0,
+      weeklyStarPower: Number(weeklyResult[0]?.total) || 0,
+      allTimeStarPower: Number(allTimeResult[0]?.total) || 0,
     };
   }
 }
