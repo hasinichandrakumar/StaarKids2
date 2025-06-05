@@ -49,8 +49,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (category) {
         // Filter questions by TEKS standard category
         questions = await storage.getQuestionsByTeksStandard(grade, subject, category as string);
+        
+        // If no questions exist for this category, generate them using authentic STAAR patterns
+        if (questions.length === 0) {
+          console.log(`Generating authentic STAAR questions for ${grade} ${subject} ${category}...`);
+          const { generateQuestionWithPerplexity, getRandomTeksStandard } = await import('./questionGenerator');
+          
+          const generatedQuestions = [];
+          for (let i = 0; i < 5; i++) {
+            try {
+              const teksStandard = getRandomTeksStandard(grade, subject as "math" | "reading", category as string);
+              const questionData = await generateQuestionWithPerplexity(grade, subject as "math" | "reading", teksStandard, category as string);
+              const savedQuestion = await storage.createQuestion(questionData);
+              generatedQuestions.push(savedQuestion);
+            } catch (error) {
+              console.error(`Error generating question ${i + 1}:`, error);
+            }
+          }
+          
+          questions = generatedQuestions.length > 0 ? generatedQuestions : 
+            await storage.getQuestionsByTeksStandard(grade, subject, category as string);
+        }
       } else {
         questions = await storage.getQuestionsByGradeAndSubject(grade, subject);
+        
+        // If no questions exist at all, generate some using authentic STAAR patterns
+        if (questions.length === 0) {
+          console.log(`Generating authentic STAAR questions for ${grade} ${subject}...`);
+          const { generateQuestionWithPerplexity, getRandomTeksStandard } = await import('./questionGenerator');
+          
+          const generatedQuestions = [];
+          for (let i = 0; i < 8; i++) {
+            try {
+              const teksStandard = getRandomTeksStandard(grade, subject as "math" | "reading");
+              const questionData = await generateQuestionWithPerplexity(grade, subject as "math" | "reading", teksStandard);
+              const savedQuestion = await storage.createQuestion(questionData);
+              generatedQuestions.push(savedQuestion);
+            } catch (error) {
+              console.error(`Error generating question ${i + 1}:`, error);
+            }
+          }
+          
+          questions = generatedQuestions.length > 0 ? generatedQuestions : 
+            await storage.getQuestionsByGradeAndSubject(grade, subject);
+        }
       }
       
       res.json(questions);

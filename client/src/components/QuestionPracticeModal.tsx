@@ -31,6 +31,8 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
         : `/api/questions/${grade}/${subject}`;
       return fetch(url).then(res => res.json());
     },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes to ensure category persistence
+    cacheTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
   });
 
   const generateQuestionsMutation = useMutation({
