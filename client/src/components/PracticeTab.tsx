@@ -23,8 +23,8 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
     queryFn: () => fetch("/api/practice/history?limit=5").then(res => res.json()),
   });
 
-  const mathProgress = mathStats ? Math.round(mathStats.averageScore) : 0;
-  const readingProgress = readingStats ? Math.round(readingStats.averageScore) : 0;
+  const mathProgress = mathStats ? Math.round((mathStats as any).averageScore || 0) : 0;
+  const readingProgress = readingStats ? Math.round((readingStats as any).averageScore || 0) : 0;
 
   const getSkillStatus = (accuracy: number) => {
     if (accuracy >= 80) return { label: "Excellent", color: "bg-primary text-white" };
@@ -32,17 +32,70 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
     return { label: "Needs Work", color: "bg-secondary text-white" };
   };
 
-  const mockMathSkills = [
-    { name: "Fractions & Decimals", accuracy: 45 },
-    { name: "Measurement & Data", accuracy: 75 },
-    { name: "Geometry", accuracy: 85 },
-  ];
+  const getMathSkills = (grade: number) => {
+    switch (grade) {
+      case 3:
+        return [
+          { name: "Multiplication and Division", accuracy: 0 },
+          { name: "Place Value to 1,000", accuracy: 0 },
+          { name: "Add and Subtract within 1,000", accuracy: 0 },
+          { name: "Perimeter and Area", accuracy: 0 },
+          { name: "2D and 3D Shapes", accuracy: 0 },
+        ];
+      case 4:
+        return [
+          { name: "Multi-digit Operations", accuracy: 0 },
+          { name: "Fractions and Decimals", accuracy: 0 },
+          { name: "Factors and Multiples", accuracy: 0 },
+          { name: "Shape Properties", accuracy: 0 },
+          { name: "Data Analysis", accuracy: 0 },
+        ];
+      case 5:
+        return [
+          { name: "Decimal and Fraction Operations", accuracy: 0 },
+          { name: "Volume and Measurement", accuracy: 0 },
+          { name: "Variables and Expressions", accuracy: 0 },
+          { name: "2D and 3D Figure Classification", accuracy: 0 },
+          { name: "Data Representation", accuracy: 0 },
+        ];
+      default:
+        return [];
+    }
+  };
 
-  const mockReadingSkills = [
-    { name: "Reading Comprehension", accuracy: 85 },
-    { name: "Literary Elements", accuracy: 70 },
-    { name: "Inferences & Conclusions", accuracy: 52 },
-  ];
+  const getReadingSkills = (grade: number) => {
+    switch (grade) {
+      case 3:
+        return [
+          { name: "Inferences and Conclusions", accuracy: 0 },
+          { name: "Main Idea and Details", accuracy: 0 },
+          { name: "Story Elements", accuracy: 0 },
+          { name: "Context Clues", accuracy: 0 },
+          { name: "Text Types", accuracy: 0 },
+        ];
+      case 4:
+        return [
+          { name: "Text Structure and Purpose", accuracy: 0 },
+          { name: "Compare and Contrast", accuracy: 0 },
+          { name: "Reference Materials", accuracy: 0 },
+          { name: "Complex Text Comprehension", accuracy: 0 },
+          { name: "Narrative and Informational", accuracy: 0 },
+        ];
+      case 5:
+        return [
+          { name: "Text Arguments and Evidence", accuracy: 0 },
+          { name: "Multiple Text Analysis", accuracy: 0 },
+          { name: "Figurative Language", accuracy: 0 },
+          { name: "Multiple-meaning Words", accuracy: 0 },
+          { name: "Complex Text Independence", accuracy: 0 },
+        ];
+      default:
+        return [];
+    }
+  };
+
+  const mathSkills = getMathSkills(grade);
+  const readingSkills = getReadingSkills(grade);
 
   return (
     <div>
@@ -55,7 +108,7 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
               <div className="w-12 h-12 bg-primary bg-opacity-10 rounded-full flex items-center justify-center mr-4">
                 <Calculator className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-700">Math</h3>
+              <h3 className="text-2xl font-bold text-gray-700">📐 Math</h3>
             </div>
             
             {/* Progress Ring */}
@@ -67,7 +120,7 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
             <div className="mb-6">
               <h4 className="text-sm font-semibold text-gray-600 mb-3">TEKS Skills to Practice:</h4>
               <div className="space-y-2">
-                {mockMathSkills.map((skill, index) => {
+                {mathSkills.map((skill, index) => {
                   const status = getSkillStatus(skill.accuracy);
                   return (
                     <div key={index} className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
@@ -109,7 +162,7 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
             <div className="mb-6">
               <h4 className="text-sm font-semibold text-gray-600 mb-3">TEKS Skills to Practice:</h4>
               <div className="space-y-2">
-                {mockReadingSkills.map((skill, index) => {
+                {readingSkills.map((skill, index) => {
                   const status = getSkillStatus(skill.accuracy);
                   return (
                     <div key={index} className="flex items-center justify-between bg-gray-50 rounded-lg p-3">

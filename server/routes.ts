@@ -131,6 +131,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/exams/history', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
+      const grade = req.query.grade ? parseInt(req.query.grade as string) : null;
+      
+      if (grade && ![3, 4, 5].includes(grade)) {
+        return res.status(400).json({ message: "Invalid grade" });
+      }
+      
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
       const history = await storage.getUserExamHistory(userId, limit);
       res.json(history);
