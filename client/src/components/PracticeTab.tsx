@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Calculator, BookOpen, Clock } from "lucide-react";
+import { Calculator, BookOpen, Clock, Plus, Minus, X, Divide } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import ProgressRing from "./ProgressRing";
@@ -105,8 +105,9 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
         <Card className="hover:shadow-xl transition-shadow duration-300">
           <CardContent className="p-6">
             <div className="flex items-center mb-4">
-              <div className="w-12 h-12 bg-primary bg-opacity-10 rounded-full flex items-center justify-center mr-4">
-                <Calculator className="w-6 h-6 text-primary" />
+              <div className="w-12 h-12 bg-primary bg-opacity-10 rounded-full flex items-center justify-center mr-4 relative">
+                <div className="text-primary text-xl font-bold">+</div>
+                <div className="absolute -top-1 -right-1 text-primary text-sm">×</div>
               </div>
               <h3 className="text-2xl font-bold text-gray-700">📐 Math</h3>
             </div>
@@ -147,8 +148,8 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
         <Card className="hover:shadow-xl transition-shadow duration-300">
           <CardContent className="p-6">
             <div className="flex items-center mb-4">
-              <div className="w-12 h-12 bg-secondary bg-opacity-10 rounded-full flex items-center justify-center mr-4">
-                <BookOpen className="w-6 h-6 text-secondary" />
+              <div className="w-12 h-12 bg-secondary bg-opacity-10 rounded-full flex items-center justify-center mr-4 relative">
+                <div className="text-secondary text-lg font-bold">📚</div>
               </div>
               <h3 className="text-2xl font-bold text-gray-700">📖 Reading</h3>
             </div>
