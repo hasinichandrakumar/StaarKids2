@@ -177,6 +177,63 @@ Respond with JSON array:
     }
   });
 
+  // Get available TEKS categories for a grade/subject
+  app.get('/api/questions/categories/:grade/:subject', isAuthenticated, async (req, res) => {
+    try {
+      const grade = parseInt(req.params.grade);
+      const subject = req.params.subject;
+      
+      if (![3, 4, 5].includes(grade) || !['math', 'reading'].includes(subject)) {
+        return res.status(400).json({ message: "Invalid grade or subject" });
+      }
+
+      const { getTeksCategories } = await import('./questionGenerator');
+      const categories = getTeksCategories(grade, subject as "math" | "reading");
+      
+      res.json(categories);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      res.status(500).json({ message: "Failed to fetch categories" });
+    }
+  });
+
+  // Generate questions for specific TEKS category
+  app.post('/api/questions/generate-category', isAuthenticated, async (req: any, res) => {
+    try {
+      const { grade, subject, category, count = 5 } = req.body;
+      
+      if (![3, 4, 5].includes(grade) || !['math', 'reading'].includes(subject)) {
+        return res.status(400).json({ message: "Invalid grade or subject" });
+      }
+
+      const { generateQuestionWithPerplexity, getRandomTeksStandard } = await import('./questionGenerator');
+      
+      const questions = [];
+      for (let i = 0; i < count; i++) {
+        try {
+          const teksStandard = getRandomTeksStandard(grade, subject as "math" | "reading", category);
+          const questionData = await generateQuestionWithPerplexity(grade, subject as "math" | "reading", teksStandard, category);
+          
+          // Save to database
+          const savedQuestion = await storage.createQuestion(questionData);
+          questions.push(savedQuestion);
+        } catch (error) {
+          console.error(`Error generating question ${i + 1}:`, error);
+          // Continue with other questions
+        }
+      }
+
+      if (questions.length === 0) {
+        return res.status(500).json({ message: "Failed to generate any questions" });
+      }
+
+      res.json(questions);
+    } catch (error) {
+      console.error("Error generating category questions:", error);
+      res.status(500).json({ message: "Failed to generate questions" });
+    }
+  });
+
   // Practice attempt routes
   app.post('/api/practice/attempt', isAuthenticated, async (req: any, res) => {
     try {

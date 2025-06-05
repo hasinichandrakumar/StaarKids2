@@ -35,7 +35,8 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
 
   const generateQuestionsMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest("POST", "/api/questions/generate", {
+      const endpoint = category ? "/api/questions/generate-category" : "/api/questions/generate";
+      const response = await apiRequest("POST", endpoint, {
         grade,
         subject,
         category,
@@ -47,7 +48,7 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
       queryClient.invalidateQueries({ queryKey: ["/api/questions", grade, subject, category] });
       queryClient.invalidateQueries({ queryKey: ["/api/questions", grade, subject] });
       toast({
-        title: "New Questions Generated",
+        title: "New STAAR-Style Questions Generated",
         description: `5 new ${subject} questions created based on authentic STAAR tests!`,
       });
     },
