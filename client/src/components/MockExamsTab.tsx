@@ -10,12 +10,14 @@ interface MockExamsTabProps {
 
 export default function MockExamsTab({ grade }: MockExamsTabProps) {
   const { data: allExams } = useQuery({
-    queryKey: ["/api/exams"],
-    queryFn: () => fetch("/api/exams?grade=" + grade).then(res => res.json())
+    queryKey: ["/api/exams", grade],
+    queryFn: () => fetch(`/api/exams/${grade}`).then(res => res.json())
   });
 
   const { data: examHistory } = useQuery({
-    queryKey: ["/api/exams/history"],
+    queryKey: ["/api/exams/history", grade],
+    queryFn: () => fetch(`/api/exams/history?grade=${grade}`).then(res => res.json()),
+    enabled: !!grade
   });
 
   const getScoreColor = (score: number) => {
@@ -42,8 +44,8 @@ export default function MockExamsTab({ grade }: MockExamsTabProps) {
     <div key={exam.id} className="border border-gray-200 rounded-xl p-4 hover:border-primary transition-colors">
       <div className="flex items-center justify-between mb-2">
         <h4 className="font-semibold text-gray-700">{exam.name}</h4>
-        <span className="text-sm bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-          {exam.year}
+        <span className="text-sm bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
+          Grade {exam.grade}
         </span>
       </div>
       <p className="text-sm text-gray-500 mb-3 flex items-center">
