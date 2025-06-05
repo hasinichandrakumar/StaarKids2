@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { ChartBarIcon, BookOpenIcon, CalculatorIcon } from "@heroicons/react/24/outline";
-import { TrendingUp, Target, Brain, Clock, Award, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { ChartBarIcon } from "@heroicons/react/24/outline";
+import { TrendingUp, Target, Brain, Clock, Award, AlertTriangle, CheckCircle2, Calculator, BookOpen } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import ProgressRing from "@/components/ProgressRing";
@@ -122,7 +122,7 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
           <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500">
             <CardTitle className="flex items-center justify-between text-white">
               <div className="flex items-center gap-2">
-                <CalculatorIcon className="w-6 h-6 drop-shadow-sm" />
+                <Calculator className="w-6 h-6 drop-shadow-sm" />
                 Mathematics
               </div>
               <Badge className="bg-white/20 text-white border-white/30">
@@ -193,7 +193,7 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
           <CardHeader className="bg-gradient-to-r from-yellow-500 to-amber-500">
             <CardTitle className="flex items-center justify-between text-white">
               <div className="flex items-center gap-2">
-                <BookOpenIcon className="w-6 h-6 drop-shadow-sm" />
+                <BookOpen className="w-6 h-6 drop-shadow-sm" />
                 Reading
               </div>
               <Badge className="bg-white/20 text-white border-white/30">
