@@ -146,9 +146,6 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
                       size={100} 
                     />
                   </div>
-                  <h3 className="text-3xl font-bold text-orange-600 mb-1">
-                    {Math.round(overallMathAccuracy)}%
-                  </h3>
                   <p className="text-gray-600">Overall Math Performance</p>
                 </div>
                 
@@ -217,9 +214,6 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
                       size={100} 
                     />
                   </div>
-                  <h3 className="text-3xl font-bold text-yellow-600 mb-1">
-                    {Math.round(overallReadingAccuracy)}%
-                  </h3>
                   <p className="text-gray-600">Overall Reading Performance</p>
                 </div>
                 
