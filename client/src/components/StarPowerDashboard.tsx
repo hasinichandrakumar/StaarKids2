@@ -53,8 +53,8 @@ export default function StarPowerDashboard() {
         </CardContent>
       </Card>
 
-      {/* Weekly Starpower - Medium */}
-      <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200 hover:shadow-lg transition-shadow">
+      {/* Weekly Starpower - Combination of daily (yellow) and all-time (orange) */}
+      <Card className="bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 border-amber-200 hover:shadow-lg transition-shadow">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-amber-700 flex items-center">
             <Clock className="w-4 h-4 mr-2" />
