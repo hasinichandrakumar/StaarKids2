@@ -397,9 +397,50 @@ Respond with JSON array:
   // Generate additional mock exams
   app.post('/api/generate-exams', isAuthenticated, async (req: any, res) => {
     try {
-      const { initializeMockExams } = await import('../server/examGenerator');
-      await initializeMockExams();
-      res.json({ message: "Mock exams generated successfully" });
+      console.log('Starting generation of 6 practice tests per grade/subject...');
+      
+      const grades = [3, 4, 5];
+      const subjects: ('math' | 'reading')[] = ['math', 'reading'];
+      let totalGenerated = 0;
+      
+      for (const grade of grades) {
+        for (const subject of subjects) {
+          // Generate 6 practice tests per grade/subject combination
+          for (let examNumber = 1; examNumber <= 6; examNumber++) {
+            try {
+              const examName = `STAAR Grade ${grade} ${subject === 'math' ? 'Mathematics' : 'Reading'} Practice Test ${examNumber}`;
+              
+              // Check if exam already exists
+              const existingExams = await storage.getMockExams(grade);
+              const examExists = existingExams.find(exam => exam.name === examName);
+              
+              if (!examExists) {
+                const questionCount = subject === 'math' 
+                  ? (grade === 3 ? 36 : grade === 4 ? 40 : 36)
+                  : (grade === 3 ? 40 : grade === 4 ? 44 : 46);
+
+                await storage.createMockExam({
+                  name: examName,
+                  grade,
+                  subject,
+                  totalQuestions: questionCount,
+                  timeLimit: subject === 'math' ? 240 : 180
+                });
+                
+                totalGenerated++;
+                console.log(`Generated: ${examName}`);
+              }
+            } catch (error) {
+              console.error(`Error generating exam ${examNumber} for Grade ${grade} ${subject}:`, error);
+            }
+          }
+        }
+      }
+      
+      res.json({ 
+        message: `Mock exams generated successfully. Created ${totalGenerated} new exams.`,
+        totalGenerated 
+      });
     } catch (error) {
       console.error('Error generating mock exams:', error);
       res.status(500).json({ message: "Failed to generate mock exams" });
