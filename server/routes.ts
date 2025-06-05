@@ -96,6 +96,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Mock exam routes
+  app.get('/api/exams', isAuthenticated, async (req, res) => {
+    try {
+      const grade = req.query.grade ? parseInt(req.query.grade as string) : null;
+      
+      if (grade && ![3, 4, 5].includes(grade)) {
+        return res.status(400).json({ message: "Invalid grade" });
+      }
+
+      // If no grade specified, return all exams
+      if (!grade) {
+        const allExams = [];
+        for (const g of [3, 4, 5]) {
+          const gradeExams = await storage.getMockExams(g);
+          allExams.push(...gradeExams);
+        }
+        return res.json(allExams);
+      }
+
+      const exams = await storage.getMockExams(grade);
+      res.json(exams);
+    } catch (error) {
+      console.error("Error fetching mock exams:", error);
+      res.status(500).json({ message: "Failed to fetch mock exams" });
+    }
+  });
+
   app.get('/api/exams/:grade', isAuthenticated, async (req, res) => {
     try {
       const grade = parseInt(req.params.grade);
@@ -131,12 +157,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/exams/history', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const grade = req.query.grade ? parseInt(req.query.grade as string) : null;
-      
-      if (grade && ![3, 4, 5].includes(grade)) {
-        return res.status(400).json({ message: "Invalid grade" });
-      }
-      
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
       const history = await storage.getUserExamHistory(userId, limit);
       res.json(history);
