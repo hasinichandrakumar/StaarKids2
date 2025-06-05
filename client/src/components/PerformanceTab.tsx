@@ -4,6 +4,7 @@ import { TrendingUp, Target, Brain, Clock, Award, AlertTriangle, CheckCircle2 } 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import ProgressRing from "@/components/ProgressRing";
+import AccuracyDashboard from "@/components/AccuracyDashboard";
 
 interface PerformanceTabProps {
   grade: number;
@@ -110,6 +111,9 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
         <h2 className="text-2xl font-bold text-gray-800 mb-2">Grade {grade} STAAR Performance Dashboard</h2>
         <p className="text-gray-600">Detailed analytics aligned with Texas Essential Knowledge and Skills (TEKS) standards</p>
       </div>
+
+      {/* Comprehensive Accuracy Dashboard */}
+      <AccuracyDashboard selectedGrade={grade} />
 
       {/* Overall Performance Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
