@@ -347,7 +347,10 @@ export class DatabaseStorage implements IStorage {
         ? (recentWeightedAverage * 0.7) + ((Number(stats[0]?.averageScore) || 0) * 0.3)
         : Number(stats[0]?.averageScore) || 0;
       
-      stats[0].averageScore = blendedScore;
+      // Update the stats object with the blended score
+      if (stats[0]) {
+        stats[0] = { ...stats[0], averageScore: blendedScore };
+      }
     }
 
     const result = stats[0];
