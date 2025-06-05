@@ -107,7 +107,7 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
   return (
     <div className="space-y-8">
       {/* Grade Overview Header */}
-      <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-xl p-6 border border-orange-100">
+      <div className="bg-gradient-to-r from-red-50 to-yellow-50 rounded-xl p-6 border border-red-100">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">Grade {grade} STAAR Performance Dashboard</h2>
         <p className="text-gray-600">Detailed analytics aligned with Texas Essential Knowledge and Skills (TEKS) standards</p>
       </div>
@@ -118,14 +118,14 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
       {/* Overall Performance Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Math Performance */}
-        <Card className="border-orange-200">
-          <CardHeader className="bg-orange-50">
-            <CardTitle className="flex items-center justify-between text-orange-800">
+        <Card className="border-red-200">
+          <CardHeader className="bg-red-50">
+            <CardTitle className="flex items-center justify-between text-red-800">
               <div className="flex items-center gap-2">
                 <CalculatorIcon className="w-6 h-6" />
                 Mathematics
               </div>
-              <Badge className="bg-orange-100 text-orange-700">
+              <Badge className="bg-red-100 text-red-700">
                 Grade {grade} TEKS
               </Badge>
             </CardTitle>
@@ -133,7 +133,7 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
           <CardContent className="p-6">
             {mathLoading ? (
               <div className="flex items-center justify-center h-32">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
               </div>
             ) : (
               <div className="space-y-6">
@@ -142,11 +142,11 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
                   <div className="flex justify-center mb-4">
                     <ProgressRing 
                       progress={overallMathAccuracy} 
-                      color="#EA580C" 
+                      color="#DC2626" 
                       size={100} 
                     />
                   </div>
-                  <h3 className="text-3xl font-bold text-orange-600 mb-1">
+                  <h3 className="text-3xl font-bold text-red-600 mb-1">
                     {Math.round(overallMathAccuracy)}%
                   </h3>
                   <p className="text-gray-600">Overall Math Performance</p>
