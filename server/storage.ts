@@ -1,0 +1,273 @@
+import {
+  users,
+  questions,
+  practiceAttempts,
+  mockExams,
+  mockExamQuestions,
+  examAttempts,
+  userProgress,
+  type User,
+  type UpsertUser,
+  type Question,
+  type InsertQuestion,
+  type PracticeAttempt,
+  type InsertPracticeAttempt,
+  type MockExam,
+  type InsertMockExam,
+  type ExamAttempt,
+  type InsertExamAttempt,
+  type UserProgress,
+  type InsertUserProgress,
+  type UpdateUser,
+} from "@shared/schema";
+import { db } from "./db";
+import { eq, and, desc, avg, count, sql } from "drizzle-orm";
+
+// Interface for storage operations
+export interface IStorage {
+  // User operations (IMPORTANT) these user operations are mandatory for Replit Auth.
+  getUser(id: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
+  updateUserProfile(id: string, updates: UpdateUser): Promise<User>;
+  
+  // Question operations
+  getQuestionsByGradeAndSubject(grade: number, subject: string): Promise<Question[]>;
+  getQuestionsByTeksStandard(grade: number, subject: string, teksStandard: string): Promise<Question[]>;
+  createQuestion(question: InsertQuestion): Promise<Question>;
+  
+  // Practice attempt operations
+  createPracticeAttempt(attempt: InsertPracticeAttempt): Promise<PracticeAttempt>;
+  getUserPracticeHistory(userId: string, limit?: number): Promise<PracticeAttempt[]>;
+  
+  // Mock exam operations
+  getMockExams(grade: number): Promise<MockExam[]>;
+  createMockExam(exam: InsertMockExam): Promise<MockExam>;
+  createExamAttempt(attempt: InsertExamAttempt): Promise<ExamAttempt>;
+  getUserExamHistory(userId: string, limit?: number): Promise<ExamAttempt[]>;
+  
+  // Progress tracking
+  getUserProgress(userId: string, grade: number): Promise<UserProgress[]>;
+  updateUserProgress(progress: InsertUserProgress): Promise<UserProgress>;
+  getUserStats(userId: string, grade: number, subject: string): Promise<{
+    totalAttempts: number;
+    correctAttempts: number;
+    averageScore: number;
+    improvementTrend: number;
+  }>;
+}
+
+export class DatabaseStorage implements IStorage {
+  // User operations (IMPORTANT) these user operations are mandatory for Replit Auth.
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
+  }
+
+  async updateUserProfile(id: string, updates: UpdateUser): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(users.id, id))
+      .returning();
+    return user;
+  }
+
+  // Question operations
+  async getQuestionsByGradeAndSubject(grade: number, subject: string): Promise<Question[]> {
+    return await db
+      .select()
+      .from(questions)
+      .where(and(eq(questions.grade, grade), eq(questions.subject, subject)))
+      .limit(20);
+  }
+
+  async getQuestionsByTeksStandard(grade: number, subject: string, teksStandard: string): Promise<Question[]> {
+    return await db
+      .select()
+      .from(questions)
+      .where(
+        and(
+          eq(questions.grade, grade),
+          eq(questions.subject, subject),
+          eq(questions.teksStandard, teksStandard)
+        )
+      )
+      .limit(10);
+  }
+
+  async createQuestion(question: InsertQuestion): Promise<Question> {
+    const [newQuestion] = await db
+      .insert(questions)
+      .values(question)
+      .returning();
+    return newQuestion;
+  }
+
+  // Practice attempt operations
+  async createPracticeAttempt(attempt: InsertPracticeAttempt): Promise<PracticeAttempt> {
+    const [newAttempt] = await db
+      .insert(practiceAttempts)
+      .values(attempt)
+      .returning();
+    
+    // Update user's star power if correct
+    if (attempt.isCorrect && !attempt.skipped) {
+      const pointsEarned = attempt.hintsUsed === 0 ? 60 : Math.max(20, 60 - (attempt.hintsUsed * 10));
+      await db
+        .update(users)
+        .set({
+          starPower: sql`${users.starPower} + ${pointsEarned}`,
+        })
+        .where(eq(users.id, attempt.userId));
+    }
+    
+    return newAttempt;
+  }
+
+  async getUserPracticeHistory(userId: string, limit: number = 10): Promise<PracticeAttempt[]> {
+    return await db
+      .select()
+      .from(practiceAttempts)
+      .where(eq(practiceAttempts.userId, userId))
+      .orderBy(desc(practiceAttempts.createdAt))
+      .limit(limit);
+  }
+
+  // Mock exam operations
+  async getMockExams(grade: number): Promise<MockExam[]> {
+    return await db
+      .select()
+      .from(mockExams)
+      .where(eq(mockExams.grade, grade))
+      .orderBy(desc(mockExams.year));
+  }
+
+  async createMockExam(exam: InsertMockExam): Promise<MockExam> {
+    const [newExam] = await db
+      .insert(mockExams)
+      .values(exam)
+      .returning();
+    return newExam;
+  }
+
+  async createExamAttempt(attempt: InsertExamAttempt): Promise<ExamAttempt> {
+    const [newAttempt] = await db
+      .insert(examAttempts)
+      .values(attempt)
+      .returning();
+    return newAttempt;
+  }
+
+  async getUserExamHistory(userId: string, limit: number = 10): Promise<ExamAttempt[]> {
+    return await db
+      .select({
+        id: examAttempts.id,
+        userId: examAttempts.userId,
+        examId: examAttempts.examId,
+        score: examAttempts.score,
+        totalQuestions: examAttempts.totalQuestions,
+        correctAnswers: examAttempts.correctAnswers,
+        timeSpent: examAttempts.timeSpent,
+        completed: examAttempts.completed,
+        startedAt: examAttempts.startedAt,
+        completedAt: examAttempts.completedAt,
+        examName: mockExams.name,
+        examSubject: mockExams.subject,
+        examYear: mockExams.year,
+      })
+      .from(examAttempts)
+      .innerJoin(mockExams, eq(examAttempts.examId, mockExams.id))
+      .where(eq(examAttempts.userId, userId))
+      .orderBy(desc(examAttempts.startedAt))
+      .limit(limit) as any;
+  }
+
+  // Progress tracking
+  async getUserProgress(userId: string, grade: number): Promise<UserProgress[]> {
+    return await db
+      .select()
+      .from(userProgress)
+      .where(and(eq(userProgress.userId, userId), eq(userProgress.grade, grade)));
+  }
+
+  async updateUserProgress(progress: InsertUserProgress): Promise<UserProgress> {
+    const existing = await db
+      .select()
+      .from(userProgress)
+      .where(
+        and(
+          eq(userProgress.userId, progress.userId),
+          eq(userProgress.grade, progress.grade),
+          eq(userProgress.subject, progress.subject),
+          eq(userProgress.teksStandard, progress.teksStandard)
+        )
+      );
+
+    if (existing.length > 0) {
+      const [updated] = await db
+        .update(userProgress)
+        .set({
+          ...progress,
+          updatedAt: new Date(),
+        })
+        .where(eq(userProgress.id, existing[0].id))
+        .returning();
+      return updated;
+    } else {
+      const [newProgress] = await db
+        .insert(userProgress)
+        .values(progress)
+        .returning();
+      return newProgress;
+    }
+  }
+
+  async getUserStats(userId: string, grade: number, subject: string): Promise<{
+    totalAttempts: number;
+    correctAttempts: number;
+    averageScore: number;
+    improvementTrend: number;
+  }> {
+    const stats = await db
+      .select({
+        totalAttempts: count(),
+        correctAttempts: sql<number>`SUM(CASE WHEN ${practiceAttempts.isCorrect} = true THEN 1 ELSE 0 END)`,
+        averageScore: avg(sql<number>`CASE WHEN ${practiceAttempts.isCorrect} = true THEN 100 ELSE 0 END`),
+      })
+      .from(practiceAttempts)
+      .innerJoin(questions, eq(practiceAttempts.questionId, questions.id))
+      .where(
+        and(
+          eq(practiceAttempts.userId, userId),
+          eq(questions.grade, grade),
+          eq(questions.subject, subject)
+        )
+      );
+
+    const result = stats[0];
+    
+    return {
+      totalAttempts: result.totalAttempts || 0,
+      correctAttempts: Number(result.correctAttempts) || 0,
+      averageScore: Number(result.averageScore) || 0,
+      improvementTrend: 0, // TODO: Calculate trend over time
+    };
+  }
+}
+
+export const storage = new DatabaseStorage();

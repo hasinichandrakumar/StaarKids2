@@ -1,0 +1,122 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 210 40% 15%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 210 40% 15%;
+  --card: 0 0% 100%;
+  --card-foreground: 210 40% 15%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --primary: 18 100% 50%; /* #FF5B00 */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 45 100% 50%; /* #FCC201 */
+  --secondary-foreground: 0 0% 100%;
+  --accent: 210 40% 96%;
+  --accent-foreground: 210 40% 15%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 210 40% 15%;
+  --radius: 0.75rem;
+  --success: 142 76% 36%; /* #10B981 */
+  --warning: 38 92% 50%;
+  --gray-50: 210 17% 98%; /* #F8F9FA */
+  --gray-100: 212 17% 91%; /* #E9ECEF */
+  --gray-700: 215 25% 27%; /* #374151 */
+}
+
+.dark {
+  --background: 240 10% 4%;
+  --foreground: 0 0% 98%;
+  --muted: 240 4% 16%;
+  --muted-foreground: 240 5% 65%;
+  --popover: 240 10% 4%;
+  --popover-foreground: 0 0% 98%;
+  --card: 240 10% 4%;
+  --card-foreground: 0 0% 98%;
+  --border: 240 4% 16%;
+  --input: 240 4% 16%;
+  --primary: 18 100% 50%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 45 100% 50%;
+  --secondary-foreground: 0 0% 100%;
+  --accent: 240 4% 16%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 63% 31%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 240 5% 84%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-gray-50 font-sans antialiased text-foreground;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer utilities {
+  .bg-primary {
+    background-color: #FF5B00;
+  }
+  
+  .bg-secondary {
+    background-color: #FCC201;
+  }
+  
+  .text-primary {
+    color: #FF5B00;
+  }
+  
+  .text-secondary {
+    color: #FCC201;
+  }
+  
+  .border-primary {
+    border-color: #FF5B00;
+  }
+  
+  .border-secondary {
+    border-color: #FCC201;
+  }
+  
+  .hover\:bg-primary:hover {
+    background-color: #FF5B00;
+  }
+  
+  .hover\:text-primary:hover {
+    color: #FF5B00;
+  }
+  
+  .hover\:border-primary:hover {
+    border-color: #FF5B00;
+  }
+  
+  .bg-success {
+    background-color: #10B981;
+  }
+  
+  .text-success {
+    color: #10B981;
+  }
+  
+  .bg-gray-50 {
+    background-color: #F8F9FA;
+  }
+  
+  .bg-gray-100 {
+    background-color: #E9ECEF;
+  }
+  
+  .text-gray-700 {
+    color: #374151;
+  }
+}
