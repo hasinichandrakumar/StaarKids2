@@ -42,7 +42,7 @@ export default function Header({ user, onOpenAvatarModal, onOpenNovaChat }: Head
               Chat with Nova
             </Button>
             
-            {/* Star Power Points */}
+            {/* Starpower Points */}
             <div className="bg-secondary text-white px-4 py-2 rounded-full flex items-center space-x-2">
               <Star className="w-4 h-4" />
               <span className="font-semibold">{user.starPower?.toLocaleString() || 0}</span>

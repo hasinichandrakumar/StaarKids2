@@ -41,7 +41,7 @@ export default function StarPowerDashboard() {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-orange-700 flex items-center">
             <Calendar className="w-4 h-4 mr-2" />
-            Today's Stars
+            Today's Starpower
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -49,16 +49,16 @@ export default function StarPowerDashboard() {
             <Star className="w-6 h-6 text-yellow-500 fill-current" />
             <span className="text-2xl font-bold text-orange-800">{stats.dailyStarPower}</span>
           </div>
-          <p className="text-xs text-orange-600 mt-1">Stars earned today</p>
+          <p className="text-xs text-orange-600 mt-1">Starpower earned today</p>
         </CardContent>
       </Card>
 
-      {/* Weekly Star Power */}
+      {/* Weekly Starpower */}
       <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 hover:shadow-lg transition-shadow">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-blue-700 flex items-center">
             <Clock className="w-4 h-4 mr-2" />
-            This Week
+            This Week's Starpower
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -66,16 +66,16 @@ export default function StarPowerDashboard() {
             <Star className="w-6 h-6 text-blue-500 fill-current" />
             <span className="text-2xl font-bold text-blue-800">{stats.weeklyStarPower}</span>
           </div>
-          <p className="text-xs text-blue-600 mt-1">Stars earned this week</p>
+          <p className="text-xs text-blue-600 mt-1">Starpower earned this week</p>
         </CardContent>
       </Card>
 
-      {/* All-Time Star Power */}
+      {/* All-Time Starpower */}
       <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200 hover:shadow-lg transition-shadow">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-purple-700 flex items-center">
             <Trophy className="w-4 h-4 mr-2" />
-            All Time
+            All Time Starpower
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -83,7 +83,7 @@ export default function StarPowerDashboard() {
             <Star className="w-6 h-6 text-purple-500 fill-current" />
             <span className="text-2xl font-bold text-purple-800">{stats.allTimeStarPower.toLocaleString()}</span>
           </div>
-          <p className="text-xs text-purple-600 mt-1">Total stars earned</p>
+          <p className="text-xs text-purple-600 mt-1">Total starpower earned</p>
         </CardContent>
       </Card>
     </div>

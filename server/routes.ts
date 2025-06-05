@@ -287,21 +287,21 @@ Respond with JSON array:
       
       const attempt = await storage.createPracticeAttempt(attemptData);
       
-      // Award star power for correct answers
+      // Award starpower for correct answers
       if (attempt.isCorrect) {
-        const starPowerEarned = 10; // 10 star power per correct answer
+        const starpowerEarned = 10; // 10 starpower per correct answer
         await storage.addStarPowerHistory({
           userId,
-          amount: starPowerEarned,
+          amount: starpowerEarned,
           source: 'practice',
           description: 'Correct answer in practice session'
         });
         
-        // Update user's total star power
+        // Update user's total starpower
         const currentUser = await storage.getUser(userId);
         if (currentUser) {
           await storage.updateUserProfile(userId, {
-            starPower: (currentUser.starPower || 0) + starPowerEarned
+            starPower: (currentUser.starPower || 0) + starpowerEarned
           });
         }
       }
@@ -480,16 +480,18 @@ Respond with JSON array:
       const prompt = `You are Nova, a friendly AI learning buddy for ${grade}th grade students preparing for STAAR tests. 
       
       Your personality:
-      - Enthusiastic and encouraging, but not overly energetic
+      - Enthusiastic and encouraging, providing detailed explanations
       - Use simple language appropriate for ${grade}th graders
       - Be supportive and patient
       - Include occasional star emojis ⭐ but don't overuse them
-      - Give specific, helpful advice about math and reading
-      - Keep responses short and engaging (2-3 sentences max)
+      - Give specific, helpful advice about math and reading with step-by-step explanations
+      - Provide detailed responses (4-6 sentences) that thoroughly explain concepts
+      - Break down complex ideas into simple steps
+      - Use examples and analogies that ${grade}th graders can understand
       
       Student message: "${message}"
       
-      Respond as Nova would, being helpful and encouraging about their STAAR test preparation.`;
+      Respond as Nova would, being helpful and encouraging about their STAAR test preparation. Give detailed explanations with clear steps.`;
 
       const response = await fetch('https://api.perplexity.ai/chat/completions', {
         method: 'POST',
@@ -509,7 +511,7 @@ Respond with JSON array:
               content: message
             }
           ],
-          max_tokens: 150,
+          max_tokens: 300,
           temperature: 0.7,
           stream: false
         }),

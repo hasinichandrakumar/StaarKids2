@@ -33,7 +33,7 @@ export default function NovaChat({ grade, isOpen, onClose }: NovaChatProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      content: `Hi there! I'm Nova, your learning buddy! ⭐ I'm here to help you with your STAAR test prep. How are you feeling about ${grade}th grade today?`,
+      content: `Hi there! I'm Nova, your learning buddy! ⭐ I'm here to help you with your STAAR test prep. I love giving detailed explanations to help you understand everything step by step. You'll earn starpower for every correct answer you get! How are you feeling about ${grade}th grade today?`,
       isUser: false,
       timestamp: new Date()
     }
