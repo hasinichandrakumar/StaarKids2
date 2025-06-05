@@ -26,8 +26,8 @@ export default function WelcomeSection({ user }: WelcomeSectionProps) {
               <span className="text-xl font-bold ml-2">{user.currentGrade || 4}</span>
             </div>
             <div className="bg-white bg-opacity-20 rounded-lg px-4 py-2">
-              <span className="text-sm font-medium">Rank:</span>
-              <span className="text-xl font-bold ml-2">{user.userRank || "Cadet"}</span>
+              <span className="text-sm font-medium">Star Power:</span>
+              <span className="text-xl font-bold ml-2">{user.starPower || 0}</span>
             </div>
           </div>
         </div>

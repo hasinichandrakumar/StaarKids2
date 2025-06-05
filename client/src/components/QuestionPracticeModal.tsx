@@ -52,7 +52,7 @@ export default function QuestionPracticeModal({ grade, subject, onClose }: Quest
         grade,
         subject,
       });
-      setAiExplanation(response.explanation);
+      setAiExplanation(response.explanation || "Here's the correct answer and explanation.");
     } catch (error) {
       console.error("Error getting AI explanation:", error);
       setAiExplanation("Sorry, I couldn't generate an explanation right now. Please try again later.");
@@ -99,10 +99,9 @@ export default function QuestionPracticeModal({ grade, subject, onClose }: Quest
         onClose();
       }
     } else {
-      // Show AI explanation for incorrect answer
+      // Show explanation for incorrect answer without AI for now
       setShowExplanation(true);
-      const userAnswerChoice = currentQuestion.answer_choices.find((choice: any) => choice.id === selectedAnswer);
-      await getAiExplanation(currentQuestion, userAnswerChoice?.text || selectedAnswer, currentQuestion.correctAnswer);
+      setAiExplanation(`The correct answer is ${currentQuestion.correctAnswer}. ${currentQuestion.explanation}`);
     }
   };
 
