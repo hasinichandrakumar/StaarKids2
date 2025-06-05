@@ -1,0 +1,101 @@
+🧠 1. Define the Purpose
+
+Goal:
+Empower Texas students in grades 3–5 to effectively prepare for STAAR tests in Math and Reading through personalized, engaging, and standards-aligned practice.
+
+Users:
+
+Primary: Texas students (grades 3–5)
+Secondary: Parents and teachers (monitoring and support roles)
+AI Use Cases:
+
+Adaptive personalized learning paths tailored to student strengths and weaknesses
+Instant, detailed feedback on answers with step-by-step explanations
+Smart generation of practice questions and full-length tests based on past STAAR patterns and TEKS standards
+Design Inspiration:
+
+Test structure and rigor modeled after Acely (structured, standards-aligned practice)
+User experience, engagement, and gamification inspired by Duolingo (clean, motivating, fun)
+🧩 2. Design the Features
+
+📚 Core Content
+Complete STAAR Archive:
+All STAAR Math and Reading test questions from 2013 through 2025
+Organized by year and grade level
+Answer Explanations:
+Detailed, step-by-step explanations for every answer choice (correct and incorrect) to clarify misconceptions
+Question Toggle Feature:
+For each question, an option to toggle and try a similar question from the same year’s test set (no AI generation here, only from previous years’ questions)
+AI-Generated Practice:
+For students who exhaust previous test questions, generate new AI-crafted practice questions or full-length practice tests
+Options to “Regenerate” a question (get a new one of similar difficulty/topic) or “Simplify” a question for easier understanding
+Standards Organization:
+Questions categorized by TEKS standards, which update yearly to reflect curriculum changes
+Question Skipping:
+Students can skip questions, but skipped questions count as incorrect and do not get replaced (promotes accountability)
+📊 Scoring and Feedback
+Percentile Score:
+Display percentile ranking relative to other users to motivate and contextualize performance
+Hints:
+Limit of 3 hints per question set to encourage critical thinking
+🎨 Aesthetics & Personalization
+Avatars:
+5 character options: Bunny, Fox, Turtle, Starfish, Giraffe
+Each avatar customizable with multiple color choices
+Color Theme:
+Bright orange: #FF5B00
+Golden yellow: #FCC201
+Clean, warm, and motivating palette that appeals to kids and parents
+🎮 Gamification
+Star Power Points:
+Earned through practice, tests, and milestones
+Used to unlock special avatar customizations and badges
+Profile and Progress Display:
+Visual display of avatar with earned badges and Star Power points
+Level/rank system reflecting mastery (Cadet → Commander, etc.)
+🗂️ Dashboard Tabs & Navigation
+Grade Selector:
+Ability to switch between grades 3, 4, and 5
+Practice Tab:
+Sub-tabs: Math, Reading
+Shows TEKS skills needed (e.g., fractions, percentages)
+Access to AI-generated practice questions aligned to TEKS
+Mock Exams Tab:
+Sub-tabs: Math, Reading
+Access to full-length previous years’ STAAR exams (2013–2025)
+AI-generated full-length practice tests
+Option to review past test results with detailed missed-question analytics
+Performance Tab:
+Two graphs tracking ongoing performance (Math and Reading separately)
+Highlights skills/TEKS that need improvement based on test results
+Tracks trends: improvement, consistency, or decline
+🚀 3. Future Plans & Enhancements
+
+Parent/Teacher Integration:
+Link parent or teacher accounts to student profiles
+Send automated weekly or monthly progress reports to parent emails
+Teacher portals for classroom monitoring and targeted assignments
+Difficulty Levels:
+Allow students to select question difficulty (e.g., Beginner, Intermediate, Advanced) to match confidence and skill
+Student Support:
+Option for students to ask follow-up questions like “Why is this wrong?” with AI chatbot tutor assistance
+Interactive Learning Materials:
+Addition of short interactive video lessons or animations for tricky concepts
+🤖 AI-Specific Features
+
+Adaptive Learning Engine:
+Dynamically adjusts question difficulty and content based on ongoing student performance and mastery
+Chatbot Tutor:
+GPT-powered assistant to provide instant, personalized explanations, hints, and motivation
+Data-Driven Insights:
+Aggregates student data to provide actionable insights on skill gaps and growth trends
+📚 4. Build or Source Content
+
+Utilize released STAAR test items from the Texas Education Agency (TEA) as the core curriculum-aligned question bank
+Organize the question bank by:
+Grade (3, 4, 5)
+Subject (Math, Reading)
+TEKS standards (with yearly updates)
+📝 Name Idea
+
+Staarkid
