@@ -26,10 +26,16 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
   const mathProgress = mathStats ? Math.round((mathStats as any).averageScore || 0) : 0;
   const readingProgress = readingStats ? Math.round((readingStats as any).averageScore || 0) : 0;
 
-  const getSkillStatus = (accuracy: number) => {
-    if (accuracy >= 80) return { label: "Excellent", color: "bg-primary text-white" };
-    if (accuracy >= 65) return { label: "Good", color: "bg-success text-white" };
-    return { label: "Needs Work", color: "bg-secondary text-white" };
+  const getMathSkillStatus = (accuracy: number) => {
+    if (accuracy >= 80) return { label: "Excellent", color: "bg-green-600 text-white" };
+    if (accuracy >= 65) return { label: "Good", color: "bg-blue-600 text-white" };
+    return { label: "Needs Work", color: "bg-orange-600 text-white" };
+  };
+
+  const getReadingSkillStatus = (accuracy: number) => {
+    if (accuracy >= 80) return { label: "Excellent", color: "bg-green-600 text-white" };
+    if (accuracy >= 65) return { label: "Good", color: "bg-blue-600 text-white" };
+    return { label: "Needs Work", color: "bg-yellow-600 text-white" };
   };
 
   const getMathSkills = (grade: number) => {
@@ -121,7 +127,7 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
               <h4 className="text-sm font-semibold text-gray-600 mb-3">TEKS Skills to Practice:</h4>
               <div className="space-y-2">
                 {mathSkills.map((skill, index) => {
-                  const status = getSkillStatus(skill.accuracy);
+                  const status = getMathSkillStatus(skill.accuracy);
                   return (
                     <button
                       key={index}
@@ -167,7 +173,7 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
               <h4 className="text-sm font-semibold text-gray-600 mb-3">TEKS Skills to Practice:</h4>
               <div className="space-y-2">
                 {readingSkills.map((skill, index) => {
-                  const status = getSkillStatus(skill.accuracy);
+                  const status = getReadingSkillStatus(skill.accuracy);
                   return (
                     <button
                       key={index}
