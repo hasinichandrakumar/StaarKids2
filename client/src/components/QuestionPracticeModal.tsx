@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Lightbulb, X, Clock } from "lucide-react";
+import { StarIcon, SparklesIcon } from "@heroicons/react/24/solid";
 
 interface QuestionPracticeModalProps {
   grade: number;
@@ -76,30 +77,27 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
     },
   });
 
-  const getAiExplanation = async (question: any, userAnswer: string, correctAnswer: string) => {
+  const getNovaExplanation = async (question: any, userAnswer: string, correctAnswer: string, isCorrect: boolean) => {
     setLoadingExplanation(true);
     try {
-      const response = await fetch("/api/chat/explain", {
+      const response = await fetch("/api/nova-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          question: question.question_text,
-          userAnswer,
-          correctAnswer,
-          grade,
-          subject,
+          message: `I just answered a ${subject} question: "${question.question_text}" I chose "${userAnswer}" and the correct answer is "${correctAnswer}". ${isCorrect ? 'I got it right!' : 'I got it wrong.'} Can you explain this to me?`,
+          grade
         }),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to get explanation");
+        throw new Error("Failed to get Nova's explanation");
       }
 
       const data = await response.json();
-      setAiExplanation(data.explanation || "Here's the correct answer and explanation.");
+      setAiExplanation(data.response || "Great job working on this question! Keep practicing and you'll do amazing! ⭐");
     } catch (error) {
-      console.error("Error getting AI explanation:", error);
-      setAiExplanation("Sorry, I couldn't generate an explanation right now. Please try again later.");
+      console.error("Error getting Nova's explanation:", error);
+      setAiExplanation("Great job working on this question! I'm here to help you learn. Keep practicing and you'll do amazing! ⭐");
     } finally {
       setLoadingExplanation(false);
     }
@@ -141,10 +139,10 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
         onClose();
       }
     } else {
-      // Show AI explanation for incorrect answer
+      // Show Nova's explanation for incorrect answer
       setShowExplanation(true);
       const userAnswerChoice = currentQuestion.answer_choices.find((choice: any) => choice.id === selectedAnswer);
-      await getAiExplanation(currentQuestion, userAnswerChoice?.text || selectedAnswer, currentQuestion.correctAnswer);
+      await getNovaExplanation(currentQuestion, userAnswerChoice?.text || selectedAnswer, currentQuestion.correctAnswer, false);
     }
   };
 
@@ -236,31 +234,41 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
             </div>
           </div>
 
-          {/* AI Explanation Display */}
+          {/* Nova's Explanation Display */}
           {showExplanation && (
-            <div className="mb-6 p-6 bg-red-50 border border-red-200 rounded-xl">
+            <div className="mb-6 p-6 bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl">
               <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Lightbulb className="w-4 h-4 text-red-600" />
+                <div className="relative flex-shrink-0">
+                  <StarIcon className="w-12 h-12 text-yellow-400 drop-shadow-lg" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-6 h-6 bg-gradient-to-br from-yellow-300 to-orange-400 rounded-full flex items-center justify-center">
+                      <SparklesIcon className="w-3 h-3 text-white" />
+                    </div>
+                  </div>
                 </div>
                 <div className="flex-1">
-                  <h4 className="text-lg font-semibold text-red-800 mb-2">Let me explain that!</h4>
+                  <h4 className="text-lg font-semibold text-orange-800 mb-2 flex items-center">
+                    Nova explains
+                    <SparklesIcon className="w-4 h-4 ml-2 text-yellow-500" />
+                  </h4>
                   {loadingExplanation ? (
                     <div className="flex items-center space-x-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
-                      <span className="text-red-700">Getting personalized explanation...</span>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-yellow-500"></div>
+                      <span className="text-orange-700">Nova is thinking about your answer...</span>
                     </div>
                   ) : (
                     <>
-                      <p className="text-red-700 mb-4">{aiExplanation}</p>
-                      <div className="bg-white p-3 rounded-lg border border-red-100 mb-4">
-                        <p className="text-sm text-gray-600 mb-1">Correct Answer:</p>
-                        <p className="font-medium text-green-700">{currentQuestion.correctAnswer}</p>
-                        <p className="text-sm text-gray-600 mt-2">{currentQuestion.explanation}</p>
+                      <div className="bg-white p-4 rounded-lg border border-yellow-100 mb-4 shadow-sm">
+                        <p className="text-orange-700 mb-3">{aiExplanation}</p>
+                        <div className="border-t border-yellow-100 pt-3">
+                          <p className="text-sm text-gray-600 mb-1">Correct Answer:</p>
+                          <p className="font-medium text-green-700">{currentQuestion.correctAnswer}</p>
+                          <p className="text-sm text-gray-600 mt-2">{currentQuestion.explanation}</p>
+                        </div>
                       </div>
                       <Button 
                         onClick={handleNextQuestion}
-                        className="bg-primary hover:bg-primary/90"
+                        className="bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-white"
                       >
                         Next Question
                       </Button>
