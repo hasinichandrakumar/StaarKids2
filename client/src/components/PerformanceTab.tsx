@@ -107,9 +107,9 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
   return (
     <div className="space-y-8">
       {/* Grade Overview Header */}
-      <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-xl p-6 border border-orange-200">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Grade {grade} STAAR Performance Dashboard</h2>
-        <p className="text-gray-600">Detailed analytics aligned with Texas Essential Knowledge and Skills (TEKS) standards</p>
+      <div className="bg-gradient-to-r from-orange-400 via-orange-500 to-yellow-400 rounded-xl p-6 border border-orange-300 shadow-lg">
+        <h2 className="text-2xl font-bold text-white mb-2 drop-shadow-sm">Grade {grade} STAAR Performance Dashboard</h2>
+        <p className="text-orange-50">Detailed analytics aligned with Texas Essential Knowledge and Skills (TEKS) standards</p>
       </div>
 
       {/* Comprehensive Accuracy Dashboard */}
@@ -118,19 +118,19 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
       {/* Overall Performance Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Math Performance */}
-        <Card className="border-orange-200">
-          <CardHeader className="bg-orange-50">
-            <CardTitle className="flex items-center justify-between text-orange-800">
+        <Card className="border-orange-300 shadow-xl overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500">
+            <CardTitle className="flex items-center justify-between text-white">
               <div className="flex items-center gap-2">
-                <CalculatorIcon className="w-6 h-6" />
+                <CalculatorIcon className="w-6 h-6 drop-shadow-sm" />
                 Mathematics
               </div>
-              <Badge className="bg-orange-100 text-orange-700">
+              <Badge className="bg-white/20 text-white border-white/30">
                 Grade {grade} TEKS
               </Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-6">
+          <CardContent className="p-6 bg-gradient-to-br from-orange-50 to-red-50">
             {mathLoading ? (
               <div className="flex items-center justify-center h-32">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
@@ -138,7 +138,7 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
             ) : (
               <div className="space-y-6">
                 {/* Overall Math Stats */}
-                <div className="text-center">
+                <div className="text-center bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-sm">
                   <div className="flex justify-center mb-4">
                     <ProgressRing 
                       progress={overallMathAccuracy} 
@@ -189,19 +189,19 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
         </Card>
 
         {/* Reading Performance */}
-        <Card className="border-yellow-200">
-          <CardHeader className="bg-yellow-50">
-            <CardTitle className="flex items-center justify-between text-yellow-800">
+        <Card className="border-yellow-300 shadow-xl overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-yellow-500 to-amber-500">
+            <CardTitle className="flex items-center justify-between text-white">
               <div className="flex items-center gap-2">
-                <BookOpenIcon className="w-6 h-6" />
+                <BookOpenIcon className="w-6 h-6 drop-shadow-sm" />
                 Reading
               </div>
-              <Badge className="bg-yellow-100 text-yellow-700">
+              <Badge className="bg-white/20 text-white border-white/30">
                 Grade {grade} TEKS
               </Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-6">
+          <CardContent className="p-6 bg-gradient-to-br from-yellow-50 to-amber-50">
             {readingLoading ? (
               <div className="flex items-center justify-center h-32">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-600"></div>
@@ -209,7 +209,7 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
             ) : (
               <div className="space-y-6">
                 {/* Overall Reading Stats */}
-                <div className="text-center">
+                <div className="text-center bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-sm">
                   <div className="flex justify-center mb-4">
                     <ProgressRing 
                       progress={overallReadingAccuracy} 
