@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { ChartBarIcon, TrendingUpIcon } from "@heroicons/react/24/outline";
+import { ChartBarIcon } from "@heroicons/react/24/outline";
+import { TrendingUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 interface PerformanceTabProps {
@@ -60,7 +61,7 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-success flex items-center justify-center">
-                  <TrendingUpIcon className="w-6 h-6 mr-1" />
+                  <TrendingUp className="w-6 h-6 mr-1" />
                   {mathStats ? `+${Math.round(mathStats.improvementTrend || 0)}` : "+0"}%
                 </p>
                 <p className="text-sm text-gray-500">Improvement</p>
@@ -90,7 +91,7 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-success flex items-center justify-center">
-                  <TrendingUpIcon className="w-6 h-6 mr-1" />
+                  <TrendingUp className="w-6 h-6 mr-1" />
                   {readingStats ? `+${Math.round(readingStats.improvementTrend || 0)}` : "+0"}%
                 </p>
                 <p className="text-sm text-gray-500">Improvement</p>

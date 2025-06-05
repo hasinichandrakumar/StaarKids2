@@ -127,7 +127,7 @@ export class DatabaseStorage implements IStorage {
     
     // Update user's star power if correct
     if (attempt.isCorrect && !attempt.skipped) {
-      const pointsEarned = attempt.hintsUsed === 0 ? 60 : Math.max(20, 60 - (attempt.hintsUsed * 10));
+      const pointsEarned = (attempt.hintsUsed || 0) === 0 ? 60 : Math.max(20, 60 - ((attempt.hintsUsed || 0) * 10));
       await db
         .update(users)
         .set({
