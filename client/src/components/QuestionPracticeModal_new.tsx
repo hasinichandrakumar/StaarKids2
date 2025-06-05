@@ -43,14 +43,24 @@ export default function QuestionPracticeModal({ grade, subject, onClose }: Quest
   const getAiExplanation = async (question: any, userAnswer: string, correctAnswer: string) => {
     setLoadingExplanation(true);
     try {
-      const response = await apiRequest("POST", "/api/chat/explain", {
-        question: question.question_text,
-        userAnswer,
-        correctAnswer,
-        grade,
-        subject,
+      const response = await fetch("/api/chat/explain", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          question: question.question_text,
+          userAnswer,
+          correctAnswer,
+          grade,
+          subject,
+        }),
       });
-      setAiExplanation(response.explanation || "Here's the correct answer and explanation.");
+
+      if (!response.ok) {
+        throw new Error("Failed to get explanation");
+      }
+
+      const data = await response.json();
+      setAiExplanation(data.explanation || "Here's the correct answer and explanation.");
     } catch (error) {
       console.error("Error getting AI explanation:", error);
       setAiExplanation("Sorry, I couldn't generate an explanation right now. Please try again later.");
@@ -123,52 +133,33 @@ export default function QuestionPracticeModal({ grade, subject, onClose }: Quest
       questionId: currentQuestion.id,
       selectedAnswer: null,
       isCorrect: false,
-      hintsUsed,
+      hintsUsed: 0,
       timeSpent,
       skipped: true,
     });
 
     toast({
       title: "Question Skipped",
-      description: "This question will count as incorrect.",
-      variant: "destructive",
+      description: "Moving to the next question.",
     });
 
-    // Move to next question or close modal
+    // Move to next question
     if (currentQuestionIndex < (questions?.length || 0) - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
       setSelectedAnswer("");
-      setHintsUsed(0);
-      setShowHint(false);
     } else {
       onClose();
-    }
-  };
-
-  const handleGetHint = () => {
-    if (hintsUsed < 3) {
-      setHintsUsed(prev => prev + 1);
-      setShowHint(true);
-      toast({
-        title: "Hint",
-        description: "Read the question carefully and eliminate obviously wrong answers first.",
-      });
-    } else {
-      toast({
-        title: "No hints remaining",
-        description: "You've used all 3 hints for this question set.",
-        variant: "destructive",
-      });
     }
   };
 
   if (isLoading) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <Card className="w-full max-w-4xl mx-4">
+        <Card className="w-full max-w-md mx-4">
           <CardContent className="p-8 text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p>Loading questions...</p>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <h3 className="text-lg font-semibold mb-2">Loading Questions...</h3>
+            <p className="text-gray-600">Getting ready for your practice session.</p>
           </CardContent>
         </Card>
       </div>
@@ -203,88 +194,94 @@ export default function QuestionPracticeModal({ grade, subject, onClose }: Quest
                 {subject} • Grade {grade}
               </span>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Lightbulb className="w-4 h-4 text-secondary" />
-                <span className="text-sm font-medium">{3 - hintsUsed} hints left</span>
-              </div>
-              <Button variant="ghost" size="sm" onClick={onClose}>
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
+            <Button variant="ghost" size="sm" onClick={onClose}>
+              <X className="w-5 h-5" />
+            </Button>
           </div>
 
-          {/* Question Content */}
+          {/* Question */}
           <div className="mb-8">
-            <h3 className="text-xl font-semibold text-gray-700 mb-4">
-              {currentQuestion.questionText}
+            <h3 className="text-xl font-semibold text-gray-800 mb-6 leading-relaxed">
+              {currentQuestion.question_text}
             </h3>
-            
+
             {/* Answer Choices */}
             <div className="space-y-3">
-              {currentQuestion.answerChoices?.map((choice: any, index: number) => {
-                const choiceId = String.fromCharCode(65 + index); // A, B, C, D
-                return (
-                  <button
-                    key={choiceId}
-                    onClick={() => setSelectedAnswer(choiceId)}
-                    className={`w-full text-left p-4 border-2 rounded-xl transition-colors ${
-                      selectedAnswer === choiceId
-                        ? "border-primary bg-primary bg-opacity-10"
-                        : "border-gray-200 hover:border-primary"
-                    }`}
-                  >
-                    <span className="inline-block w-8 h-8 bg-gray-100 text-gray-700 rounded-full text-center font-semibold mr-3 leading-8">
-                      {choiceId}
-                    </span>
-                    {choice.text || choice}
-                  </button>
-                );
-              })}
+              {currentQuestion.answer_choices.map((choice: any) => (
+                <button
+                  key={choice.id}
+                  onClick={() => setSelectedAnswer(choice.id)}
+                  className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 ${
+                    selectedAnswer === choice.id
+                      ? "border-primary bg-primary bg-opacity-10 text-primary"
+                      : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                  }`}
+                >
+                  <div className="flex items-center">
+                    <span className="text-lg font-semibold mr-4">{choice.id})</span>
+                    <span className="text-lg">{choice.text}</span>
+                  </div>
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Hint Display */}
-          {showHint && (
-            <div className="mb-6 p-4 bg-secondary bg-opacity-10 border border-secondary rounded-xl">
-              <div className="flex items-center mb-2">
-                <Lightbulb className="w-5 h-5 text-secondary mr-2" />
-                <span className="font-semibold text-secondary">Hint</span>
+          {/* AI Explanation Display */}
+          {showExplanation && (
+            <div className="mb-6 p-6 bg-red-50 border border-red-200 rounded-xl">
+              <div className="flex items-start space-x-3">
+                <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Lightbulb className="w-4 h-4 text-red-600" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-lg font-semibold text-red-800 mb-2">Let me explain that!</h4>
+                  {loadingExplanation ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                      <span className="text-red-700">Getting personalized explanation...</span>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-red-700 mb-4">{aiExplanation}</p>
+                      <div className="bg-white p-3 rounded-lg border border-red-100 mb-4">
+                        <p className="text-sm text-gray-600 mb-1">Correct Answer:</p>
+                        <p className="font-medium text-green-700">{currentQuestion.correctAnswer}</p>
+                        <p className="text-sm text-gray-600 mt-2">{currentQuestion.explanation}</p>
+                      </div>
+                      <Button 
+                        onClick={handleNextQuestion}
+                        className="bg-primary hover:bg-primary/90"
+                      >
+                        Next Question
+                      </Button>
+                    </>
+                  )}
+                </div>
               </div>
-              <p className="text-gray-700">
-                {currentQuestion.explanation || "Think about the key concepts and eliminate obviously wrong answers."}
-              </p>
             </div>
           )}
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-between">
-            <Button 
-              variant="outline"
-              onClick={handleSkipQuestion}
-              disabled={submitAnswerMutation.isPending}
-            >
-              Skip Question
-            </Button>
-            <div className="flex space-x-3">
-              <Button 
-                variant="outline"
-                onClick={handleGetHint}
-                disabled={hintsUsed >= 3 || submitAnswerMutation.isPending}
-                className="border-secondary text-secondary hover:bg-secondary hover:text-white"
-              >
-                <Lightbulb className="w-4 h-4 mr-2" />
-                Get Hint
-              </Button>
-              <Button 
-                onClick={handleSubmitAnswer}
-                disabled={!selectedAnswer || submitAnswerMutation.isPending}
-                className="bg-primary hover:bg-primary/90"
-              >
-                {submitAnswerMutation.isPending ? "Submitting..." : "Submit Answer"}
-              </Button>
+          {!showExplanation && (
+            <div className="flex justify-between items-center mt-8">
+              <div className="flex space-x-4">
+                <Button 
+                  variant="outline" 
+                  onClick={handleSkipQuestion}
+                  className="border-gray-300 text-gray-600 hover:bg-gray-50"
+                >
+                  Skip Question
+                </Button>
+                <Button 
+                  onClick={handleSubmitAnswer}
+                  disabled={!selectedAnswer || submitAnswerMutation.isPending}
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  {submitAnswerMutation.isPending ? "Submitting..." : "Submit Answer"}
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
     </div>
