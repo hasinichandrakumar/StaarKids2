@@ -229,12 +229,12 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
           {/* Question */}
           <div className="mb-8">
             <h3 className="text-xl font-semibold text-gray-800 mb-6 leading-relaxed">
-              {currentQuestion.question_text}
+              {currentQuestion.questionText}
             </h3>
 
             {/* Answer Choices */}
             <div className="space-y-3">
-              {currentQuestion.answer_choices.map((choice: any) => (
+              {currentQuestion.answerChoices.map((choice: any) => (
                 <button
                   key={choice.id}
                   onClick={() => setSelectedAnswer(choice.id)}
