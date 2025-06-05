@@ -160,33 +160,7 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
     }
   };
 
-  const handleSkipQuestion = () => {
-    if (!currentQuestion) return;
 
-    const timeSpent = Math.floor((Date.now() - startTime) / 1000);
-
-    submitAnswerMutation.mutate({
-      questionId: currentQuestion.id,
-      selectedAnswer: null,
-      isCorrect: false,
-      hintsUsed: 0,
-      timeSpent,
-      skipped: true,
-    });
-
-    toast({
-      title: "Question Skipped",
-      description: "Moving to the next question.",
-    });
-
-    // Move to next question
-    if (currentQuestionIndex < (questions?.length || 0) - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
-      setSelectedAnswer("");
-    } else {
-      onClose();
-    }
-  };
 
   if (isLoading) {
     return (
@@ -301,13 +275,6 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
           {!showExplanation && (
             <div className="flex justify-between items-center mt-8">
               <div className="flex space-x-4">
-                <Button 
-                  variant="outline" 
-                  onClick={handleSkipQuestion}
-                  className="border-gray-300 text-gray-600 hover:bg-gray-50"
-                >
-                  Skip Question
-                </Button>
                 <Button 
                   variant="outline"
                   onClick={() => generateQuestionsMutation.mutate()}
