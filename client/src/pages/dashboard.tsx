@@ -11,15 +11,15 @@ import AvatarCustomizationModal from "@/components/AvatarCustomizationModal";
 import QuestionPracticeModal from "@/components/QuestionPracticeModal";
 
 export default function Dashboard() {
-  const { user } = useAuth();
-  const [selectedGrade, setSelectedGrade] = useState(user?.currentGrade || 4);
+  const { user, isLoading } = useAuth();
+  const [selectedGrade, setSelectedGrade] = useState(4);
   const [activeTab, setActiveTab] = useState("practice");
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [showQuestionModal, setShowQuestionModal] = useState(false);
   const [practiceSubject, setPracticeSubject] = useState<"math" | "reading">("math");
   const [practiceCategory, setPracticeCategory] = useState<string | undefined>(undefined);
 
-  if (!user) {
+  if (isLoading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
