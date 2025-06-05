@@ -9,10 +9,11 @@ import { Lightbulb, X, Clock } from "lucide-react";
 interface QuestionPracticeModalProps {
   grade: number;
   subject: "math" | "reading";
+  category?: string;
   onClose: () => void;
 }
 
-export default function QuestionPracticeModal({ grade, subject, onClose }: QuestionPracticeModalProps) {
+export default function QuestionPracticeModal({ grade, subject, category, onClose }: QuestionPracticeModalProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [showExplanation, setShowExplanation] = useState(false);
@@ -32,6 +33,7 @@ export default function QuestionPracticeModal({ grade, subject, onClose }: Quest
       const response = await apiRequest("POST", "/api/questions/generate", {
         grade,
         subject,
+        category,
         count: 5
       });
       return response;
@@ -216,7 +218,7 @@ export default function QuestionPracticeModal({ grade, subject, onClose }: Quest
                 Question {currentQuestionIndex + 1} of {questions.length}
               </span>
               <span className="text-gray-500 capitalize">
-                {subject} • Grade {grade}
+                {subject} • Grade {grade}{category ? ` • ${category}` : ''}
               </span>
             </div>
             <Button variant="ghost" size="sm" onClick={onClose}>

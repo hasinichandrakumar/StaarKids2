@@ -69,7 +69,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // AI-powered practice question generation
   app.post('/api/questions/generate', isAuthenticated, async (req: any, res) => {
     try {
-      const { grade, subject, count = 5 } = req.body;
+      const { grade, subject, category, count = 5 } = req.body;
       
       if (![3, 4, 5].includes(grade) || !['math', 'reading'].includes(subject)) {
         return res.status(400).json({ message: "Invalid grade or subject" });
@@ -94,11 +94,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           messages: [
             {
               role: 'system',
-              content: `You are an expert Texas STAAR test question generator. Create ${count} authentic practice questions similar to official STAAR ${grade}th grade ${subject} tests. Each question must follow STAAR format exactly with 4 multiple choice options. Return only valid JSON format.`
+              content: `You are an expert Texas STAAR test question generator. Create ${count} authentic practice questions similar to official STAAR ${grade}th grade ${subject} tests${category ? ` focused specifically on ${category}` : ''}. Each question must follow STAAR format exactly with 4 multiple choice options. Return only valid JSON format.`
             },
             {
               role: 'user', 
-              content: `Generate ${count} STAAR Grade ${grade} ${subject} practice questions similar to these authentic examples from the 2019 Texas Education Agency tests:
+              content: `Generate ${count} STAAR Grade ${grade} ${subject} practice questions${category ? ` specifically focused on ${category}` : ''} similar to these authentic examples from official Texas Education Agency tests:
 
 ${sampleQuestions.slice(0, 3).map((q, i) => `
 Example ${i + 1}:
@@ -108,7 +108,7 @@ Correct Answer: ${q.correctAnswer}
 TEKS: ${q.teksStandard}
 `).join('\n')}
 
-Create new questions that test similar skills but with different scenarios. Follow exact STAAR format and difficulty level. Respond with JSON array:
+${category ? `Focus all questions on ${category} skills and concepts. ` : ''}Create new questions that test similar skills but with different scenarios. Follow exact STAAR format and difficulty level. Respond with JSON array:
 [{
   "questionText": "...",
   "answerChoices": ["A) ...", "B) ...", "C) ...", "D) ..."],
