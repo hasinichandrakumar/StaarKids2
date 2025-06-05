@@ -98,23 +98,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
             },
             {
               role: 'user', 
-              content: `Generate ${count} STAAR Grade ${grade} ${subject} practice questions${category ? ` specifically focused on ${category}` : ''} similar to these authentic examples from official Texas Education Agency tests:
+              content: `Generate ${count} STAAR Grade ${grade} ${subject} practice questions${category ? ` specifically focused on TEKS standard ${category}` : ''} matching these authentic patterns from official Texas Education Agency tests:
 
 ${sampleQuestions.slice(0, 3).map((q, i) => `
-Example ${i + 1}:
+Example ${i + 1} (TEKS ${q.teksStandard}):
 Question: ${q.questionText}
 Options: ${JSON.stringify(q.answerChoices)}
 Correct Answer: ${q.correctAnswer}
-TEKS: ${q.teksStandard}
+Explanation: ${q.explanation}
 `).join('\n')}
 
-${category ? `Focus all questions on ${category} skills and concepts. ` : ''}Create new questions that test similar skills but with different scenarios. Follow exact STAAR format and difficulty level. Respond with JSON array:
+${category ? `ALL questions must target TEKS standard ${category} skills and concepts specifically. Use the category name as the exact TEKS standard. ` : ''}Create new questions that test the SAME skills as the examples but with completely different scenarios. Use Texas contexts (cities, schools, sports teams). Follow exact STAAR question structure and format.
+
+Requirements:
+- Each question must target the specific TEKS standard requested
+- Use real-world Texas scenarios and contexts
+- Follow authentic STAAR difficulty and format patterns
+- Include clear explanations showing the solution process
+
+Respond with JSON array:
 [{
   "questionText": "...",
-  "answerChoices": ["A) ...", "B) ...", "C) ...", "D) ..."],
+  "answerChoices": [{"id": "A", "text": "..."}, {"id": "B", "text": "..."}, {"id": "C", "text": "..."}, {"id": "D", "text": "..."}],
   "correctAnswer": "A",
   "explanation": "...",
-  "teksStandard": "..."
+  "teksStandard": "${category || `${grade}.General`}"
 }]`
             }
           ],
