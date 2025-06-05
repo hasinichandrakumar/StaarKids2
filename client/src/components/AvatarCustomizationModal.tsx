@@ -18,11 +18,15 @@ export default function AvatarCustomizationModal({ user, onClose }: AvatarCustom
   const queryClient = useQueryClient();
 
   const avatarOptions = [
-    { id: "bunny", emoji: "🐰", name: "Bunny" },
-    { id: "fox", emoji: "🦊", name: "Fox" },
-    { id: "turtle", emoji: "🐢", name: "Turtle" },
-    { id: "starfish", emoji: "⭐", name: "Starfish" },
-    { id: "giraffe", emoji: "🦒", name: "Giraffe" },
+    { id: "shooting-star", emoji: "🌟", name: "Shooting Star" },
+    { id: "star", emoji: "⭐", name: "Golden Star" },
+    { id: "sparkles", emoji: "✨", name: "Sparkles" },
+    { id: "comet", emoji: "☄️", name: "Comet" },
+    { id: "constellation", emoji: "🌌", name: "Constellation" },
+    { id: "dizzy", emoji: "💫", name: "Dizzy Star" },
+    { id: "glowing-star", emoji: "🌠", name: "Glowing Star" },
+    { id: "bright-star", emoji: "⭐", name: "Bright Star" },
+    { id: "magic-wand", emoji: "🪄", name: "Magic Wand" },
   ];
 
   const colorOptions = [
