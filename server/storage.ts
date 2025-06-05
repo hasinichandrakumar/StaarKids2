@@ -292,6 +292,7 @@ export class DatabaseStorage implements IStorage {
       lastAttempted: Date | null;
     }>;
   }> {
+    // Get overall stats
     const stats = await db
       .select({
         totalAttempts: count(),
@@ -307,6 +308,47 @@ export class DatabaseStorage implements IStorage {
           eq(questions.subject, subject)
         )
       );
+
+    // Get recent performance (last 20 attempts) for more accurate current skill level
+    const recentAttempts = await db
+      .select({
+        isCorrect: practiceAttempts.isCorrect,
+        createdAt: practiceAttempts.createdAt,
+      })
+      .from(practiceAttempts)
+      .innerJoin(questions, eq(practiceAttempts.questionId, questions.id))
+      .where(
+        and(
+          eq(practiceAttempts.userId, userId),
+          eq(questions.grade, grade),
+          eq(questions.subject, subject)
+        )
+      )
+      .orderBy(desc(practiceAttempts.createdAt))
+      .limit(20);
+
+    // Calculate weighted average score giving more weight to recent attempts
+    let weightedScore = 0;
+    let totalWeight = 0;
+    
+    if (recentAttempts.length > 0) {
+      recentAttempts.forEach((attempt, index) => {
+        // More recent attempts get higher weight (20, 19, 18, ... 1)
+        const weight = recentAttempts.length - index;
+        weightedScore += (attempt.isCorrect ? 100 : 0) * weight;
+        totalWeight += weight;
+      });
+      
+      // If we have recent data, use weighted average, otherwise fall back to overall average
+      const recentWeightedAverage = totalWeight > 0 ? weightedScore / totalWeight : 0;
+      
+      // Blend recent performance (70%) with overall performance (30%) for stability
+      const blendedScore = recentAttempts.length >= 10 
+        ? (recentWeightedAverage * 0.7) + ((Number(stats[0]?.averageScore) || 0) * 0.3)
+        : Number(stats[0]?.averageScore) || 0;
+      
+      stats[0].averageScore = blendedScore;
+    }
 
     const result = stats[0];
     
