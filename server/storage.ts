@@ -53,6 +53,13 @@ export interface IStorage {
     correctAttempts: number;
     averageScore: number;
     improvementTrend: number;
+    categoryStats: Array<{
+      category: string;
+      totalQuestions: number;
+      correctAnswers: number;
+      accuracy: number;
+      lastAttempted: Date | null;
+    }>;
   }>;
 }
 
