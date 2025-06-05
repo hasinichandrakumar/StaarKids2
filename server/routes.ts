@@ -579,6 +579,37 @@ Respond with JSON array:
     }
   });
 
+  // Overall accuracy tracking route
+  app.get('/api/accuracy/overall', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const accuracy = await storage.getOverallAccuracy(userId);
+      res.json(accuracy);
+    } catch (error) {
+      console.error("Error fetching overall accuracy:", error);
+      res.status(500).json({ message: "Failed to fetch overall accuracy statistics" });
+    }
+  });
+
+  // Module-specific accuracy route
+  app.get('/api/accuracy/:grade/:subject', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const grade = parseInt(req.params.grade);
+      const subject = req.params.subject;
+      
+      if (![3, 4, 5].includes(grade) || !['math', 'reading'].includes(subject)) {
+        return res.status(400).json({ message: "Invalid grade or subject" });
+      }
+
+      const accuracy = await storage.getModuleAccuracy(userId, grade, subject);
+      res.json(accuracy);
+    } catch (error) {
+      console.error("Error fetching module accuracy:", error);
+      res.status(500).json({ message: "Failed to fetch module accuracy statistics" });
+    }
+  });
+
   // AI Study Assistant routes
   app.post('/api/chat/explain', isAuthenticated, async (req: any, res) => {
     try {

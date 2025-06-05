@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/Header";
 import WelcomeSection from "@/components/WelcomeSection";
 import StarPowerDashboard from "@/components/StarPowerDashboard";
+import AccuracyDashboard from "@/components/AccuracyDashboard";
 import GradeSelector from "@/components/GradeSelector";
 import NavigationTabs from "@/components/NavigationTabs";
 import PracticeTab from "@/components/PracticeTab";
@@ -51,6 +52,8 @@ export default function Dashboard() {
         <WelcomeSection user={user} />
         
         <StarPowerDashboard />
+        
+        <AccuracyDashboard selectedGrade={selectedGrade} />
         
         <GradeSelector 
           selectedGrade={selectedGrade} 

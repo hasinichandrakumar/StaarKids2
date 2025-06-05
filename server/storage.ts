@@ -72,6 +72,31 @@ export interface IStorage {
     weeklyStarPower: number;
     allTimeStarPower: number;
   }>;
+  
+  // Enhanced accuracy tracking
+  getOverallAccuracy(userId: string): Promise<{
+    totalAttempts: number;
+    correctAttempts: number;
+    overallAccuracy: number;
+    mathAccuracy: number;
+    readingAccuracy: number;
+    gradeBreakdown: Array<{
+      grade: number;
+      attempts: number;
+      correct: number;
+      accuracy: number;
+    }>;
+  }>;
+  getModuleAccuracy(userId: string, grade: number, subject: string): Promise<{
+    overallAccuracy: number;
+    teksStandardStats: Array<{
+      teksStandard: string;
+      totalQuestions: number;
+      correctAnswers: number;
+      accuracy: number;
+      lastAttempted: Date | null;
+    }>;
+  }>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -385,6 +410,133 @@ export class DatabaseStorage implements IStorage {
       dailyStarPower: Number(dailyResult[0]?.total) || 0,
       weeklyStarPower: Number(weeklyResult[0]?.total) || 0,
       allTimeStarPower: Number(allTimeResult[0]?.total) || 0,
+    };
+  }
+
+  // Enhanced accuracy tracking
+  async getOverallAccuracy(userId: string): Promise<{
+    totalAttempts: number;
+    correctAttempts: number;
+    overallAccuracy: number;
+    mathAccuracy: number;
+    readingAccuracy: number;
+    gradeBreakdown: Array<{
+      grade: number;
+      attempts: number;
+      correct: number;
+      accuracy: number;
+    }>;
+  }> {
+    // Overall statistics
+    const overallStats = await db
+      .select({
+        totalAttempts: count(),
+        correctAttempts: sql<number>`SUM(CASE WHEN ${practiceAttempts.isCorrect} = true THEN 1 ELSE 0 END)`,
+      })
+      .from(practiceAttempts)
+      .innerJoin(questions, eq(practiceAttempts.questionId, questions.id))
+      .where(eq(practiceAttempts.userId, userId));
+
+    // Math vs Reading statistics
+    const subjectStats = await db
+      .select({
+        subject: questions.subject,
+        totalAttempts: count(),
+        correctAttempts: sql<number>`SUM(CASE WHEN ${practiceAttempts.isCorrect} = true THEN 1 ELSE 0 END)`,
+      })
+      .from(practiceAttempts)
+      .innerJoin(questions, eq(practiceAttempts.questionId, questions.id))
+      .where(eq(practiceAttempts.userId, userId))
+      .groupBy(questions.subject);
+
+    // Grade breakdown
+    const gradeStats = await db
+      .select({
+        grade: questions.grade,
+        totalAttempts: count(),
+        correctAttempts: sql<number>`SUM(CASE WHEN ${practiceAttempts.isCorrect} = true THEN 1 ELSE 0 END)`,
+      })
+      .from(practiceAttempts)
+      .innerJoin(questions, eq(practiceAttempts.questionId, questions.id))
+      .where(eq(practiceAttempts.userId, userId))
+      .groupBy(questions.grade);
+
+    const overall = overallStats[0];
+    const mathStats = subjectStats.find(s => s.subject === 'math');
+    const readingStats = subjectStats.find(s => s.subject === 'reading');
+
+    return {
+      totalAttempts: overall?.totalAttempts || 0,
+      correctAttempts: Number(overall?.correctAttempts) || 0,
+      overallAccuracy: overall?.totalAttempts > 0 ? Math.round((Number(overall.correctAttempts) / overall.totalAttempts) * 100) : 0,
+      mathAccuracy: mathStats && mathStats.totalAttempts > 0 ? Math.round((Number(mathStats.correctAttempts) / mathStats.totalAttempts) * 100) : 0,
+      readingAccuracy: readingStats && readingStats.totalAttempts > 0 ? Math.round((Number(readingStats.correctAttempts) / readingStats.totalAttempts) * 100) : 0,
+      gradeBreakdown: gradeStats.map(stat => ({
+        grade: stat.grade,
+        attempts: stat.totalAttempts,
+        correct: Number(stat.correctAttempts),
+        accuracy: stat.totalAttempts > 0 ? Math.round((Number(stat.correctAttempts) / stat.totalAttempts) * 100) : 0,
+      })),
+    };
+  }
+
+  async getModuleAccuracy(userId: string, grade: number, subject: string): Promise<{
+    overallAccuracy: number;
+    teksStandardStats: Array<{
+      teksStandard: string;
+      totalQuestions: number;
+      correctAnswers: number;
+      accuracy: number;
+      lastAttempted: Date | null;
+    }>;
+  }> {
+    // Overall accuracy for this grade/subject
+    const overallStats = await db
+      .select({
+        totalAttempts: count(),
+        correctAttempts: sql<number>`SUM(CASE WHEN ${practiceAttempts.isCorrect} = true THEN 1 ELSE 0 END)`,
+      })
+      .from(practiceAttempts)
+      .innerJoin(questions, eq(practiceAttempts.questionId, questions.id))
+      .where(
+        and(
+          eq(practiceAttempts.userId, userId),
+          eq(questions.grade, grade),
+          eq(questions.subject, subject)
+        )
+      );
+
+    // TEKS standard breakdown
+    const teksStats = await db
+      .select({
+        teksStandard: questions.teksStandard,
+        totalQuestions: count(),
+        correctAnswers: sql<number>`SUM(CASE WHEN ${practiceAttempts.isCorrect} = true THEN 1 ELSE 0 END)`,
+        lastAttempted: sql<Date>`MAX(${practiceAttempts.createdAt})`,
+      })
+      .from(practiceAttempts)
+      .innerJoin(questions, eq(practiceAttempts.questionId, questions.id))
+      .where(
+        and(
+          eq(practiceAttempts.userId, userId),
+          eq(questions.grade, grade),
+          eq(questions.subject, subject)
+        )
+      )
+      .groupBy(questions.teksStandard);
+
+    const overall = overallStats[0];
+    const overallAccuracy = overall?.totalAttempts > 0 ? Math.round((Number(overall.correctAttempts) / overall.totalAttempts) * 100) : 0;
+
+    return {
+      overallAccuracy,
+      teksStandardStats: teksStats.map(stat => ({
+        teksStandard: stat.teksStandard,
+        totalQuestions: stat.totalQuestions,
+        correctAnswers: Number(stat.correctAnswers),
+        accuracy: stat.totalQuestions > 0 ? Math.round((Number(stat.correctAnswers) / stat.totalQuestions) * 100) : 0,
+        lastAttempted: stat.lastAttempted,
+      })),
     };
   }
 }
