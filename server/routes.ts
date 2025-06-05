@@ -35,7 +35,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Question routes
-  app.get('/api/questions/:grade/:subject', isAuthenticated, async (req, res) => {
+  app.get('/api/questions/:grade/:subject', async (req, res) => {
     try {
       const grade = parseInt(req.params.grade);
       const subject = req.params.subject;
