@@ -298,6 +298,14 @@ export default function QuestionPracticeModal({ grade, subject, onClose }: Quest
                   Skip Question
                 </Button>
                 <Button 
+                  variant="outline"
+                  onClick={() => generateQuestionsMutation.mutate()}
+                  disabled={generateQuestionsMutation.isPending}
+                  className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                >
+                  {generateQuestionsMutation.isPending ? "Generating..." : "Generate More Questions"}
+                </Button>
+                <Button 
                   onClick={handleSubmitAnswer}
                   disabled={!selectedAnswer || submitAnswerMutation.isPending}
                   className="bg-primary hover:bg-primary/90"
