@@ -33,7 +33,7 @@ export default function NovaChat({ grade, isOpen, onClose }: NovaChatProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      content: `Hi there! I'm Nova, your learning buddy! ⭐ I'm here to help you with your STAAR test prep. I love giving detailed explanations to help you understand everything step by step. You'll earn starpower for every correct answer you get! How are you feeling about ${grade}th grade today?`,
+      content: `Hi there! I'm Nova, your learning buddy! I'm here to help you with your STAAR test prep. I love giving detailed explanations to help you understand everything step by step. You'll earn starpower for every correct answer you get! How are you feeling about ${grade}th grade today?`,
       isUser: false,
       timestamp: new Date()
     }
@@ -71,7 +71,7 @@ export default function NovaChat({ grade, isOpen, onClose }: NovaChatProps) {
       return data.response;
     } catch (error) {
       console.error('Error getting Nova response:', error);
-      return "Oops! I'm having trouble thinking right now. Can you try asking me again? ⭐";
+      return "Oops! I'm having trouble thinking right now. Can you try asking me again?";
     }
   };
 
@@ -103,7 +103,7 @@ export default function NovaChat({ grade, isOpen, onClose }: NovaChatProps) {
     } catch (error) {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: "Sorry, I'm having trouble right now. Let's try again! ⭐",
+        content: "Sorry, I'm having trouble right now. Let's try again!",
         isUser: false,
         timestamp: new Date()
       };
