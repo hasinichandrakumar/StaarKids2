@@ -1,13 +1,15 @@
 import { Star, Settings } from "lucide-react";
+import { StarIcon } from "@heroicons/react/24/solid";
 import { Button } from "@/components/ui/button";
 import type { User } from "@shared/schema";
 
 interface HeaderProps {
   user: User;
   onOpenAvatarModal: () => void;
+  onOpenNovaChat: () => void;
 }
 
-export default function Header({ user, onOpenAvatarModal }: HeaderProps) {
+export default function Header({ user, onOpenAvatarModal, onOpenNovaChat }: HeaderProps) {
   const getRankColor = (rank: string) => {
     switch (rank) {
       case "Commander": return "bg-success";
@@ -30,6 +32,16 @@ export default function Header({ user, onOpenAvatarModal }: HeaderProps) {
           
           {/* User Profile Section */}
           <div className="flex items-center space-x-4">
+            {/* Nova Chat Button */}
+            <Button
+              onClick={onOpenNovaChat}
+              className="bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-white border-0 shadow-lg"
+              size="sm"
+            >
+              <StarIcon className="w-4 h-4 mr-2" />
+              Chat with Nova
+            </Button>
+            
             {/* Star Power Points */}
             <div className="bg-secondary text-white px-4 py-2 rounded-full flex items-center space-x-2">
               <Star className="w-4 h-4" />

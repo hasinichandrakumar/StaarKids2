@@ -394,6 +394,68 @@ Respond with JSON array:
     }
   });
 
+  // Nova AI Chat endpoint
+  app.post('/api/nova-chat', isAuthenticated, async (req: any, res) => {
+    try {
+      const { message, grade } = req.body;
+      
+      if (!message || !grade) {
+        return res.status(400).json({ message: "Message and grade are required" });
+      }
+
+      // Create a kid-friendly prompt for Nova
+      const prompt = `You are Nova, a friendly AI learning buddy for ${grade}th grade students preparing for STAAR tests. 
+      
+      Your personality:
+      - Enthusiastic and encouraging, but not overly energetic
+      - Use simple language appropriate for ${grade}th graders
+      - Be supportive and patient
+      - Include occasional star emojis ⭐ but don't overuse them
+      - Give specific, helpful advice about math and reading
+      - Keep responses short and engaging (2-3 sentences max)
+      
+      Student message: "${message}"
+      
+      Respond as Nova would, being helpful and encouraging about their STAAR test preparation.`;
+
+      const response = await fetch('https://api.perplexity.ai/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'llama-3.1-sonar-small-128k-online',
+          messages: [
+            {
+              role: 'system',
+              content: prompt
+            },
+            {
+              role: 'user',
+              content: message
+            }
+          ],
+          max_tokens: 150,
+          temperature: 0.7,
+          stream: false
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get AI response');
+      }
+
+      const data = await response.json();
+      const aiResponse = data.choices[0]?.message?.content || "Hi there! I'm having trouble thinking right now. Can you try asking me again? ⭐";
+
+      res.json({ response: aiResponse });
+    } catch (error) {
+      console.error('Error in Nova chat:', error);
+      res.status(500).json({ response: "Sorry, I'm having trouble right now. Let's try again! ⭐" });
+    }
+  });
+
   // Progress and stats routes
   app.get('/api/progress/:grade', isAuthenticated, async (req: any, res) => {
     try {

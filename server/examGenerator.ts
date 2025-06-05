@@ -49,20 +49,20 @@ export const STAAR_CATEGORY_DISTRIBUTIONS = {
   }
 };
 
-export async function generateFullMockExam(grade: number, subject: "math" | "reading"): Promise<void> {
+export async function generateFullMockExam(grade: number, subject: "math" | "reading", examNumber: number = 1): Promise<void> {
   const questionCount = STAAR_QUESTION_COUNTS[grade as keyof typeof STAAR_QUESTION_COUNTS][subject];
-  const examName = `STAAR Grade ${grade} ${subject === 'math' ? 'Mathematics' : 'Reading'} Practice Test`;
+  const examName = `STAAR Grade ${grade} ${subject === 'math' ? 'Mathematics' : 'Reading'} Practice Test ${examNumber}`;
   
   // Get category distribution for authentic STAAR test structure
   const categoryDistribution = STAAR_CATEGORY_DISTRIBUTIONS[grade as keyof typeof STAAR_CATEGORY_DISTRIBUTIONS][subject];
   const categories = Object.keys(categoryDistribution);
   
-  // Check if exam already exists
+  // Check if this specific exam already exists
   const existingExams = await storage.getMockExams(grade);
-  const examExists = existingExams.find(exam => exam.subject === subject);
+  const examExists = existingExams.find(exam => exam.subject === subject && exam.name === examName);
   
   if (examExists) {
-    console.log(`Mock exam already exists for Grade ${grade} ${subject}`);
+    console.log(`Mock exam already exists: ${examName}`);
     return;
   }
 
@@ -135,17 +135,20 @@ export async function generateFullMockExam(grade: number, subject: "math" | "rea
 }
 
 export async function initializeMockExams(): Promise<void> {
-  console.log('Initializing mock exams for all grades...');
+  console.log('Initializing 6 mock exams for each grade and subject...');
   
   for (const grade of [3, 4, 5]) {
     for (const subject of ['math', 'reading'] as const) {
-      try {
-        await generateFullMockExam(grade, subject);
-      } catch (error) {
-        console.error(`Error initializing mock exam for Grade ${grade} ${subject}:`, error);
+      // Generate 6 practice tests per grade/subject combination
+      for (let examNumber = 1; examNumber <= 6; examNumber++) {
+        try {
+          await generateFullMockExam(grade, subject, examNumber);
+        } catch (error) {
+          console.error(`Error initializing mock exam ${examNumber} for Grade ${grade} ${subject}:`, error);
+        }
       }
     }
   }
   
-  console.log('Mock exam initialization complete');
+  console.log('Mock exam initialization complete - 6 tests per grade/subject');
 }
