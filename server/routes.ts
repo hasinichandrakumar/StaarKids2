@@ -39,12 +39,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const grade = parseInt(req.params.grade);
       const subject = req.params.subject;
+      const { category } = req.query;
       
       if (![3, 4, 5].includes(grade) || !['math', 'reading'].includes(subject)) {
         return res.status(400).json({ message: "Invalid grade or subject" });
       }
 
-      const questions = await storage.getQuestionsByGradeAndSubject(grade, subject);
+      let questions;
+      if (category) {
+        // Filter questions by TEKS standard category
+        questions = await storage.getQuestionsByTeksStandard(grade, subject, category as string);
+      } else {
+        questions = await storage.getQuestionsByGradeAndSubject(grade, subject);
+      }
+      
       res.json(questions);
     } catch (error) {
       console.error("Error fetching questions:", error);

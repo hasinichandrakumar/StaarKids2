@@ -24,8 +24,13 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
   const queryClient = useQueryClient();
 
   const { data: questions, isLoading } = useQuery({
-    queryKey: ["/api/questions", grade, subject],
-    queryFn: () => fetch(`/api/questions/${grade}/${subject}`).then(res => res.json()),
+    queryKey: ["/api/questions", grade, subject, category],
+    queryFn: () => {
+      const url = category 
+        ? `/api/questions/${grade}/${subject}?category=${encodeURIComponent(category)}`
+        : `/api/questions/${grade}/${subject}`;
+      return fetch(url).then(res => res.json());
+    },
   });
 
   const generateQuestionsMutation = useMutation({
@@ -39,6 +44,7 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
       return response;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/questions", grade, subject, category] });
       queryClient.invalidateQueries({ queryKey: ["/api/questions", grade, subject] });
       toast({
         title: "New Questions Generated",
