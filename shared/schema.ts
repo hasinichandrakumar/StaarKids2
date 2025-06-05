@@ -115,11 +115,21 @@ export const userProgress = pgTable("user_progress", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const starPowerHistory = pgTable("star_power_history", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  amount: integer("amount").notNull(), // positive for earned, negative for spent
+  source: varchar("source").notNull(), // "practice", "exam", "achievement", "purchase"
+  description: varchar("description"), // what they earned/spent it on
+  date: timestamp("date").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   practiceAttempts: many(practiceAttempts),
   examAttempts: many(examAttempts),
   userProgress: many(userProgress),
+  starPowerHistory: many(starPowerHistory),
 }));
 
 export const questionsRelations = relations(questions, ({ many }) => ({
@@ -172,6 +182,13 @@ export const userProgressRelations = relations(userProgress, ({ one }) => ({
   }),
 }));
 
+export const starPowerHistoryRelations = relations(starPowerHistory, ({ one }) => ({
+  user: one(users, {
+    fields: [starPowerHistory.userId],
+    references: [users.id],
+  }),
+}));
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   createdAt: true,
@@ -204,6 +221,11 @@ export const insertUserProgressSchema = createInsertSchema(userProgress).omit({
   updatedAt: true,
 });
 
+export const insertStarPowerHistorySchema = createInsertSchema(starPowerHistory).omit({
+  id: true,
+  date: true,
+});
+
 // Update user schema for profile updates
 export const updateUserSchema = createInsertSchema(users).pick({
   currentGrade: true,
@@ -224,4 +246,6 @@ export type ExamAttempt = typeof examAttempts.$inferSelect;
 export type InsertExamAttempt = z.infer<typeof insertExamAttemptSchema>;
 export type UserProgress = typeof userProgress.$inferSelect;
 export type InsertUserProgress = z.infer<typeof insertUserProgressSchema>;
+export type StarPowerHistory = typeof starPowerHistory.$inferSelect;
+export type InsertStarPowerHistory = z.infer<typeof insertStarPowerHistorySchema>;
 export type UpdateUser = z.infer<typeof updateUserSchema>;

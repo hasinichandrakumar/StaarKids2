@@ -6,6 +6,7 @@ import {
   mockExamQuestions,
   examAttempts,
   userProgress,
+  starPowerHistory,
   type User,
   type UpsertUser,
   type Question,
@@ -18,6 +19,8 @@ import {
   type InsertExamAttempt,
   type UserProgress,
   type InsertUserProgress,
+  type StarPowerHistory,
+  type InsertStarPowerHistory,
   type UpdateUser,
 } from "@shared/schema";
 import { db } from "./db";
