@@ -76,7 +76,6 @@ export const mockExams = pgTable("mock_exams", {
   name: varchar("name").notNull(),
   grade: integer("grade").notNull(),
   subject: varchar("subject").notNull(),
-  year: integer("year"),
   totalQuestions: integer("total_questions").notNull(),
   timeLimit: integer("time_limit"), // in minutes
   createdAt: timestamp("created_at").defaultNow(),
