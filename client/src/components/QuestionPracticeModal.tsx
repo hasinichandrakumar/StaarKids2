@@ -23,6 +23,7 @@ export default function QuestionPracticeModal({ grade, subject, onClose }: Quest
 
   const { data: questions, isLoading } = useQuery({
     queryKey: ["/api/questions", grade, subject],
+    queryFn: () => fetch(`/api/questions/${grade}/${subject}`).then(res => res.json()),
   });
 
   const currentQuestion = questions?.[currentQuestionIndex];
