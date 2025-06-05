@@ -150,7 +150,7 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
               <div className="w-12 h-12 bg-secondary bg-opacity-10 rounded-full flex items-center justify-center mr-4">
                 <BookOpen className="w-6 h-6 text-secondary" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-700">Reading</h3>
+              <h3 className="text-2xl font-bold text-gray-700">📖 Reading</h3>
             </div>
             
             {/* Progress Ring */}
