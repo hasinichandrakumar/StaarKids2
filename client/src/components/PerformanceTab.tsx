@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { ChartBarIcon, BookOpenIcon, CalculatorIcon } from "@heroicons/react/24/outline";
-import { TrendingUp, Target, Brain, Clock } from "lucide-react";
+import { TrendingUp, Target, Brain, Clock, Award, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import ProgressRing from "@/components/ProgressRing";
 
 interface PerformanceTabProps {
   grade: number;
@@ -24,6 +25,22 @@ interface UserStats {
   categoryStats: CategoryStat[];
 }
 
+// TEKS-aligned categories for each grade
+const GRADE_TEKS_CATEGORIES = {
+  3: {
+    math: ["Number and Operations", "Algebraic Reasoning", "Geometry and Measurement", "Data Analysis"],
+    reading: ["Reading Comprehension", "Literary Elements", "Author's Purpose", "Genre Features"]
+  },
+  4: {
+    math: ["Number and Operations", "Algebraic Reasoning", "Geometry and Measurement", "Data Analysis"],
+    reading: ["Reading Comprehension", "Literary Elements", "Author's Purpose", "Genre Features"]
+  },
+  5: {
+    math: ["Number and Operations", "Algebraic Reasoning", "Geometry and Measurement", "Data Analysis"],
+    reading: ["Reading Comprehension", "Literary Elements", "Author's Purpose", "Genre Features"]
+  }
+};
+
 export default function PerformanceTab({ grade }: PerformanceTabProps) {
   const { data: mathStats, isLoading: mathLoading } = useQuery<UserStats>({
     queryKey: ["/api/stats", grade, "math"],
@@ -33,9 +50,24 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
     queryKey: ["/api/stats", grade, "reading"],
   });
 
+  // Get TEKS categories for current grade
+  const gradeCategories = GRADE_TEKS_CATEGORIES[grade as keyof typeof GRADE_TEKS_CATEGORIES];
+  
   // Extract category-specific performance from authentic user data
   const mathCategoryStats = mathStats?.categoryStats || [];
   const readingCategoryStats = readingStats?.categoryStats || [];
+
+  // Calculate overall subject performance
+  const overallMathAccuracy = mathStats?.averageScore || 0;
+  const overallReadingAccuracy = readingStats?.averageScore || 0;
+  
+  // Identify mastery levels for each TEKS category
+  const getMasteryLevel = (accuracy: number) => {
+    if (accuracy >= 90) return { level: "Mastered", color: "text-green-600", bgColor: "bg-green-100" };
+    if (accuracy >= 80) return { level: "Proficient", color: "text-blue-600", bgColor: "bg-blue-100" };
+    if (accuracy >= 70) return { level: "Developing", color: "text-yellow-600", bgColor: "bg-yellow-100" };
+    return { level: "Needs Focus", color: "text-red-600", bgColor: "bg-red-100" };
+  };
 
   // Identify weak skills based on actual performance data (accuracy < 70%)
   const weakMathSkills = mathCategoryStats
@@ -73,43 +105,79 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
 
   return (
     <div className="space-y-8">
+      {/* Grade Overview Header */}
+      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 border border-blue-100">
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">Grade {grade} STAAR Performance Dashboard</h2>
+        <p className="text-gray-600">Detailed analytics aligned with Texas Essential Knowledge and Skills (TEKS) standards</p>
+      </div>
+
       {/* Overall Performance Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Math Performance */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-blue-700">
-              <CalculatorIcon className="w-5 h-5" />
-              Math Performance
+        <Card className="border-blue-200">
+          <CardHeader className="bg-blue-50">
+            <CardTitle className="flex items-center justify-between text-blue-800">
+              <div className="flex items-center gap-2">
+                <CalculatorIcon className="w-6 h-6" />
+                Mathematics
+              </div>
+              <Badge className="bg-blue-100 text-blue-700">
+                Grade {grade} TEKS
+              </Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-6">
             {mathLoading ? (
               <div className="flex items-center justify-center h-32">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
               </div>
             ) : (
-              <div className="space-y-4">
-                <div className="grid grid-cols-3 gap-4 text-center">
-                  <div>
-                    <p className="text-2xl font-bold text-blue-600">
-                      {mathStats ? Math.round(mathStats.averageScore) : 0}%
-                    </p>
-                    <p className="text-sm text-gray-500">Average Score</p>
+              <div className="space-y-6">
+                {/* Overall Math Stats */}
+                <div className="text-center">
+                  <div className="flex justify-center mb-4">
+                    <ProgressRing 
+                      progress={overallMathAccuracy} 
+                      color="#3B82F6" 
+                      size={100} 
+                    />
                   </div>
-                  <div>
-                    <p className="text-2xl font-bold text-gray-700">
-                      {mathStats?.totalAttempts || 0}
-                    </p>
-                    <p className="text-sm text-gray-500">Questions Answered</p>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-green-600 flex items-center justify-center">
-                      <TrendingUp className="w-5 h-5 mr-1" />
-                      {mathStats ? `+${Math.round(mathStats.improvementTrend || 0)}` : "+0"}%
-                    </p>
-                    <p className="text-sm text-gray-500">Trend</p>
-                  </div>
+                  <h3 className="text-3xl font-bold text-blue-600 mb-1">
+                    {Math.round(overallMathAccuracy)}%
+                  </h3>
+                  <p className="text-gray-600">Overall Math Performance</p>
+                </div>
+                
+                {/* Math Category Breakdown */}
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-gray-700 flex items-center">
+                    <Target className="w-4 h-4 mr-2" />
+                    TEKS Category Performance
+                  </h4>
+                  {gradeCategories.math.map((category) => {
+                    const categoryData = mathCategoryStats.find(stat => stat.category === category);
+                    const accuracy = categoryData?.accuracy || 0;
+                    const mastery = getMasteryLevel(accuracy);
+                    
+                    return (
+                      <div key={category} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-800 text-sm">{category}</p>
+                          <p className="text-xs text-gray-500">
+                            {categoryData?.totalQuestions || 0} questions • Last: {formatLastAttempted(categoryData?.lastAttempted)}
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Badge className={`${mastery.bgColor} ${mastery.color} text-xs`}>
+                            {mastery.level}
+                          </Badge>
+                          <span className="font-bold text-sm w-12 text-right">
+                            {Math.round(accuracy)}%
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -117,40 +185,70 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
         </Card>
 
         {/* Reading Performance */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-purple-700">
-              <BookOpenIcon className="w-5 h-5" />
-              Reading Performance
+        <Card className="border-purple-200">
+          <CardHeader className="bg-purple-50">
+            <CardTitle className="flex items-center justify-between text-purple-800">
+              <div className="flex items-center gap-2">
+                <BookOpenIcon className="w-6 h-6" />
+                Reading
+              </div>
+              <Badge className="bg-purple-100 text-purple-700">
+                Grade {grade} TEKS
+              </Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-6">
             {readingLoading ? (
               <div className="flex items-center justify-center h-32">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
               </div>
             ) : (
-              <div className="space-y-4">
-                <div className="grid grid-cols-3 gap-4 text-center">
-                  <div>
-                    <p className="text-2xl font-bold text-purple-600">
-                      {readingStats ? Math.round(readingStats.averageScore) : 0}%
-                    </p>
-                    <p className="text-sm text-gray-500">Average Score</p>
+              <div className="space-y-6">
+                {/* Overall Reading Stats */}
+                <div className="text-center">
+                  <div className="flex justify-center mb-4">
+                    <ProgressRing 
+                      progress={overallReadingAccuracy} 
+                      color="#9333EA" 
+                      size={100} 
+                    />
                   </div>
-                  <div>
-                    <p className="text-2xl font-bold text-gray-700">
-                      {readingStats?.totalAttempts || 0}
-                    </p>
-                    <p className="text-sm text-gray-500">Questions Answered</p>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-green-600 flex items-center justify-center">
-                      <TrendingUp className="w-5 h-5 mr-1" />
-                      {readingStats ? `+${Math.round(readingStats.improvementTrend || 0)}` : "+0"}%
-                    </p>
-                    <p className="text-sm text-gray-500">Trend</p>
-                  </div>
+                  <h3 className="text-3xl font-bold text-purple-600 mb-1">
+                    {Math.round(overallReadingAccuracy)}%
+                  </h3>
+                  <p className="text-gray-600">Overall Reading Performance</p>
+                </div>
+                
+                {/* Reading Category Breakdown */}
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-gray-700 flex items-center">
+                    <Target className="w-4 h-4 mr-2" />
+                    TEKS Category Performance
+                  </h4>
+                  {gradeCategories.reading.map((category) => {
+                    const categoryData = readingCategoryStats.find(stat => stat.category === category);
+                    const accuracy = categoryData?.accuracy || 0;
+                    const mastery = getMasteryLevel(accuracy);
+                    
+                    return (
+                      <div key={category} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-800 text-sm">{category}</p>
+                          <p className="text-xs text-gray-500">
+                            {categoryData?.totalQuestions || 0} questions • Last: {formatLastAttempted(categoryData?.lastAttempted)}
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Badge className={`${mastery.bgColor} ${mastery.color} text-xs`}>
+                            {mastery.level}
+                          </Badge>
+                          <span className="font-bold text-sm w-12 text-right">
+                            {Math.round(accuracy)}%
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
