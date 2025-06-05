@@ -154,7 +154,7 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(mockExams)
       .where(eq(mockExams.grade, grade))
-      .orderBy(desc(mockExams.year));
+      .orderBy(desc(mockExams.createdAt));
   }
 
   async createMockExam(exam: InsertMockExam): Promise<MockExam> {
@@ -188,7 +188,6 @@ export class DatabaseStorage implements IStorage {
         completedAt: examAttempts.completedAt,
         examName: mockExams.name,
         examSubject: mockExams.subject,
-        examYear: mockExams.year,
       })
       .from(examAttempts)
       .innerJoin(mockExams, eq(examAttempts.examId, mockExams.id))

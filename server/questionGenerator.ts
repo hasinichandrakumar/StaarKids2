@@ -110,18 +110,96 @@ export const SAMPLE_QUESTIONS = {
   }
 };
 
+// Create authentic STAAR question prompts based on real test patterns from 2013-2019
+function createAuthenticSTAARPrompt(grade: number, subject: "math" | "reading", teksStandard: string, category?: string): string {
+  const staarPatterns = {
+    3: {
+      math: {
+        "Number and Operations": [
+          "Point identification on number lines (like: Which point best represents 13 on the number line?)",
+          "Division story problems with equal groups (like: Sofia will arrange 42 feathers into 7 glass cases)",
+          "Fact family relationships (like: Which expression is in the same fact family as 8 × 5 = 40?)",
+          "Multiplication and division word problems with real-world contexts"
+        ],
+        "Geometry and Measurement": [
+          "3D shape vertex counting (like: How many vertices does this figure have?)",
+          "Shape identification and classification (like: Which of these is NOT an octagon?)",
+          "Time and measurement conversions using reference materials"
+        ]
+      },
+      reading: [
+        "Character motivation questions (What is the most likely reason [character] does [action]?)",
+        "Story inference questions (What are the characters thinking at this point?)",
+        "Dictionary definition matching in context",
+        "Main idea identification from passages about animals or real people"
+      ]
+    },
+    4: {
+      math: {
+        "Geometry": [
+          "Shape classification (Which statement best describes these figures?)",
+          "Quadrilateral properties and identification"
+        ],
+        "Algebraic Reasoning": [
+          "Variable representation in equations",
+          "Pattern recognition and rule identification"
+        ]
+      },
+      reading: [
+        "Character perspective analysis",
+        "Inference about character feelings and motivations",
+        "Plot development and story progression questions"
+      ]
+    },
+    5: {
+      math: {
+        "Number and Operations": [
+          "Fraction to decimal conversions",
+          "Multi-step word problems with real-world contexts"
+        ],
+        "Algebraic Reasoning": [
+          "Number pattern rules and sequences",
+          "Expression evaluation and simplification"
+        ]
+      },
+      reading: [
+        "Advanced inference questions about character development",
+        "Theme identification and analysis",
+        "Author's purpose in complex texts"
+      ]
+    }
+  };
+
+  const gradePatterns = staarPatterns[grade as keyof typeof staarPatterns];
+  const subjectPatterns = subject === "math" ? gradePatterns?.math : gradePatterns?.reading;
+  
+  if (subject === "math" && typeof subjectPatterns === "object" && category && subjectPatterns[category as keyof typeof subjectPatterns]) {
+    const categoryPatterns = subjectPatterns[category as keyof typeof subjectPatterns] as string[];
+    return `Use these authentic STAAR ${grade}th grade ${subject} patterns for ${category}: ${categoryPatterns.join(", ")}`;
+  } else if (subject === "reading" && Array.isArray(subjectPatterns)) {
+    return `Use these authentic STAAR ${grade}th grade reading patterns: ${subjectPatterns.join(", ")}`;
+  }
+  
+  return `Create authentic STAAR-style ${grade}th grade ${subject} questions similar to Texas state test patterns`;
+}
+
 export async function generateQuestionWithPerplexity(
   grade: number,
   subject: "math" | "reading",
   teksStandard: string,
   category?: string
 ): Promise<Omit<InsertQuestion, "id" | "createdAt">> {
+  // Use authentic STAAR test patterns from 2013-2019 documents
+  const authenticPrompt = createAuthenticSTAARPrompt(grade, subject, teksStandard, category);
+  
   const sampleQuestions = SAMPLE_QUESTIONS[grade as keyof typeof SAMPLE_QUESTIONS]?.[subject] || [];
   const exampleQuestion = sampleQuestions.find(q => q.teks === teksStandard) || sampleQuestions[0];
   
   const prompt = `Generate a ${grade}th grade ${subject} question aligned with Texas TEKS standard ${teksStandard}${category ? ` in the category "${category}"` : ''}.
 
-Based on actual STAAR test patterns, create a question that:
+${authenticPrompt}
+
+Based on actual STAAR test patterns from 2013-2019, create a question that:
 1. Matches the complexity level of ${grade}th grade students
 2. Follows the exact format of Texas STAAR assessments
 3. Aligns with TEKS standard ${teksStandard}
