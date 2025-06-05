@@ -251,7 +251,17 @@ Return ONLY a JSON object with this exact format:
         messages: [
           {
             role: 'system',
-            content: 'You are an expert Texas educator who creates STAAR-aligned assessment questions. Always respond with valid JSON only.'
+            content: `You are an expert Texas STAAR test question generator with extensive knowledge of authentic STAAR test patterns from 2013-2019. Create questions that exactly match official Texas state test formats, complexity levels, and question structures.
+
+${authenticPrompt}
+
+For grade ${grade} ${subject}, use these specific STAAR conventions:
+- Exact question phrasing patterns from real tests
+- Authentic answer choice formats and distractors
+- Real-world contexts that appear in actual STAAR tests
+- Appropriate cognitive complexity for the grade level
+
+Always respond with valid JSON only.`
           },
           {
             role: 'user',
