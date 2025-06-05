@@ -9,12 +9,14 @@ import MockExamsTab from "@/components/MockExamsTab";
 import PerformanceTab from "@/components/PerformanceTab";
 import AvatarCustomizationModal from "@/components/AvatarCustomizationModal";
 import QuestionPracticeModal from "@/components/QuestionPracticeModal";
+import NovaChat from "@/components/NovaChat";
 
 export default function Dashboard() {
   const { user, isLoading } = useAuth();
   const [selectedGrade, setSelectedGrade] = useState(4);
   const [activeTab, setActiveTab] = useState("practice");
   const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const [showNovaChat, setShowNovaChat] = useState(false);
   const [showQuestionModal, setShowQuestionModal] = useState(false);
   const [practiceSubject, setPracticeSubject] = useState<"math" | "reading">("math");
   const [practiceCategory, setPracticeCategory] = useState<string | undefined>(undefined);
@@ -40,7 +42,8 @@ export default function Dashboard() {
     <div className="min-h-screen">
       <Header 
         user={user} 
-        onOpenAvatarModal={() => setShowAvatarModal(true)} 
+        onOpenAvatarModal={() => setShowAvatarModal(true)}
+        onOpenNovaChat={() => setShowNovaChat(true)}
       />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -88,6 +91,14 @@ export default function Dashboard() {
             setShowQuestionModal(false);
             setPracticeCategory(undefined);
           }}
+        />
+      )}
+
+      {showNovaChat && (
+        <NovaChat
+          grade={selectedGrade}
+          isOpen={showNovaChat}
+          onClose={() => setShowNovaChat(false)}
         />
       )}
     </div>

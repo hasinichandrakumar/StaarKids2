@@ -394,6 +394,18 @@ Respond with JSON array:
     }
   });
 
+  // Generate additional mock exams
+  app.post('/api/generate-exams', isAuthenticated, async (req: any, res) => {
+    try {
+      const { initializeMockExams } = await import('../server/examGenerator');
+      await initializeMockExams();
+      res.json({ message: "Mock exams generated successfully" });
+    } catch (error) {
+      console.error('Error generating mock exams:', error);
+      res.status(500).json({ message: "Failed to generate mock exams" });
+    }
+  });
+
   // Nova AI Chat endpoint
   app.post('/api/nova-chat', isAuthenticated, async (req: any, res) => {
     try {
