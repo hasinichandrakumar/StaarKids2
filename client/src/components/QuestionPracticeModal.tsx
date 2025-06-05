@@ -95,10 +95,10 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
       }
 
       const data = await response.json();
-      setAiExplanation(data.response || "Great job working on this question! Keep practicing and you'll do amazing! ⭐");
+      setAiExplanation(data.response || "Great job working on this question! Keep practicing and you'll do amazing!");
     } catch (error) {
       console.error("Error getting Nova's explanation:", error);
-      setAiExplanation("Great job working on this question! I'm here to help you learn. Keep practicing and you'll do amazing! ⭐");
+      setAiExplanation("Great job working on this question! I'm here to help you learn. Keep practicing and you'll do amazing!");
     } finally {
       setLoadingExplanation(false);
     }

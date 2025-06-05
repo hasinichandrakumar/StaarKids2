@@ -1,4 +1,5 @@
 import type { User } from "@shared/schema";
+import { BookOpen } from "lucide-react";
 
 interface WelcomeSectionProps {
   user: User;
@@ -34,7 +35,7 @@ export default function WelcomeSection({ user }: WelcomeSectionProps) {
         {/* Motivational illustration placeholder */}
         <div className="hidden lg:block">
           <div className="w-48 h-32 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
-            <span className="text-6xl">📚</span>
+            <BookOpen className="w-16 h-16 text-primary" />
           </div>
         </div>
       </div>

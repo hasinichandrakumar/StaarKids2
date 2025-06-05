@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { ClipboardDocumentListIcon, ClockIcon } from "@heroicons/react/24/outline";
+import { Calculator, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -120,11 +121,11 @@ export default function MockExamsTab({ grade }: MockExamsTabProps) {
           <Tabs defaultValue="math" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6">
               <TabsTrigger value="math" className="flex items-center">
-                <span className="w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center text-sm mr-2">🔢</span>
+                <Calculator className="w-5 h-5 mr-2" />
                 Math ({mathExams.length})
               </TabsTrigger>
               <TabsTrigger value="reading" className="flex items-center">
-                <span className="w-6 h-6 bg-secondary text-white rounded-full flex items-center justify-center text-sm mr-2">📖</span>
+                <BookOpen className="w-5 h-5 mr-2" />
                 Reading ({readingExams.length})
               </TabsTrigger>
             </TabsList>
@@ -155,11 +156,11 @@ export default function MockExamsTab({ grade }: MockExamsTabProps) {
           <Tabs defaultValue="math" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6">
               <TabsTrigger value="math" className="flex items-center">
-                <span className="w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center text-sm mr-2">🔢</span>
+                <Calculator className="w-5 h-5 mr-2" />
                 Math ({mathHistory.length})
               </TabsTrigger>
               <TabsTrigger value="reading" className="flex items-center">
-                <span className="w-6 h-6 bg-secondary text-white rounded-full flex items-center justify-center text-sm mr-2">📖</span>
+                <BookOpen className="w-5 h-5 mr-2" />
                 Reading ({readingHistory.length})
               </TabsTrigger>
             </TabsList>
