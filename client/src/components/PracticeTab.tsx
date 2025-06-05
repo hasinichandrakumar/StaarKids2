@@ -192,8 +192,7 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
             
             <Button 
               onClick={() => onStartPractice("reading")}
-              className="w-full text-white py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105"
-              style={{ backgroundColor: '#FCC201', hover: { backgroundColor: '#E6B001' } }}
+              className="w-full bg-yellow-600 text-white py-3 rounded-xl font-semibold hover:bg-yellow-700 transition-all duration-200 transform hover:scale-105"
             >
               Start Reading Practice
             </Button>
