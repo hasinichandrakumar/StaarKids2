@@ -297,7 +297,7 @@ export class DatabaseStorage implements IStorage {
       .select({
         totalAttempts: count(),
         correctAttempts: sql<number>`SUM(CASE WHEN ${practiceAttempts.isCorrect} = true THEN 1 ELSE 0 END)`,
-        averageScore: avg(sql<number>`CASE WHEN ${practiceAttempts.isCorrect} = true THEN 100 ELSE 0 END`),
+        averageScore: sql<string>`COALESCE(ROUND(AVG(CASE WHEN ${practiceAttempts.isCorrect} = true THEN 100 ELSE 0 END), 2), 0)::text`,
       })
       .from(practiceAttempts)
       .innerJoin(questions, eq(practiceAttempts.questionId, questions.id))
@@ -349,7 +349,7 @@ export class DatabaseStorage implements IStorage {
       
       // Update the stats object with the blended score
       if (stats[0]) {
-        stats[0] = { ...stats[0], averageScore: blendedScore };
+        stats[0] = { ...stats[0], averageScore: blendedScore.toString() };
       }
     }
 
