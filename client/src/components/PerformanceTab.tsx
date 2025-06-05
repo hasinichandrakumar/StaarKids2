@@ -265,7 +265,7 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
         {/* Math Category Breakdown */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-blue-700">
+            <CardTitle className="flex items-center gap-2 text-orange-700">
               <Target className="w-5 h-5" />
               Math Categories
             </CardTitle>
@@ -302,7 +302,7 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
         {/* Reading Category Breakdown */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-purple-700">
+            <CardTitle className="flex items-center gap-2 text-yellow-700">
               <Target className="w-5 h-5" />
               Reading Categories
             </CardTitle>
