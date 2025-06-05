@@ -35,7 +35,7 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
   const getReadingSkillStatus = (accuracy: number) => {
     if (accuracy >= 80) return { label: "Excellent", color: "bg-green-600 text-white" };
     if (accuracy >= 65) return { label: "Good", color: "bg-blue-600 text-white" };
-    return { label: "Needs Work", color: "bg-yellow-600 text-white" };
+    return { label: "Needs Work", color: "text-black", style: { backgroundColor: "#FCC201" } };
   };
 
   const getMathSkills = (grade: number) => {
@@ -181,7 +181,10 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
                       className="flex items-center justify-between bg-gray-50 hover:bg-gray-100 rounded-lg p-3 w-full transition-colors cursor-pointer"
                     >
                       <span className="text-sm font-medium text-gray-700">{skill.name}</span>
-                      <span className={`text-xs px-2 py-1 rounded-full ${status.color}`}>
+                      <span 
+                        className={`text-xs px-2 py-1 rounded-full ${status.color}`}
+                        style={status.style || {}}
+                      >
                         {status.label}
                       </span>
                     </button>
