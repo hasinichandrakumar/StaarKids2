@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Lightbulb, X, Clock } from "lucide-react";
+import { Lightbulb, X, Clock, CheckCircle, XCircle } from "lucide-react";
 import { StarIcon, SparklesIcon } from "@heroicons/react/24/solid";
 
 interface QuestionPracticeModalProps {
@@ -20,6 +20,7 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
   const [showExplanation, setShowExplanation] = useState(false);
   const [aiExplanation, setAiExplanation] = useState("");
   const [loadingExplanation, setLoadingExplanation] = useState(false);
+  const [answerStatus, setAnswerStatus] = useState<'correct' | 'incorrect' | null>(null);
   const [startTime] = useState(Date.now());
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -125,19 +126,24 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
       skipped: false,
     });
 
+    setAnswerStatus(isCorrect ? 'correct' : 'incorrect');
+
     if (isCorrect) {
       toast({
         title: "Correct!",
         description: "Great job! You earned 60 Star Power points!",
       });
 
-      // Move to next question or close modal
-      if (currentQuestionIndex < (questions?.length || 0) - 1) {
-        setCurrentQuestionIndex(prev => prev + 1);
-        setSelectedAnswer("");
-      } else {
-        onClose();
-      }
+      // Show correct status briefly, then move to next question
+      setTimeout(() => {
+        if (currentQuestionIndex < (questions?.length || 0) - 1) {
+          setCurrentQuestionIndex(prev => prev + 1);
+          setSelectedAnswer("");
+          setAnswerStatus(null);
+        } else {
+          onClose();
+        }
+      }, 1500);
     } else {
       // Show Nova's explanation for incorrect answer
       setShowExplanation(true);
@@ -150,6 +156,7 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
     setSelectedAnswer("");
     setShowExplanation(false);
     setAiExplanation("");
+    setAnswerStatus(null);
     
     if (currentQuestionIndex < (questions?.length || 0) - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
@@ -201,6 +208,22 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
               <span className="text-gray-500 capitalize">
                 {subject} • Grade {grade}{category ? ` • ${category}` : ''}
               </span>
+              {/* Answer Status Indicator */}
+              {answerStatus && (
+                <div className="flex items-center space-x-2">
+                  {answerStatus === 'correct' ? (
+                    <div className="flex items-center space-x-1 bg-green-100 text-green-800 px-3 py-1 rounded-full">
+                      <CheckCircle className="w-4 h-4" />
+                      <span className="text-sm font-medium">Correct!</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center space-x-1 bg-red-100 text-red-800 px-3 py-1 rounded-full">
+                      <XCircle className="w-4 h-4" />
+                      <span className="text-sm font-medium">Incorrect</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             <Button variant="ghost" size="sm" onClick={onClose}>
               <X className="w-5 h-5" />
