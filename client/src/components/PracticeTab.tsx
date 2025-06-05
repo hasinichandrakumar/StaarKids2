@@ -157,10 +157,10 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
         <Card className="hover:shadow-xl transition-shadow duration-300">
           <CardContent className="p-6">
             <div className="flex items-center mb-4">
-              <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mr-4">
-                <BookOpen className="w-6 h-6 text-yellow-600" />
+              <div className="w-12 h-12 rounded-full flex items-center justify-center mr-4" style={{ backgroundColor: "#FCC20120" }}>
+                <BookOpen className="w-6 h-6" style={{ color: "#FCC201" }} />
               </div>
-              <h3 className="text-2xl font-bold text-yellow-700">Reading</h3>
+              <h3 className="text-2xl font-bold" style={{ color: "#B8860B" }}>Reading</h3>
             </div>
             
             {/* Progress Ring */}
@@ -192,7 +192,14 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
             
             <Button 
               onClick={() => onStartPractice("reading")}
-              className="w-full bg-yellow-600 text-white py-3 rounded-xl font-semibold hover:bg-yellow-700 transition-all duration-200 transform hover:scale-105"
+              className="w-full py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 text-black"
+              style={{ backgroundColor: "#FCC201", borderColor: "#FCC201" }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "#E6AE01";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "#FCC201";
+              }}
             >
               Start Reading Practice
             </Button>
