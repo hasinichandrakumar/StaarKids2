@@ -17,6 +17,7 @@ export default function Dashboard() {
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [showQuestionModal, setShowQuestionModal] = useState(false);
   const [practiceSubject, setPracticeSubject] = useState<"math" | "reading">("math");
+  const [practiceCategory, setPracticeCategory] = useState<string | undefined>(undefined);
 
   if (!user) {
     return (
@@ -29,8 +30,9 @@ export default function Dashboard() {
     );
   }
 
-  const startPractice = (subject: "math" | "reading") => {
+  const startPractice = (subject: "math" | "reading", category?: string) => {
     setPracticeSubject(subject);
+    setPracticeCategory(category);
     setShowQuestionModal(true);
   };
 
@@ -81,7 +83,11 @@ export default function Dashboard() {
         <QuestionPracticeModal
           grade={selectedGrade}
           subject={practiceSubject}
-          onClose={() => setShowQuestionModal(false)}
+          category={practiceCategory}
+          onClose={() => {
+            setShowQuestionModal(false);
+            setPracticeCategory(undefined);
+          }}
         />
       )}
     </div>

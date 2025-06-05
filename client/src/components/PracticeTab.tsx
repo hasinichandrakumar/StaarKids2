@@ -6,7 +6,7 @@ import ProgressRing from "./ProgressRing";
 
 interface PracticeTabProps {
   grade: number;
-  onStartPractice: (subject: "math" | "reading") => void;
+  onStartPractice: (subject: "math" | "reading", category?: string) => void;
 }
 
 export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps) {
@@ -36,27 +36,27 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
     switch (grade) {
       case 3:
         return [
-          { name: "Multiplication and Division", accuracy: 0 },
-          { name: "Place Value to 1,000", accuracy: 0 },
-          { name: "Add and Subtract within 1,000", accuracy: 0 },
-          { name: "Perimeter and Area", accuracy: 0 },
-          { name: "2D and 3D Shapes", accuracy: 0 },
+          { name: "Multiplication and Division", accuracy: 0, teks: "3.4E,3.4F" },
+          { name: "Place Value to 1,000", accuracy: 0, teks: "3.2A,3.2B" },
+          { name: "Add and Subtract within 1,000", accuracy: 0, teks: "3.4A" },
+          { name: "Perimeter and Area", accuracy: 0, teks: "3.6D,3.6E" },
+          { name: "2D and 3D Shapes", accuracy: 0, teks: "3.6A,3.6B" },
         ];
       case 4:
         return [
-          { name: "Multi-digit Operations", accuracy: 0 },
-          { name: "Fractions and Decimals", accuracy: 0 },
-          { name: "Factors and Multiples", accuracy: 0 },
-          { name: "Shape Properties", accuracy: 0 },
-          { name: "Data Analysis", accuracy: 0 },
+          { name: "Multi-digit Operations", accuracy: 0, teks: "4.4A,4.4B" },
+          { name: "Fractions and Decimals", accuracy: 0, teks: "4.2G,4.3E" },
+          { name: "Factors and Multiples", accuracy: 0, teks: "4.4C,4.4D" },
+          { name: "Shape Properties", accuracy: 0, teks: "4.5D,4.6A" },
+          { name: "Data Analysis", accuracy: 0, teks: "4.9A,4.9B" },
         ];
       case 5:
         return [
-          { name: "Decimal and Fraction Operations", accuracy: 0 },
-          { name: "Volume and Measurement", accuracy: 0 },
-          { name: "Variables and Expressions", accuracy: 0 },
-          { name: "2D and 3D Figure Classification", accuracy: 0 },
-          { name: "Data Representation", accuracy: 0 },
+          { name: "Decimal and Fraction Operations", accuracy: 0, teks: "5.3G,5.3H" },
+          { name: "Volume and Measurement", accuracy: 0, teks: "5.4H,5.6A" },
+          { name: "Variables and Expressions", accuracy: 0, teks: "5.4E,5.4F" },
+          { name: "2D and 3D Figure Classification", accuracy: 0, teks: "5.5A,5.6B" },
+          { name: "Data Representation", accuracy: 0, teks: "5.9A,5.9C" },
         ];
       default:
         return [];
@@ -67,27 +67,27 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
     switch (grade) {
       case 3:
         return [
-          { name: "Inferences and Conclusions", accuracy: 0 },
-          { name: "Main Idea and Details", accuracy: 0 },
-          { name: "Story Elements", accuracy: 0 },
-          { name: "Context Clues", accuracy: 0 },
-          { name: "Text Types", accuracy: 0 },
+          { name: "Inferences and Conclusions", accuracy: 0, teks: "3.6G,3.6H" },
+          { name: "Main Idea and Details", accuracy: 0, teks: "3.6E,3.6F" },
+          { name: "Story Elements", accuracy: 0, teks: "3.6A,3.6B" },
+          { name: "Context Clues", accuracy: 0, teks: "3.4B,3.4C" },
+          { name: "Text Types", accuracy: 0, teks: "3.9A,3.9B" },
         ];
       case 4:
         return [
-          { name: "Text Structure and Purpose", accuracy: 0 },
-          { name: "Compare and Contrast", accuracy: 0 },
-          { name: "Reference Materials", accuracy: 0 },
-          { name: "Complex Text Comprehension", accuracy: 0 },
-          { name: "Narrative and Informational", accuracy: 0 },
+          { name: "Text Structure and Purpose", accuracy: 0, teks: "4.6D,4.9C" },
+          { name: "Compare and Contrast", accuracy: 0, teks: "4.6F,4.6H" },
+          { name: "Reference Materials", accuracy: 0, teks: "4.7A,4.7B" },
+          { name: "Complex Text Comprehension", accuracy: 0, teks: "4.6A,4.6G" },
+          { name: "Narrative and Informational", accuracy: 0, teks: "4.8A,4.9A" },
         ];
       case 5:
         return [
-          { name: "Text Arguments and Evidence", accuracy: 0 },
-          { name: "Multiple Text Analysis", accuracy: 0 },
-          { name: "Figurative Language", accuracy: 0 },
-          { name: "Multiple-meaning Words", accuracy: 0 },
-          { name: "Complex Text Independence", accuracy: 0 },
+          { name: "Text Arguments and Evidence", accuracy: 0, teks: "5.6H,5.9F" },
+          { name: "Multiple Text Analysis", accuracy: 0, teks: "5.6I,5.9G" },
+          { name: "Figurative Language", accuracy: 0, teks: "5.4C,5.4D" },
+          { name: "Multiple-meaning Words", accuracy: 0, teks: "5.4A,5.4B" },
+          { name: "Complex Text Independence", accuracy: 0, teks: "5.6A,5.6G" },
         ];
       default:
         return [];
@@ -123,12 +123,16 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
                 {mathSkills.map((skill, index) => {
                   const status = getSkillStatus(skill.accuracy);
                   return (
-                    <div key={index} className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
+                    <button
+                      key={index}
+                      onClick={() => onStartPractice("math", skill.name)}
+                      className="flex items-center justify-between bg-gray-50 hover:bg-gray-100 rounded-lg p-3 w-full transition-colors cursor-pointer"
+                    >
                       <span className="text-sm font-medium text-gray-700">{skill.name}</span>
                       <span className={`text-xs px-2 py-1 rounded-full ${status.color}`}>
                         {status.label}
                       </span>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
@@ -165,12 +169,16 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
                 {readingSkills.map((skill, index) => {
                   const status = getSkillStatus(skill.accuracy);
                   return (
-                    <div key={index} className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
+                    <button
+                      key={index}
+                      onClick={() => onStartPractice("reading", skill.name)}
+                      className="flex items-center justify-between bg-gray-50 hover:bg-gray-100 rounded-lg p-3 w-full transition-colors cursor-pointer"
+                    >
                       <span className="text-sm font-medium text-gray-700">{skill.name}</span>
                       <span className={`text-xs px-2 py-1 rounded-full ${status.color}`}>
                         {status.label}
                       </span>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
