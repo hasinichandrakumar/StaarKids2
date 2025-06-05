@@ -105,15 +105,15 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
         <Card className="hover:shadow-xl transition-shadow duration-300">
           <CardContent className="p-6">
             <div className="flex items-center mb-4">
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
-                <Calculator className="w-6 h-6 text-red-600" />
+              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mr-4">
+                <Calculator className="w-6 h-6 text-orange-600" />
               </div>
-              <h3 className="text-2xl font-bold text-red-700">Math</h3>
+              <h3 className="text-2xl font-bold text-orange-700">Math</h3>
             </div>
             
             {/* Progress Ring */}
             <div className="flex justify-center mb-4">
-              <ProgressRing progress={mathProgress} color="#DC2626" />
+              <ProgressRing progress={mathProgress} color="#FF5B00" />
             </div>
             
             {/* TEKS Skills */}
@@ -140,7 +140,7 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
             
             <Button 
               onClick={() => onStartPractice("math")}
-              className="w-full bg-red-600 text-white py-3 rounded-xl font-semibold hover:bg-red-700 transition-all duration-200 transform hover:scale-105"
+              className="w-full bg-orange-600 text-white py-3 rounded-xl font-semibold hover:bg-orange-700 transition-all duration-200 transform hover:scale-105"
             >
               Start Math Practice
             </Button>
@@ -159,7 +159,7 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
             
             {/* Progress Ring */}
             <div className="flex justify-center mb-4">
-              <ProgressRing progress={readingProgress} color="#CA8A04" />
+              <ProgressRing progress={readingProgress} color="#FCC201" />
             </div>
             
             {/* TEKS Skills */}
@@ -186,7 +186,8 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
             
             <Button 
               onClick={() => onStartPractice("reading")}
-              className="w-full bg-yellow-600 text-white py-3 rounded-xl font-semibold hover:bg-yellow-700 transition-all duration-200 transform hover:scale-105"
+              className="w-full text-white py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105"
+              style={{ backgroundColor: '#FCC201', hover: { backgroundColor: '#E6B001' } }}
             >
               Start Reading Practice
             </Button>
