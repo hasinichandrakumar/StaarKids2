@@ -31,12 +31,12 @@ export default function MockExamsTab({ grade }: MockExamsTabProps) {
   };
 
   // Filter exams by subject for the selected grade
-  const mathExams = allExams?.filter((exam: any) => exam.subject === "math" && exam.grade === grade) || [];
-  const readingExams = allExams?.filter((exam: any) => exam.subject === "reading" && exam.grade === grade) || [];
+  const mathExams = Array.isArray(allExams) ? allExams.filter((exam: any) => exam.subject === "math" && exam.grade === grade) : [];
+  const readingExams = Array.isArray(allExams) ? allExams.filter((exam: any) => exam.subject === "reading" && exam.grade === grade) : [];
 
   // Filter exam history by subject
-  const mathHistory = examHistory?.filter((exam: any) => exam.subject === "math") || [];
-  const readingHistory = examHistory?.filter((exam: any) => exam.subject === "reading") || [];
+  const mathHistory = Array.isArray(examHistory) ? examHistory.filter((exam: any) => exam.subject === "math") : [];
+  const readingHistory = Array.isArray(examHistory) ? examHistory.filter((exam: any) => exam.subject === "reading") : [];
 
   const renderExamCard = (exam: any) => (
     <div key={exam.id} className="border border-gray-200 rounded-xl p-4 hover:border-primary transition-colors">

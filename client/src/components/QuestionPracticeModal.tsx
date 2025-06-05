@@ -27,6 +27,31 @@ export default function QuestionPracticeModal({ grade, subject, onClose }: Quest
     queryFn: () => fetch(`/api/questions/${grade}/${subject}`).then(res => res.json()),
   });
 
+  const generateQuestionsMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/questions/generate", {
+        grade,
+        subject,
+        count: 5
+      });
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/questions", grade, subject] });
+      toast({
+        title: "New Questions Generated",
+        description: `5 new ${subject} questions created based on authentic STAAR tests!`,
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Generation Failed",
+        description: "Unable to generate new questions. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const currentQuestion = questions?.[currentQuestionIndex];
 
   const submitAnswerMutation = useMutation({

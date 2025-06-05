@@ -66,6 +66,101 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // AI-powered practice question generation
+  app.post('/api/questions/generate', isAuthenticated, async (req: any, res) => {
+    try {
+      const { grade, subject, count = 5 } = req.body;
+      
+      if (![3, 4, 5].includes(grade) || !['math', 'reading'].includes(subject)) {
+        return res.status(400).json({ message: "Invalid grade or subject" });
+      }
+
+      // Get authentic STAAR questions as examples
+      const sampleQuestions = await storage.getQuestionsByGradeAndSubject(grade, subject);
+      
+      if (!sampleQuestions.length) {
+        return res.status(404).json({ message: "No sample questions found" });
+      }
+
+      // Use Perplexity AI to generate similar questions
+      const response = await fetch('https://api.perplexity.ai/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'llama-3.1-sonar-small-128k-online',
+          messages: [
+            {
+              role: 'system',
+              content: `You are an expert Texas STAAR test question generator. Create ${count} authentic practice questions similar to official STAAR ${grade}th grade ${subject} tests. Each question must follow STAAR format exactly with 4 multiple choice options. Return only valid JSON format.`
+            },
+            {
+              role: 'user', 
+              content: `Generate ${count} STAAR Grade ${grade} ${subject} practice questions similar to these authentic examples from the 2019 Texas Education Agency tests:
+
+${sampleQuestions.slice(0, 3).map((q, i) => `
+Example ${i + 1}:
+Question: ${q.questionText}
+Options: ${JSON.stringify(q.answerChoices)}
+Correct Answer: ${q.correctAnswer}
+TEKS: ${q.teksStandard}
+`).join('\n')}
+
+Create new questions that test similar skills but with different scenarios. Follow exact STAAR format and difficulty level. Respond with JSON array:
+[{
+  "questionText": "...",
+  "answerChoices": ["A) ...", "B) ...", "C) ...", "D) ..."],
+  "correctAnswer": "A",
+  "explanation": "...",
+  "teksStandard": "..."
+}]`
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 2000
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Perplexity API error: ${response.status}`);
+      }
+
+      const aiResponse = await response.json();
+      let generatedQuestions;
+      
+      try {
+        generatedQuestions = JSON.parse(aiResponse.choices[0].message.content);
+      } catch (parseError) {
+        console.error("Failed to parse AI response:", aiResponse.choices[0].message.content);
+        return res.status(500).json({ message: "Failed to generate valid questions" });
+      }
+
+      // Save generated questions to database
+      const savedQuestions = [];
+      for (const q of generatedQuestions) {
+        const question = await storage.createQuestion({
+          questionText: q.questionText,
+          answerChoices: q.answerChoices,
+          correctAnswer: q.correctAnswer,
+          explanation: q.explanation,
+          grade,
+          subject,
+          year: new Date().getFullYear(),
+          teksStandard: q.teksStandard || `${grade}.AI`,
+          difficulty: 'medium'
+        });
+        savedQuestions.push(question);
+      }
+
+      res.json(savedQuestions);
+    } catch (error) {
+      console.error("Error generating questions:", error);
+      res.status(500).json({ message: "Failed to generate questions" });
+    }
+  });
+
   // Practice attempt routes
   app.post('/api/practice/attempt', isAuthenticated, async (req: any, res) => {
     try {
