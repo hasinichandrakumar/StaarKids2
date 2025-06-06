@@ -18,6 +18,7 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("practice");
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [showNovaChat, setShowNovaChat] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showQuestionModal, setShowQuestionModal] = useState(false);
   const [practiceSubject, setPracticeSubject] = useState<"math" | "reading">("math");
   const [practiceCategory, setPracticeCategory] = useState<string | undefined>(undefined);
@@ -55,17 +56,13 @@ export default function Dashboard() {
         user={user} 
         onOpenAvatarModal={() => setShowAvatarModal(true)}
         onOpenNovaChat={() => setShowNovaChat(true)}
+        onOpenSettings={() => setShowSettingsModal(true)}
       />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <WelcomeSection user={user} />
         
         <StarPowerDashboard />
-        
-        <GradeSelector 
-          selectedGrade={selectedGrade} 
-          onGradeChange={setSelectedGrade} 
-        />
         
         <NavigationTabs 
           activeTab={activeTab} 
@@ -112,6 +109,15 @@ export default function Dashboard() {
           grade={selectedGrade}
           isOpen={showNovaChat}
           onClose={() => setShowNovaChat(false)}
+        />
+      )}
+
+      {showSettingsModal && (
+        <SettingsModal
+          user={user}
+          selectedGrade={selectedGrade}
+          onGradeChange={setSelectedGrade}
+          onClose={() => setShowSettingsModal(false)}
         />
       )}
     </div>
