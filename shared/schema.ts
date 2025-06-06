@@ -43,6 +43,11 @@ export const users = pgTable("users", {
   avatarType: varchar("avatar_type").default("fox"),
   avatarColor: varchar("avatar_color").default("#FF5B00"),
   userRank: varchar("user_rank").default("Cadet"),
+  // Role-based access fields
+  role: varchar("role").notNull().default("student"), // student, parent, teacher
+  organizationId: varchar("organization_id"),
+  parentId: varchar("parent_id"), // For student accounts linked to parents
+  isVerified: boolean("is_verified").default(false), // For teacher/organization verification
 });
 
 export const questions = pgTable("questions", {
@@ -124,12 +129,55 @@ export const starPowerHistory = pgTable("star_power_history", {
   date: timestamp("date").defaultNow(),
 });
 
+// Organizations table for schools and tutoring centers
+export const organizations = pgTable("organizations", {
+  id: varchar("id").primaryKey().notNull(),
+  name: varchar("name").notNull(),
+  type: varchar("type").notNull(), // "school", "tutoring_center", "district"
+  email: varchar("email").unique(),
+  phone: varchar("phone"),
+  address: text("address"),
+  isVerified: boolean("is_verified").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Student-parent relationships
+export const studentParentRelations = pgTable("student_parent_relations", {
+  id: serial("id").primaryKey(),
+  studentId: varchar("student_id").notNull().references(() => users.id),
+  parentId: varchar("parent_id").notNull().references(() => users.id),
+  relationshipType: varchar("relationship_type").default("parent"), // parent, guardian, etc.
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Organization-student relationships  
+export const organizationStudentRelations = pgTable("organization_student_relations", {
+  id: serial("id").primaryKey(),
+  organizationId: varchar("organization_id").notNull().references(() => organizations.id),
+  studentId: varchar("student_id").notNull().references(() => users.id),
+  teacherId: varchar("teacher_id").references(() => users.id),
+  classroomId: varchar("classroom_id"),
+  enrolledAt: timestamp("enrolled_at").defaultNow(),
+  isActive: boolean("is_active").default(true),
+});
+
 // Relations
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ many, one }) => ({
   practiceAttempts: many(practiceAttempts),
   examAttempts: many(examAttempts),
   userProgress: many(userProgress),
   starPowerHistory: many(starPowerHistory),
+  // Parent-student relationships
+  parentRelations: many(studentParentRelations, { relationName: "parent" }),
+  studentRelations: many(studentParentRelations, { relationName: "student" }),
+  // Organization relationships
+  organizationRelations: many(organizationStudentRelations),
+  organization: one(organizations, {
+    fields: [users.organizationId],
+    references: [organizations.id],
+  }),
 }));
 
 export const questionsRelations = relations(questions, ({ many }) => ({
@@ -189,6 +237,39 @@ export const starPowerHistoryRelations = relations(starPowerHistory, ({ one }) =
   }),
 }));
 
+export const organizationsRelations = relations(organizations, ({ many }) => ({
+  students: many(organizationStudentRelations),
+  teachers: many(users),
+}));
+
+export const studentParentRelationsRelations = relations(studentParentRelations, ({ one }) => ({
+  student: one(users, {
+    fields: [studentParentRelations.studentId],
+    references: [users.id],
+    relationName: "student",
+  }),
+  parent: one(users, {
+    fields: [studentParentRelations.parentId],
+    references: [users.id],
+    relationName: "parent",
+  }),
+}));
+
+export const organizationStudentRelationsRelations = relations(organizationStudentRelations, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [organizationStudentRelations.organizationId],
+    references: [organizations.id],
+  }),
+  student: one(users, {
+    fields: [organizationStudentRelations.studentId],
+    references: [users.id],
+  }),
+  teacher: one(users, {
+    fields: [organizationStudentRelations.teacherId],
+    references: [users.id],
+  }),
+}));
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   createdAt: true,
@@ -226,12 +307,30 @@ export const insertStarPowerHistorySchema = createInsertSchema(starPowerHistory)
   date: true,
 });
 
+export const insertOrganizationSchema = createInsertSchema(organizations).omit({
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertStudentParentRelationSchema = createInsertSchema(studentParentRelations).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertOrganizationStudentRelationSchema = createInsertSchema(organizationStudentRelations).omit({
+  id: true,
+  enrolledAt: true,
+});
+
 // Update user schema for profile updates
 export const updateUserSchema = createInsertSchema(users).pick({
   currentGrade: true,
   avatarType: true,
   avatarColor: true,
   starPower: true,
+  role: true,
+  organizationId: true,
+  parentId: true,
 }).partial();
 
 // Types
