@@ -901,6 +901,84 @@ Keep your response simple and encouraging for a ${grade}th grader.`;
         organizationId = testOrg.id;
       }
 
+      // Create test student accounts for parent role
+      if (role === 'parent') {
+        // Create 2 test student accounts and link them to this parent
+        const testStudent1 = await storage.upsertUser({
+          id: `test_student_1_${userId}`,
+          email: `alex.student@demo.com`,
+          firstName: "Alex",
+          lastName: "Johnson",
+          currentGrade: 3,
+          starPower: 150,
+          role: "student"
+        });
+
+        const testStudent2 = await storage.upsertUser({
+          id: `test_student_2_${userId}`,
+          email: `sam.student@demo.com`,
+          firstName: "Sam",
+          lastName: "Johnson", 
+          currentGrade: 4,
+          starPower: 200,
+          role: "student"
+        });
+
+        // Link students to parent
+        await storage.linkStudentToParent(testStudent1.id, userId);
+        await storage.linkStudentToParent(testStudent2.id, userId);
+
+        // Create practice attempts for realistic data
+        const mathQuestions = await storage.getQuestionsByGradeAndSubject(3, "math");
+        const readingQuestions = await storage.getQuestionsByGradeAndSubject(3, "reading");
+        
+        if (mathQuestions.length > 0) {
+          for (let i = 0; i < Math.min(5, mathQuestions.length); i++) {
+            await storage.createPracticeAttempt({
+              userId: testStudent1.id,
+              questionId: mathQuestions[i].id,
+              isCorrect: Math.random() > 0.3, // 70% correct rate
+              grade: 3,
+              subject: "math",
+              teksStandard: mathQuestions[i].teksStandard
+            });
+          }
+        }
+
+        if (readingQuestions.length > 0) {
+          for (let i = 0; i < Math.min(5, readingQuestions.length); i++) {
+            await storage.createPracticeAttempt({
+              userId: testStudent1.id,
+              questionId: readingQuestions[i].id,
+              isCorrect: Math.random() > 0.25, // 75% correct rate
+              grade: 3,
+              subject: "reading",
+              teksStandard: readingQuestions[i].teksStandard
+            });
+          }
+        }
+      }
+
+      // Create test students for teacher organization
+      if (role === 'teacher' && organizationId) {
+        // Create 5 test students for the organization
+        for (let i = 1; i <= 5; i++) {
+          const grade = 3 + (i % 3); // Grades 3, 4, 5
+          const testStudent = await storage.upsertUser({
+            id: `org_student_${i}_${organizationId}`,
+            email: `student${i}@${organizationId}.demo.com`,
+            firstName: `Student`,
+            lastName: `${i}`,
+            currentGrade: grade,
+            starPower: 50 + (i * 30),
+            role: "student"
+          });
+
+          // Link to organization
+          await storage.linkStudentToOrganization(testStudent.id, organizationId, userId);
+        }
+      }
+
       // Update user role directly for testing
       const updatedUser = await storage.updateUserProfile(userId, {
         role,
