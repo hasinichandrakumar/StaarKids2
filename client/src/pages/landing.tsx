@@ -13,8 +13,8 @@ export default function Landing() {
               <div className="w-10 h-10 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center">
                 <Star className="w-6 h-6 text-white" />
               </div>
-              <h1 className="text-2xl font-bold text-gray-700">
-                <span className="bg-gradient-to-r from-[#FF5B00] to-[#FCC201] bg-clip-text text-transparent">Staar</span>Kids
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-[#FF5B00] to-[#FCC201] bg-clip-text text-transparent">
+                StaarKids
               </h1>
             </div>
             <Button 
@@ -31,7 +31,7 @@ export default function Landing() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-16">
           <h2 className="text-5xl font-bold text-gray-700 mb-6">
-            Master Your <span className="text-primary">STAAR</span> Tests
+            Master Your <span className="bg-gradient-to-r from-[#FF5B00] to-[#FCC201] bg-clip-text text-transparent">STAAR</span> Tests
           </h2>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
             Empower Texas students in grades 3–5 to effectively prepare for STAAR tests 
