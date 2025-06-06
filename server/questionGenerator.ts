@@ -297,6 +297,7 @@ Always respond with valid JSON only.`
       }
     } catch (parseError) {
       console.error('Failed to parse Perplexity response:', content);
+      console.error('Parse error:', parseError);
       throw new Error('Invalid JSON response from AI');
     }
 
