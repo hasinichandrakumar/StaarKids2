@@ -382,6 +382,57 @@ Respond with JSON array:
     }
   });
 
+  // Add exam start endpoint
+  app.post('/api/exams/:examId/start', isAuthenticated, async (req: any, res) => {
+    try {
+      const examId = parseInt(req.params.examId);
+      const userId = req.user.claims.sub;
+      
+      // Create exam attempt record
+      const attemptData = {
+        userId,
+        examId,
+        totalQuestions: 40, // Standard STAAR exam length
+        correctAnswers: 0,
+        completed: false,
+        score: "0",
+        timeSpent: 0
+      };
+      
+      const attempt = await storage.createExamAttempt(attemptData);
+      res.json({ success: true, attemptId: attempt.id });
+    } catch (error) {
+      console.error("Error starting exam:", error);
+      res.status(500).json({ message: "Failed to start exam" });
+    }
+  });
+
+  // Add exam details endpoint
+  app.get('/api/exams/details/:examId', isAuthenticated, async (req, res) => {
+    try {
+      const examId = parseInt(req.params.examId);
+      
+      // Get exam details with questions
+      const exam = await storage.getMockExams(3); // Get all exams and find the specific one
+      const specificExam = exam.find((e: any) => e.id === examId);
+      
+      if (!specificExam) {
+        return res.status(404).json({ message: "Exam not found" });
+      }
+
+      // For now, return exam with sample questions structure
+      const examWithQuestions = {
+        ...specificExam,
+        questions: [] // Will be populated when we have questions linked to exams
+      };
+
+      res.json(examWithQuestions);
+    } catch (error) {
+      console.error("Error fetching exam details:", error);
+      res.status(500).json({ message: "Failed to fetch exam details" });
+    }
+  });
+
   // Initialize mock exams for all grades
   app.post('/api/exams/initialize', async (req, res) => {
     try {

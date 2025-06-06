@@ -440,6 +440,136 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
           </CardContent>
         </Card>
       )}
+
+      {/* Detailed Learning Recommendations */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-purple-700">
+            <Brain className="w-5 h-5" />
+            Personalized Learning Recommendations
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Math Recommendations */}
+            <div className="p-4 bg-gradient-to-br from-orange-50 to-red-50 rounded-lg border border-orange-200">
+              <h4 className="text-lg font-semibold text-orange-800 mb-3 flex items-center">
+                <Calculator className="w-5 h-5 mr-2" />
+                Math Focus Areas
+              </h4>
+              <div className="space-y-3">
+                {mathCategoryStats.length > 0 ? (
+                  mathCategoryStats.slice(0, 3).map((stat, index) => {
+                    const recommendation = getMathRecommendation(stat.category, stat.accuracy, grade);
+                    return (
+                      <div key={index} className="p-3 bg-white rounded border border-orange-100">
+                        <div className="font-medium text-gray-800 mb-1">{stat.category}</div>
+                        <div className="text-sm text-orange-700">{recommendation}</div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          Practice more to improve from {Math.round(stat.accuracy)}% accuracy
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="text-center py-4 text-gray-500">
+                    Start practicing math to get personalized recommendations!
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Reading Recommendations */}
+            <div className="p-4 bg-gradient-to-br from-yellow-50 to-amber-50 rounded-lg border border-yellow-200">
+              <h4 className="text-lg font-semibold text-yellow-800 mb-3 flex items-center">
+                <BookOpen className="w-5 h-5 mr-2" />
+                Reading Focus Areas
+              </h4>
+              <div className="space-y-3">
+                {readingCategoryStats.length > 0 ? (
+                  readingCategoryStats.slice(0, 3).map((stat, index) => {
+                    const recommendation = getReadingRecommendation(stat.category, stat.accuracy, grade);
+                    return (
+                      <div key={index} className="p-3 bg-white rounded border border-yellow-100">
+                        <div className="font-medium text-gray-800 mb-1">{stat.category}</div>
+                        <div className="text-sm text-yellow-700">{recommendation}</div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          Practice more to improve from {Math.round(stat.accuracy)}% accuracy
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="text-center py-4 text-gray-500">
+                    Start practicing reading to get personalized recommendations!
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Study Plan Suggestions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-green-700">
+            <Target className="w-5 h-5" />
+            Weekly Study Plan Suggestions
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg border border-green-200">
+              <h4 className="font-semibold text-green-800 mb-2">This Week</h4>
+              <div className="text-sm text-green-700 space-y-2">
+                <div>• Focus on lowest-scoring categories</div>
+                <div>• Practice 15 minutes daily</div>
+                <div>• Review incorrect answers</div>
+                <div>• Take one mock exam</div>
+              </div>
+            </div>
+            <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+              <h4 className="font-semibold text-blue-800 mb-2">Next Week</h4>
+              <div className="text-sm text-blue-700 space-y-2">
+                <div>• Review improved areas</div>
+                <div>• Increase practice time to 20 minutes</div>
+                <div>• Mixed practice sessions</div>
+                <div>• Complete two mock exams</div>
+              </div>
+            </div>
+            <div className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg border border-purple-200">
+              <h4 className="font-semibold text-purple-800 mb-2">Long Term</h4>
+              <div className="text-sm text-purple-700 space-y-2">
+                <div>• Maintain 80%+ accuracy</div>
+                <div>• Full-length practice tests</div>
+                <div>• Test day simulation</div>
+                <div>• Confidence building</div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
+
+  function getMathRecommendation(category: string, accuracy: number, grade: number): string {
+    if (accuracy < 50) {
+      return `Focus on fundamental concepts. Start with basic ${category.toLowerCase()} problems and work with visual aids.`;
+    } else if (accuracy < 70) {
+      return `Good foundation! Practice more word problems and multi-step questions in ${category.toLowerCase()}.`;
+    } else {
+      return `Strong performance! Challenge yourself with advanced ${category.toLowerCase()} problems and test strategies.`;
+    }
+  }
+
+  function getReadingRecommendation(category: string, accuracy: number, grade: number): string {
+    if (accuracy < 50) {
+      return `Start with shorter passages and practice identifying key details in ${category.toLowerCase()}.`;
+    } else if (accuracy < 70) {
+      return `Build comprehension skills by reading diverse texts and discussing ${category.toLowerCase()}.`;
+    } else {
+      return `Excellent progress! Practice with complex passages and advanced ${category.toLowerCase()} questions.`;
+    }
+  }
 }
