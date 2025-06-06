@@ -7,6 +7,9 @@ import {
   examAttempts,
   userProgress,
   starPowerHistory,
+  organizations,
+  studentParentRelations,
+  organizationStudentRelations,
   type User,
   type UpsertUser,
   type Question,
@@ -22,6 +25,12 @@ import {
   type StarPowerHistory,
   type InsertStarPowerHistory,
   type UpdateUser,
+  type Organization,
+  type InsertOrganization,
+  type StudentParentRelation,
+  type InsertStudentParentRelation,
+  type OrganizationStudentRelation,
+  type InsertOrganizationStudentRelation,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, avg, count, sql } from "drizzle-orm";
@@ -97,6 +106,16 @@ export interface IStorage {
       lastAttempted: Date | null;
     }>;
   }>;
+
+  // Multi-role account operations
+  createOrganization(organization: InsertOrganization): Promise<Organization>;
+  getOrganization(id: string): Promise<Organization | undefined>;
+  linkStudentToParent(studentId: string, parentId: string): Promise<StudentParentRelation>;
+  linkStudentToOrganization(studentId: string, organizationId: string, teacherId?: string): Promise<OrganizationStudentRelation>;
+  getStudentsByParent(parentId: string): Promise<User[]>;
+  getStudentsByOrganization(organizationId: string): Promise<User[]>;
+  getParentsByStudent(studentId: string): Promise<User[]>;
+  updateUserRole(userId: string, role: string, additionalData?: any): Promise<User>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -583,6 +602,152 @@ export class DatabaseStorage implements IStorage {
         lastAttempted: stat.lastAttempted,
       })),
     };
+  }
+
+  // Multi-role account operations
+  async createOrganization(organization: InsertOrganization): Promise<Organization> {
+    const [created] = await db
+      .insert(organizations)
+      .values(organization)
+      .returning();
+    return created;
+  }
+
+  async getOrganization(id: string): Promise<Organization | undefined> {
+    const [organization] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.id, id));
+    return organization;
+  }
+
+  async linkStudentToParent(studentId: string, parentId: string): Promise<StudentParentRelation> {
+    const [relation] = await db
+      .insert(studentParentRelations)
+      .values({
+        studentId,
+        parentId,
+        relationshipType: "parent",
+        isActive: true
+      })
+      .returning();
+    return relation;
+  }
+
+  async linkStudentToOrganization(studentId: string, organizationId: string, teacherId?: string): Promise<OrganizationStudentRelation> {
+    const [relation] = await db
+      .insert(organizationStudentRelations)
+      .values({
+        organizationId,
+        studentId,
+        teacherId,
+        isActive: true
+      })
+      .returning();
+    return relation;
+  }
+
+  async getStudentsByParent(parentId: string): Promise<User[]> {
+    const students = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        currentGrade: users.currentGrade,
+        avatarType: users.avatarType,
+        avatarColor: users.avatarColor,
+        starPower: users.starPower,
+        role: users.role,
+        createdAt: users.createdAt
+      })
+      .from(users)
+      .innerJoin(studentParentRelations, eq(users.id, studentParentRelations.studentId))
+      .where(
+        and(
+          eq(studentParentRelations.parentId, parentId),
+          eq(studentParentRelations.isActive, true)
+        )
+      );
+    return students;
+  }
+
+  async getStudentsByOrganization(organizationId: string): Promise<User[]> {
+    const students = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        currentGrade: users.currentGrade,
+        avatarType: users.avatarType,
+        avatarColor: users.avatarColor,
+        starPower: users.starPower,
+        role: users.role,
+        createdAt: users.createdAt
+      })
+      .from(users)
+      .innerJoin(organizationStudentRelations, eq(users.id, organizationStudentRelations.studentId))
+      .where(
+        and(
+          eq(organizationStudentRelations.organizationId, organizationId),
+          eq(organizationStudentRelations.isActive, true)
+        )
+      );
+    return students;
+  }
+
+  async getParentsByStudent(studentId: string): Promise<User[]> {
+    const parents = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        currentGrade: users.currentGrade,
+        avatarType: users.avatarType,
+        avatarColor: users.avatarColor,
+        starPower: users.starPower,
+        role: users.role,
+        createdAt: users.createdAt
+      })
+      .from(users)
+      .innerJoin(studentParentRelations, eq(users.id, studentParentRelations.parentId))
+      .where(
+        and(
+          eq(studentParentRelations.studentId, studentId),
+          eq(studentParentRelations.isActive, true)
+        )
+      );
+    return parents;
+  }
+
+  async updateUserRole(userId: string, role: string, additionalData?: any): Promise<User> {
+    let organizationId = null;
+
+    // Create organization if teacher role
+    if (role === "teacher" && additionalData?.organizationData) {
+      const organization = await this.createOrganization({
+        id: `org_${Date.now()}`,
+        ...additionalData.organizationData
+      });
+      organizationId = organization.id;
+    }
+
+    // Update user role
+    const [updatedUser] = await db
+      .update(users)
+      .set({
+        role,
+        organizationId,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId))
+      .returning();
+
+    // Link student to parent if parent role
+    if (role === "parent" && additionalData?.studentId) {
+      await this.linkStudentToParent(additionalData.studentId, userId);
+    }
+
+    return updatedUser;
   }
 }
 
