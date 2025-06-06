@@ -113,7 +113,7 @@ export default function Landing() {
               <p className="text-gray-600">Work through TEKS-aligned questions with hints and detailed explanations</p>
             </div>
             <div className="text-center">
-              <div className="w-12 h-12 bg-success text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+              <div className="w-12 h-12 bg-red-500 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
                 3
               </div>
               <h4 className="text-xl font-semibold text-gray-700 mb-2">Track Progress</h4>
