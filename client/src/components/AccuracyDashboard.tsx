@@ -206,7 +206,7 @@ export default function AccuracyDashboard({ selectedGrade }: AccuracyDashboardPr
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium text-orange-700">{teks.teksStandard}</span>
                       <span className={`text-sm font-bold ${getAccuracyColor(teks.accuracy)}`}>
-                        {teks.accuracy}%
+                        {Math.round(teks.accuracy)}%
                       </span>
                     </div>
                     <Progress value={teks.accuracy} className="h-2" />
@@ -238,7 +238,7 @@ export default function AccuracyDashboard({ selectedGrade }: AccuracyDashboardPr
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium text-yellow-700">{teks.teksStandard}</span>
                       <span className={`text-sm font-bold ${getAccuracyColor(teks.accuracy)}`}>
-                        {teks.accuracy}%
+                        {Math.round(teks.accuracy)}%
                       </span>
                     </div>
                     <Progress value={teks.accuracy} className="h-2" />
