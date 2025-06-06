@@ -144,10 +144,16 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
                       onClick={() => onStartPractice("math", skill.name)}
                       className="flex items-center justify-between bg-gray-50 hover:bg-gray-100 rounded-lg p-3 w-full transition-colors cursor-pointer"
                     >
-                      <span className="text-sm font-medium text-gray-700">{skill.name}</span>
-                      <span className={`text-xs px-2 py-1 rounded-full ${status.color}`}>
-                        {status.label}
-                      </span>
+                      <div className="flex flex-col items-start">
+                        <span className="text-sm font-medium text-gray-700">{skill.name}</span>
+                        <span className="text-xs text-gray-500">{skill.teks}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-orange-600">{Math.round(skill.accuracy)}%</span>
+                        <span className={`text-xs px-2 py-1 rounded-full ${status.color}`}>
+                          {status.label}
+                        </span>
+                      </div>
                     </button>
                   );
                 })}
@@ -190,13 +196,19 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
                       onClick={() => onStartPractice("reading", skill.name)}
                       className="flex items-center justify-between bg-gray-50 hover:bg-gray-100 rounded-lg p-3 w-full transition-colors cursor-pointer"
                     >
-                      <span className="text-sm font-medium text-gray-700">{skill.name}</span>
-                      <span 
-                        className={`text-xs px-2 py-1 rounded-full ${status.color}`}
-                        style={status.style || {}}
-                      >
-                        {status.label}
-                      </span>
+                      <div className="flex flex-col items-start">
+                        <span className="text-sm font-medium text-gray-700">{skill.name}</span>
+                        <span className="text-xs text-gray-500">{skill.teks}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold" style={{ color: "#B8860B" }}>{Math.round(skill.accuracy)}%</span>
+                        <span 
+                          className={`text-xs px-2 py-1 rounded-full ${status.color}`}
+                          style={status.style || {}}
+                        >
+                          {status.label}
+                        </span>
+                      </div>
                     </button>
                   );
                 })}

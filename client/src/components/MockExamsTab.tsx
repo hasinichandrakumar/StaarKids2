@@ -42,12 +42,17 @@ export default function MockExamsTab({ grade }: MockExamsTabProps) {
   const readingHistory = Array.isArray(examHistory) ? examHistory.filter((exam: any) => exam.subject === "reading") : [];
 
   const cleanExamName = (name: string) => {
-    return name.replace(/\s+1+$/, '').replace(/Practice\s+1+/, 'Practice');
+    return name
+      .replace(/\s+1+\s*$/, '')
+      .replace(/Practice\s*1+/g, 'Practice')
+      .replace(/\s+/g, ' ')
+      .trim();
   };
 
-  const handleStartExam = (examId: number) => {
-    // TODO: Implement exam start functionality
-    console.log('Starting exam:', examId);
+  const handleStartExam = (examId: number, examName: string) => {
+    if (confirm(`Start "${cleanExamName(examName)}"? This will begin a timed practice exam.`)) {
+      window.open(`/exam/${examId}`, '_blank');
+    }
   };
 
   const renderExamCard = (exam: any) => (
@@ -69,7 +74,7 @@ export default function MockExamsTab({ grade }: MockExamsTabProps) {
         )}
       </p>
       <Button 
-        onClick={() => handleStartExam(exam.id)}
+        onClick={() => handleStartExam(exam.id, exam.name)}
         className={`w-full py-2 rounded-lg font-medium transition-colors ${
           exam.subject === "math" 
             ? "bg-primary text-white hover:bg-primary/90" 
