@@ -1,0 +1,29 @@
+// Generate StaarKids logo as SVG first, then convert to PNG
+import fs from 'fs';
+
+const logoSVG = `<svg width="400" height="100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="orangeYellowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FF5B00;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FCC201;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- White background -->
+  <rect width="400" height="100" fill="white"/>
+  
+  <!-- Circular background for star -->
+  <circle cx="50" cy="50" r="30" fill="url(#orangeYellowGradient)"/>
+  
+  <!-- Star icon -->
+  <path d="M50 25 L55.45 40.13 L72 41 L61 52.37 L63.9 68.02 L50 60.38 L36.1 68.02 L39 52.37 L28 41 L44.55 40.13 Z" fill="white"/>
+  
+  <!-- StaarKids text -->
+  <text x="95" y="65" font-family="Arial, sans-serif" font-size="42" font-weight="bold" fill="url(#orangeYellowGradient)">StaarKids</text>
+</svg>`;
+
+// Write SVG file
+fs.writeFileSync('staarkids-logo.svg', logoSVG);
+
+console.log('StaarKids logo SVG created successfully!');
+console.log('To convert to PNG, you can use an online SVG to PNG converter or image editing software.');
