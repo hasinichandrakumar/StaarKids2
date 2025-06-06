@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Star, Calculator, BookOpen, Target, Award } from "lucide-react";
+import { Star, Calculator, BookOpen, User, Award } from "lucide-react";
 
 export default function Landing() {
   return (
@@ -71,8 +71,8 @@ export default function Landing() {
 
           <Card className="hover:shadow-xl transition-shadow duration-300">
             <CardContent className="pt-6 text-center">
-              <div className="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Target className="w-8 h-8 text-success" />
+              <div className="w-16 h-16 bg-orange-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <User className="w-8 h-8 text-orange-500" />
               </div>
               <h3 className="text-xl font-bold text-gray-700 mb-2">Personalized Learning</h3>
               <p className="text-gray-600">
