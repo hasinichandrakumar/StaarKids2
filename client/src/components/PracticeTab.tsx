@@ -23,8 +23,18 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
     queryFn: () => fetch("/api/practice/history?limit=5").then(res => res.json()),
   });
 
-  const mathProgress = mathStats ? Math.round((mathStats as any).averageScore || 0) : 0;
-  const readingProgress = readingStats ? Math.round((readingStats as any).averageScore || 0) : 0;
+  const { data: mathAccuracy } = useQuery({
+    queryKey: ["/api/accuracy", grade, "math"],
+    queryFn: () => fetch(`/api/accuracy?grade=${grade}&subject=math`).then(res => res.json()),
+  });
+
+  const { data: readingAccuracy } = useQuery({
+    queryKey: ["/api/accuracy", grade, "reading"],
+    queryFn: () => fetch(`/api/accuracy?grade=${grade}&subject=reading`).then(res => res.json()),
+  });
+
+  const mathProgress = mathAccuracy ? Math.round(mathAccuracy.overallAccuracy || 0) : 0;
+  const readingProgress = readingAccuracy ? Math.round(readingAccuracy.overallAccuracy || 0) : 0;
 
   const getMathSkillStatus = (accuracy: number) => {
     if (accuracy >= 80) return { label: "Excellent", color: "bg-green-600 text-white" };

@@ -41,10 +41,19 @@ export default function MockExamsTab({ grade }: MockExamsTabProps) {
   const mathHistory = Array.isArray(examHistory) ? examHistory.filter((exam: any) => exam.subject === "math") : [];
   const readingHistory = Array.isArray(examHistory) ? examHistory.filter((exam: any) => exam.subject === "reading") : [];
 
+  const cleanExamName = (name: string) => {
+    return name.replace(/\s+1+$/, '').replace(/Practice\s+1+/, 'Practice');
+  };
+
+  const handleStartExam = (examId: number) => {
+    // TODO: Implement exam start functionality
+    console.log('Starting exam:', examId);
+  };
+
   const renderExamCard = (exam: any) => (
-    <div key={exam.id} className="border border-gray-200 rounded-xl p-4 hover:border-primary transition-colors">
+    <div key={exam.id} className="border border-gray-200 rounded-xl p-4 hover:border-primary transition-colors cursor-pointer">
       <div className="flex items-center justify-between mb-2">
-        <h4 className="font-semibold text-gray-700">{exam.name}</h4>
+        <h4 className="font-semibold text-gray-700">{cleanExamName(exam.name)}</h4>
         <span className="text-sm bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
           Grade {exam.grade}
         </span>
@@ -60,6 +69,7 @@ export default function MockExamsTab({ grade }: MockExamsTabProps) {
         )}
       </p>
       <Button 
+        onClick={() => handleStartExam(exam.id)}
         className={`w-full py-2 rounded-lg font-medium transition-colors ${
           exam.subject === "math" 
             ? "bg-primary text-white hover:bg-primary/90" 

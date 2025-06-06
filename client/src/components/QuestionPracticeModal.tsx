@@ -289,12 +289,22 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
                           <p className="text-sm text-gray-600 mt-2">{currentQuestion.explanation}</p>
                         </div>
                       </div>
-                      <Button 
-                        onClick={handleNextQuestion}
-                        className="bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-white"
-                      >
-                        Next Question
-                      </Button>
+                      <div className="flex space-x-3">
+                        <Button 
+                          variant="outline"
+                          onClick={() => generateQuestionsMutation.mutate()}
+                          disabled={generateQuestionsMutation.isPending}
+                          className="border-orange-300 text-orange-600 hover:bg-orange-50"
+                        >
+                          {generateQuestionsMutation.isPending ? "Generating..." : "Generate Similar Questions"}
+                        </Button>
+                        <Button 
+                          onClick={handleNextQuestion}
+                          className="bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-white"
+                        >
+                          Next Question
+                        </Button>
+                      </div>
                     </>
                   )}
                 </div>

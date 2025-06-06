@@ -267,21 +267,31 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
           <CardContent>
             {mathCategoryStats.length > 0 ? (
               <div className="space-y-3">
-                {mathCategoryStats.map((stat, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div className="flex-1">
-                      <div className="font-medium text-gray-800">{stat.category}</div>
-                      <div className="text-sm text-gray-500 flex items-center gap-2">
+                {mathCategoryStats.map((stat, index) => {
+                  const teksStandards = getTeksForCategory(grade, 'math', stat.category);
+                  const analysis = getDetailedAnalysis(stat.accuracy, stat.totalQuestions);
+                  return (
+                    <div key={index} className="p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="font-medium text-gray-800">{stat.category}</div>
+                        <Badge className={getAccuracyBadgeColor(stat.accuracy)}>
+                          {stat.accuracy}%
+                        </Badge>
+                      </div>
+                      <div className="text-sm text-gray-600 mb-2">
+                        <strong>TEKS Standards:</strong> {teksStandards}
+                      </div>
+                      <div className="text-sm text-gray-500 flex items-center gap-2 mb-2">
                         <span>{stat.correctAnswers}/{stat.totalQuestions} correct</span>
                         <Clock className="w-3 h-3" />
                         <span>{formatLastAttempted(stat.lastAttempted)}</span>
                       </div>
+                      <div className="text-xs text-orange-700 bg-orange-100 p-2 rounded">
+                        <strong>Analysis:</strong> {analysis}
+                      </div>
                     </div>
-                    <Badge className={getAccuracyBadgeColor(stat.accuracy)}>
-                      {stat.accuracy}%
-                    </Badge>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="text-center py-8 text-gray-500">
