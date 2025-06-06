@@ -302,7 +302,7 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
                       <div className="flex items-center justify-between mb-2">
                         <div className="font-medium text-gray-800">{stat.category}</div>
                         <Badge className={getAccuracyBadgeColor(stat.accuracy)}>
-                          {stat.accuracy}%
+                          {Math.round(stat.accuracy)}%
                         </Badge>
                       </div>
                       <div className="text-sm text-gray-600 mb-2">
@@ -349,7 +349,7 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
                       <div className="flex items-center justify-between mb-2">
                         <div className="font-medium text-gray-800">{stat.category}</div>
                         <Badge className={getAccuracyBadgeColor(stat.accuracy)}>
-                          {stat.accuracy}%
+                          {Math.round(stat.accuracy)}%
                         </Badge>
                       </div>
                       <div className="text-sm text-gray-600 mb-2">
