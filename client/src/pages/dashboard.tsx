@@ -11,6 +11,9 @@ import AvatarCustomizationModal from "@/components/AvatarCustomizationModal";
 import QuestionPracticeModal from "@/components/QuestionPracticeModal";
 import NovaChat from "@/components/NovaChat";
 import SettingsModal from "@/components/SettingsModal";
+import RoleSelector from "@/components/RoleSelector";
+import ParentDashboard from "@/components/ParentDashboard";
+import TeacherDashboard from "@/components/TeacherDashboard";
 
 export default function Dashboard() {
   const { user, isLoading } = useAuth();
@@ -43,6 +46,28 @@ export default function Dashboard() {
       </div>
     );
   }
+
+  // Handle role-based dashboard routing
+  if (!user.role || user.role === 'new') {
+    return (
+      <RoleSelector 
+        onRoleSelected={() => window.location.reload()} 
+        currentUser={user} 
+      />
+    );
+  }
+
+  // Parent dashboard
+  if (user.role === 'parent') {
+    return <ParentDashboard user={user} />;
+  }
+
+  // Teacher dashboard
+  if (user.role === 'teacher') {
+    return <TeacherDashboard user={user} />;
+  }
+
+  // Default to student dashboard for 'student' role or undefined
 
   const startPractice = (subject: "math" | "reading", category?: string) => {
     setPracticeSubject(subject);

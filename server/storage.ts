@@ -649,17 +649,7 @@ export class DatabaseStorage implements IStorage {
 
   async getStudentsByParent(parentId: string): Promise<User[]> {
     const students = await db
-      .select({
-        id: users.id,
-        name: users.name,
-        email: users.email,
-        currentGrade: users.currentGrade,
-        avatarType: users.avatarType,
-        avatarColor: users.avatarColor,
-        starPower: users.starPower,
-        role: users.role,
-        createdAt: users.createdAt
-      })
+      .select()
       .from(users)
       .innerJoin(studentParentRelations, eq(users.id, studentParentRelations.studentId))
       .where(
@@ -668,22 +658,12 @@ export class DatabaseStorage implements IStorage {
           eq(studentParentRelations.isActive, true)
         )
       );
-    return students;
+    return students.map(result => result.users);
   }
 
   async getStudentsByOrganization(organizationId: string): Promise<User[]> {
     const students = await db
-      .select({
-        id: users.id,
-        name: users.name,
-        email: users.email,
-        currentGrade: users.currentGrade,
-        avatarType: users.avatarType,
-        avatarColor: users.avatarColor,
-        starPower: users.starPower,
-        role: users.role,
-        createdAt: users.createdAt
-      })
+      .select()
       .from(users)
       .innerJoin(organizationStudentRelations, eq(users.id, organizationStudentRelations.studentId))
       .where(
@@ -692,22 +672,12 @@ export class DatabaseStorage implements IStorage {
           eq(organizationStudentRelations.isActive, true)
         )
       );
-    return students;
+    return students.map(result => result.users);
   }
 
   async getParentsByStudent(studentId: string): Promise<User[]> {
     const parents = await db
-      .select({
-        id: users.id,
-        name: users.name,
-        email: users.email,
-        currentGrade: users.currentGrade,
-        avatarType: users.avatarType,
-        avatarColor: users.avatarColor,
-        starPower: users.starPower,
-        role: users.role,
-        createdAt: users.createdAt
-      })
+      .select()
       .from(users)
       .innerJoin(studentParentRelations, eq(users.id, studentParentRelations.parentId))
       .where(
@@ -716,7 +686,7 @@ export class DatabaseStorage implements IStorage {
           eq(studentParentRelations.isActive, true)
         )
       );
-    return parents;
+    return parents.map(result => result.users);
   }
 
   async updateUserRole(userId: string, role: string, additionalData?: any): Promise<User> {

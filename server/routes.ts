@@ -797,6 +797,85 @@ Keep your response simple and encouraging for a ${grade}th grader.`;
     }
   });
 
+  // Multi-role account management routes
+  app.patch('/api/user/role', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { role, organizationData, studentId } = req.body;
+      
+      if (!['student', 'parent', 'teacher'].includes(role)) {
+        return res.status(400).json({ message: "Invalid role" });
+      }
+
+      const additionalData: any = {};
+      if (role === 'teacher' && organizationData) {
+        additionalData.organizationData = organizationData;
+      }
+      if (role === 'parent' && studentId) {
+        additionalData.studentId = studentId;
+      }
+
+      const updatedUser = await storage.updateUserRole(userId, role, additionalData);
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Error updating user role:", error);
+      res.status(500).json({ message: "Failed to update user role" });
+    }
+  });
+
+  // Get students for parent account
+  app.get('/api/parent/students', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (user?.role !== 'parent') {
+        return res.status(403).json({ message: "Access denied - parent account required" });
+      }
+
+      const students = await storage.getStudentsByParent(userId);
+      res.json(students);
+    } catch (error) {
+      console.error("Error fetching parent's students:", error);
+      res.status(500).json({ message: "Failed to fetch students" });
+    }
+  });
+
+  // Get students for organization/teacher account
+  app.get('/api/organization/students', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (user?.role !== 'teacher' || !user.organizationId) {
+        return res.status(403).json({ message: "Access denied - teacher account required" });
+      }
+
+      const students = await storage.getStudentsByOrganization(user.organizationId);
+      res.json(students);
+    } catch (error) {
+      console.error("Error fetching organization students:", error);
+      res.status(500).json({ message: "Failed to fetch students" });
+    }
+  });
+
+  // Get organization details
+  app.get('/api/organization/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const organizationId = req.params.id;
+      const organization = await storage.getOrganization(organizationId);
+      
+      if (!organization) {
+        return res.status(404).json({ message: "Organization not found" });
+      }
+
+      res.json(organization);
+    } catch (error) {
+      console.error("Error fetching organization:", error);
+      res.status(500).json({ message: "Failed to fetch organization" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
