@@ -164,7 +164,7 @@ export default function NovaChat({ grade, isOpen, onClose }: NovaChatProps) {
                       : 'bg-white border border-gray-200 text-gray-800 rounded-bl-none shadow-sm'
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap break-words leading-relaxed word-break overflow-wrap-anywhere">{message.content}</p>
+                  <p className="text-sm whitespace-pre-wrap break-words leading-relaxed overflow-wrap-anywhere hyphens-auto" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{message.content}</p>
                 </div>
               </div>
             ))}

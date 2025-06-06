@@ -18,6 +18,10 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
     queryKey: ["/api/stats", grade, "reading"],
   });
 
+  const { data: moduleAccuracy } = useQuery({
+    queryKey: ["/api/accuracy", grade],
+  });
+
   const { data: practiceHistory } = useQuery({
     queryKey: ["/api/practice/history"],
     queryFn: () => fetch("/api/practice/history?limit=5").then(res => res.json()),
@@ -49,65 +53,83 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
   };
 
   const getMathSkills = (grade: number) => {
-    switch (grade) {
-      case 3:
-        return [
-          { name: "Multiplication and Division", accuracy: 0, teks: "3.4E,3.4F" },
-          { name: "Place Value to 1,000", accuracy: 0, teks: "3.2A,3.2B" },
-          { name: "Add and Subtract within 1,000", accuracy: 0, teks: "3.4A" },
-          { name: "Perimeter and Area", accuracy: 0, teks: "3.6D,3.6E" },
-          { name: "2D and 3D Shapes", accuracy: 0, teks: "3.6A,3.6B" },
-        ];
-      case 4:
-        return [
-          { name: "Multi-digit Operations", accuracy: 0, teks: "4.4A,4.4B" },
-          { name: "Fractions and Decimals", accuracy: 0, teks: "4.2G,4.3E" },
-          { name: "Factors and Multiples", accuracy: 0, teks: "4.4C,4.4D" },
-          { name: "Shape Properties", accuracy: 0, teks: "4.5D,4.6A" },
-          { name: "Data Analysis", accuracy: 0, teks: "4.9A,4.9B" },
-        ];
-      case 5:
-        return [
-          { name: "Decimal and Fraction Operations", accuracy: 0, teks: "5.3G,5.3H" },
-          { name: "Volume and Measurement", accuracy: 0, teks: "5.4H,5.6A" },
-          { name: "Variables and Expressions", accuracy: 0, teks: "5.4E,5.4F" },
-          { name: "2D and 3D Figure Classification", accuracy: 0, teks: "5.5A,5.6B" },
-          { name: "Data Representation", accuracy: 0, teks: "5.9A,5.9C" },
-        ];
-      default:
-        return [];
-    }
+    const baseSkills = (() => {
+      switch (grade) {
+        case 3:
+          return [
+            { name: "Multiplication and Division", teks: "3.4E,3.4F" },
+            { name: "Place Value to 1,000", teks: "3.2A,3.2B" },
+            { name: "Add and Subtract within 1,000", teks: "3.4A" },
+            { name: "Perimeter and Area", teks: "3.6D,3.6E" },
+            { name: "2D and 3D Shapes", teks: "3.6A,3.6B" },
+          ];
+        case 4:
+          return [
+            { name: "Multi-digit Operations", teks: "4.4A,4.4B" },
+            { name: "Fractions and Decimals", teks: "4.2G,4.3E" },
+            { name: "Factors and Multiples", teks: "4.4C,4.4D" },
+            { name: "Shape Properties", teks: "4.5D,4.6A" },
+            { name: "Data Analysis", teks: "4.9A,4.9B" },
+          ];
+        case 5:
+          return [
+            { name: "Decimal and Fraction Operations", teks: "5.3G,5.3H" },
+            { name: "Volume and Measurement", teks: "5.4H,5.6A" },
+            { name: "Variables and Expressions", teks: "5.4E,5.4F" },
+            { name: "2D and 3D Figure Classification", teks: "5.5A,5.6B" },
+            { name: "Data Representation", teks: "5.9A,5.9C" },
+          ];
+        default:
+          return [];
+      }
+    })();
+
+    return baseSkills.map(skill => ({
+      ...skill,
+      accuracy: mathStats?.categoryStats?.find((cat: any) => 
+        cat.category.toLowerCase().includes(skill.name.toLowerCase().split(' ')[0])
+      )?.accuracy || 0
+    }));
   };
 
   const getReadingSkills = (grade: number) => {
-    switch (grade) {
-      case 3:
-        return [
-          { name: "Inferences and Conclusions", accuracy: 0, teks: "3.6G,3.6H" },
-          { name: "Main Idea and Details", accuracy: 0, teks: "3.6E,3.6F" },
-          { name: "Story Elements", accuracy: 0, teks: "3.6A,3.6B" },
-          { name: "Context Clues", accuracy: 0, teks: "3.4B,3.4C" },
-          { name: "Text Types", accuracy: 0, teks: "3.9A,3.9B" },
-        ];
-      case 4:
-        return [
-          { name: "Text Structure and Purpose", accuracy: 0, teks: "4.6D,4.9C" },
-          { name: "Compare and Contrast", accuracy: 0, teks: "4.6F,4.6H" },
-          { name: "Reference Materials", accuracy: 0, teks: "4.7A,4.7B" },
-          { name: "Complex Text Comprehension", accuracy: 0, teks: "4.6A,4.6G" },
-          { name: "Narrative and Informational", accuracy: 0, teks: "4.8A,4.9A" },
-        ];
-      case 5:
-        return [
-          { name: "Text Arguments and Evidence", accuracy: 0, teks: "5.6H,5.9F" },
-          { name: "Multiple Text Analysis", accuracy: 0, teks: "5.6I,5.9G" },
-          { name: "Figurative Language", accuracy: 0, teks: "5.4C,5.4D" },
-          { name: "Multiple-meaning Words", accuracy: 0, teks: "5.4A,5.4B" },
-          { name: "Complex Text Independence", accuracy: 0, teks: "5.6A,5.6G" },
-        ];
-      default:
-        return [];
-    }
+    const baseSkills = (() => {
+      switch (grade) {
+        case 3:
+          return [
+            { name: "Inferences and Conclusions", teks: "3.6G,3.6H" },
+            { name: "Main Idea and Details", teks: "3.6E,3.6F" },
+            { name: "Story Elements", teks: "3.6A,3.6B" },
+            { name: "Context Clues", teks: "3.4B,3.4C" },
+            { name: "Text Types", teks: "3.9A,3.9B" },
+          ];
+        case 4:
+          return [
+            { name: "Text Structure and Purpose", teks: "4.6D,4.9C" },
+            { name: "Compare and Contrast", teks: "4.6F,4.6H" },
+            { name: "Reference Materials", teks: "4.7A,4.7B" },
+            { name: "Complex Text Comprehension", teks: "4.6A,4.6G" },
+            { name: "Narrative and Informational", teks: "4.8A,4.9A" },
+          ];
+        case 5:
+          return [
+            { name: "Text Arguments and Evidence", teks: "5.6H,5.9F" },
+            { name: "Multiple Text Analysis", teks: "5.6I,5.9G" },
+            { name: "Figurative Language", teks: "5.4C,5.4D" },
+            { name: "Multiple-meaning Words", teks: "5.4A,5.4B" },
+            { name: "Complex Text Independence", teks: "5.6A,5.6G" },
+          ];
+        default:
+          return [];
+      }
+    })();
+
+    return baseSkills.map(skill => ({
+      ...skill,
+      accuracy: readingStats?.categoryStats?.find((cat: any) => 
+        cat.category.toLowerCase().includes(skill.name.toLowerCase().split(' ')[0])
+      )?.accuracy || 0
+    }));
   };
 
   const mathSkills = getMathSkills(grade);
