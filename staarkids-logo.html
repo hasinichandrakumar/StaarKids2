@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StaarKids Logo PNG Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .logo-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .logo-circle {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(to right, #FF5B00, #FCC201);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo-text {
+            font-size: 42px;
+            font-weight: bold;
+            background: linear-gradient(to right, #FF5B00, #FCC201);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .controls {
+            text-align: center;
+        }
+        .download-btn {
+            background: linear-gradient(to right, #FF5B00, #FCC201);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 10px;
+            box-shadow: 0 4px 15px rgba(255, 91, 0, 0.3);
+            transition: transform 0.2s;
+        }
+        .download-btn:hover {
+            transform: translateY(-2px);
+        }
+        .size-options {
+            margin: 20px 0;
+        }
+        .size-btn {
+            background: #f0f0f0;
+            border: 2px solid #ddd;
+            padding: 8px 16px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .size-btn.active {
+            background: linear-gradient(to right, #FF5B00, #FCC201);
+            color: white;
+            border-color: #FF5B00;
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-container">
+        <div class="logo" id="logo">
+            <div class="logo-circle">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12,2 15.09,8.26 22,9 17,14.74 18.18,21.02 12,17.77 5.82,21.02 7,14.74 2,9 8.91,8.26"/>
+                </svg>
+            </div>
+            <div class="logo-text">StaarKids</div>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <div class="size-options">
+            <p><strong>Select Size:</strong></p>
+            <button class="size-btn active" onclick="setSize(512, this)">512px</button>
+            <button class="size-btn" onclick="setSize(256, this)">256px</button>
+            <button class="size-btn" onclick="setSize(128, this)">128px</button>
+            <button class="size-btn" onclick="setSize(1024, this)">1024px</button>
+            <button class="size-btn" onclick="setSize(2048, this)">2048px (High Res)</button>
+        </div>
+        
+        <button class="download-btn" onclick="downloadPNG()">Download PNG</button>
+        <button class="download-btn" onclick="downloadTransparentPNG()">Download Transparent PNG</button>
+        
+        <p style="margin-top: 20px; color: #666; max-width: 400px;">
+            Click to download the StaarKids logo as a PNG file. Choose transparent background for use on colored backgrounds.
+        </p>
+    </div>
+
+    <script>
+        let currentSize = 512;
+        
+        function setSize(size, button) {
+            currentSize = size;
+            document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+        }
+        
+        function downloadPNG(transparent = false) {
+            const logo = document.getElementById('logo');
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = currentSize;
+            canvas.height = Math.round(currentSize * 0.4); // Adjust height ratio
+            
+            // Set background
+            if (!transparent) {
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+            
+            // Create SVG for the star
+            const svgData = `<svg width="${Math.round(currentSize * 0.15)}" height="${Math.round(currentSize * 0.15)}" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="12,2 15.09,8.26 22,9 17,14.74 18.18,21.02 12,17.77 5.82,21.02 7,14.74 2,9 8.91,8.26"/>
+            </svg>`;
+            
+            // Draw circle background for star
+            const circleSize = Math.round(currentSize * 0.15);
+            const circleX = Math.round(currentSize * 0.1);
+            const circleY = Math.round((canvas.height - circleSize) / 2);
+            
+            // Create gradient for circle
+            const gradient = ctx.createLinearGradient(circleX, circleY, circleX + circleSize, circleY);
+            gradient.addColorStop(0, '#FF5B00');
+            gradient.addColorStop(1, '#FCC201');
+            
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(circleX + circleSize/2, circleY + circleSize/2, circleSize/2, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Draw star (simplified white star)
+            ctx.fillStyle = 'white';
+            ctx.font = `${Math.round(circleSize * 0.6)}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.fillText('★', circleX + circleSize/2, circleY + circleSize/2 + Math.round(circleSize * 0.2));
+            
+            // Draw text
+            const textX = circleX + circleSize + Math.round(currentSize * 0.03);
+            const textY = Math.round(canvas.height / 2 + currentSize * 0.08);
+            
+            // Create gradient for text
+            const textGradient = ctx.createLinearGradient(textX, 0, textX + Math.round(currentSize * 0.6), 0);
+            textGradient.addColorStop(0, '#FF5B00');
+            textGradient.addColorStop(1, '#FCC201');
+            
+            ctx.fillStyle = textGradient;
+            ctx.font = `bold ${Math.round(currentSize * 0.2)}px Arial, sans-serif`;
+            ctx.textAlign = 'left';
+            ctx.fillText('StaarKids', textX, textY);
+            
+            // Download
+            canvas.toBlob(function(blob) {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `staarkids-logo-${currentSize}px${transparent ? '-transparent' : ''}.png`;
+                link.click();
+                URL.revokeObjectURL(link.href);
+            }, 'image/png');
+        }
+        
+        function downloadTransparentPNG() {
+            downloadPNG(true);
+        }
+    </script>
+</body>
+</html>
