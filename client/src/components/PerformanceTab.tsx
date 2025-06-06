@@ -93,7 +93,7 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
     return "bg-red-100 text-red-700";
   };
 
-  const formatLastAttempted = (date: Date | null) => {
+  const formatLastAttempted = (date: Date | null | undefined) => {
     if (!date) return "Never";
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - new Date(date).getTime());

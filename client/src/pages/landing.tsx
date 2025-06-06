@@ -13,7 +13,7 @@ export default function Landing() {
               <div className="w-10 h-10 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center">
                 <Star className="w-6 h-6 text-white" />
               </div>
-              <h1 className="text-2xl font-bold text-gray-700">StaarKid</h1>
+              <h1 className="text-2xl font-bold text-gray-700">StaarKids</h1>
             </div>
             <Button 
               onClick={() => window.location.href = '/api/login'}
@@ -96,7 +96,7 @@ export default function Landing() {
 
         {/* How It Works */}
         <div className="bg-white rounded-2xl p-8 shadow-lg">
-          <h3 className="text-3xl font-bold text-gray-700 text-center mb-8">How StaarKid Works</h3>
+          <h3 className="text-3xl font-bold text-gray-700 text-center mb-8">How StaarKids Works</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">

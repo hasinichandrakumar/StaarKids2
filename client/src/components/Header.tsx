@@ -27,7 +27,7 @@ export default function Header({ user, onOpenAvatarModal, onOpenNovaChat }: Head
             <div className="w-10 h-10 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center">
               <Star className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-700">StaarKid</h1>
+            <h1 className="text-2xl font-bold text-gray-700">StaarKids</h1>
           </div>
           
           {/* User Profile Section */}
