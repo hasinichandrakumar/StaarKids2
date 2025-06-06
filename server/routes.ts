@@ -412,18 +412,46 @@ Respond with JSON array:
     try {
       const examId = parseInt(req.params.examId);
       
-      // Get exam details with questions
-      const exam = await storage.getMockExams(3); // Get all exams and find the specific one
-      const specificExam = exam.find((e: any) => e.id === examId);
+      // Get exam details from all grades
+      let specificExam = null;
+      for (const grade of [3, 4, 5]) {
+        const exams = await storage.getMockExams(grade);
+        const found = exams.find((e: any) => e.id === examId);
+        if (found) {
+          specificExam = found;
+          break;
+        }
+      }
       
       if (!specificExam) {
         return res.status(404).json({ message: "Exam not found" });
       }
 
-      // For now, return exam with sample questions structure
+      // Get authentic STAAR question counts and time limits
+      const { STAAR_QUESTION_COUNTS } = await import('./examGenerator');
+      const grade = specificExam.grade;
+      const subject = specificExam.subject;
+      
+      const questionCount = STAAR_QUESTION_COUNTS[grade as keyof typeof STAAR_QUESTION_COUNTS]?.[subject as 'math' | 'reading'] || 40;
+      const timeLimit = subject === 'math' ? 240 : 240; // 240 minutes (4 hours) for most STAAR tests
+      
+      // Get questions for this exam
+      const questions = await storage.getQuestionsByGradeAndSubject(grade, subject);
+      const examQuestions = questions.slice(0, questionCount).map(q => ({
+        id: q.id,
+        questionText: q.questionText,
+        answerChoices: q.answerChoices,
+        correctAnswer: q.correctAnswer,
+        explanation: q.explanation,
+        teksStandard: q.teksStandard
+      }));
+
       const examWithQuestions = {
         ...specificExam,
-        questions: [] // Will be populated when we have questions linked to exams
+        questions: examQuestions,
+        questionCount,
+        timeLimit: timeLimit * 60, // Convert to seconds
+        subject: subject.charAt(0).toUpperCase() + subject.slice(1) // Capitalize subject
       };
 
       res.json(examWithQuestions);

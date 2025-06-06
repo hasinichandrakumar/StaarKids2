@@ -10,7 +10,7 @@ export default function ExamPage() {
   const [match, params] = useRoute("/exam/:examId");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, string>>({});
-  const [timeRemaining, setTimeRemaining] = useState(3600); // 60 minutes
+  const [timeRemaining, setTimeRemaining] = useState(0); // Will be set from exam data
   const [examStarted, setExamStarted] = useState(false);
   const [examCompleted, setExamCompleted] = useState(false);
   const queryClient = useQueryClient();
@@ -22,6 +22,13 @@ export default function ExamPage() {
     enabled: !!examId,
     queryFn: () => fetch(`/api/exams/details/${examId}`).then(res => res.json()),
   });
+
+  // Initialize time remaining when exam data loads
+  useEffect(() => {
+    if (exam?.timeLimit && timeRemaining === 0) {
+      setTimeRemaining(exam.timeLimit);
+    }
+  }, [exam?.timeLimit, timeRemaining]);
 
   const submitExamMutation = useMutation({
     mutationFn: async (examData: any) => {
@@ -173,15 +180,15 @@ export default function ExamPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div className="p-4 bg-white rounded-lg border border-gray-200">
                   <div className="text-sm text-gray-600">Questions</div>
-                  <div className="text-2xl font-bold text-blue-600">{exam.questions?.length || 0}</div>
+                  <div className="text-2xl font-bold text-blue-600">{exam.questionCount || exam.questions?.length || 0}</div>
                 </div>
                 <div className="p-4 bg-white rounded-lg border border-gray-200">
                   <div className="text-sm text-gray-600">Time Limit</div>
-                  <div className="text-2xl font-bold text-green-600">60 min</div>
+                  <div className="text-2xl font-bold text-green-600">{Math.floor((exam.timeLimit || 14400) / 60)} min</div>
                 </div>
                 <div className="p-4 bg-white rounded-lg border border-gray-200">
                   <div className="text-sm text-gray-600">Subject</div>
-                  <div className="text-2xl font-bold text-purple-600 capitalize">{exam.subject}</div>
+                  <div className="text-2xl font-bold text-purple-600">{exam.subject || 'General'}</div>
                 </div>
               </div>
               <div className="text-left bg-yellow-50 p-4 rounded-lg border border-yellow-200 mb-6">
