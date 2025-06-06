@@ -260,54 +260,52 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
           {/* Nova's Explanation Display */}
           {showExplanation && (
             <div className="mb-6 p-6 bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl">
-              <div className="flex items-start space-x-3">
-                <div className="relative flex-shrink-0">
-                  <StarIcon className="w-12 h-12 text-yellow-400 drop-shadow-lg" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-6 h-6 bg-gradient-to-br from-yellow-300 to-orange-400 rounded-full flex items-center justify-center">
-                      <SparklesIcon className="w-3 h-3 text-white" />
+              <div className="flex-1">
+                <h4 className="text-lg font-semibold text-orange-800 mb-2 flex items-center">
+                  <div className="relative flex-shrink-0 mr-3">
+                    <StarIcon className="w-8 h-8 text-yellow-400 drop-shadow-lg" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-4 h-4 bg-gradient-to-br from-yellow-300 to-orange-400 rounded-full flex items-center justify-center">
+                        <SparklesIcon className="w-2 h-2 text-white" />
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="flex-1">
-                  <h4 className="text-lg font-semibold text-orange-800 mb-2 flex items-center">
-                    Nova explains
-                    <SparklesIcon className="w-4 h-4 ml-2 text-yellow-500" />
-                  </h4>
-                  {loadingExplanation ? (
-                    <div className="flex items-center space-x-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-yellow-500"></div>
-                      <span className="text-orange-700">Nova is thinking about your answer...</span>
+                  Nova explains
+                  <SparklesIcon className="w-4 h-4 ml-2 text-yellow-500" />
+                </h4>
+                {loadingExplanation ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-yellow-500"></div>
+                    <span className="text-orange-700">Nova is thinking about your answer...</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="bg-white p-4 rounded-lg border border-yellow-100 mb-4 shadow-sm">
+                      <p className="text-orange-700 mb-3 whitespace-pre-wrap break-words leading-relaxed overflow-wrap-anywhere">{aiExplanation}</p>
+                      <div className="border-t border-yellow-100 pt-3">
+                        <p className="text-sm text-gray-600 mb-1">Correct Answer:</p>
+                        <p className="font-medium text-green-700">{currentQuestion.correctAnswer}</p>
+                        <p className="text-sm text-gray-600 mt-2 whitespace-pre-wrap break-words overflow-wrap-anywhere">{currentQuestion.explanation}</p>
+                      </div>
                     </div>
-                  ) : (
-                    <>
-                      <div className="bg-white p-4 rounded-lg border border-yellow-100 mb-4 shadow-sm">
-                        <p className="text-orange-700 mb-3 whitespace-pre-wrap break-words leading-relaxed overflow-wrap-anywhere">{aiExplanation}</p>
-                        <div className="border-t border-yellow-100 pt-3">
-                          <p className="text-sm text-gray-600 mb-1">Correct Answer:</p>
-                          <p className="font-medium text-green-700">{currentQuestion.correctAnswer}</p>
-                          <p className="text-sm text-gray-600 mt-2 whitespace-pre-wrap break-words overflow-wrap-anywhere">{currentQuestion.explanation}</p>
-                        </div>
-                      </div>
-                      <div className="flex space-x-3">
-                        <Button 
-                          variant="outline"
-                          onClick={() => generateQuestionsMutation.mutate()}
-                          disabled={generateQuestionsMutation.isPending}
-                          className="border-orange-300 text-orange-600 hover:bg-orange-50"
-                        >
-                          {generateQuestionsMutation.isPending ? "Generating..." : "Generate Similar Questions"}
-                        </Button>
-                        <Button 
-                          onClick={handleNextQuestion}
-                          className="bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-white"
-                        >
-                          Next Question
-                        </Button>
-                      </div>
-                    </>
-                  )}
-                </div>
+                    <div className="flex space-x-3">
+                      <Button 
+                        variant="outline"
+                        onClick={() => generateQuestionsMutation.mutate()}
+                        disabled={generateQuestionsMutation.isPending}
+                        className="border-orange-300 text-orange-600 hover:bg-orange-50"
+                      >
+                        {generateQuestionsMutation.isPending ? "Generating..." : "Generate Similar Questions"}
+                      </Button>
+                      <Button 
+                        onClick={handleNextQuestion}
+                        className="bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-white"
+                      >
+                        Next Question
+                      </Button>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           )}
