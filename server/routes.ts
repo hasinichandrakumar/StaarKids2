@@ -876,6 +876,44 @@ Keep your response simple and encouraging for a ${grade}th grader.`;
     }
   });
 
+  // Test endpoint for switching roles (development only)
+  app.post('/api/test/role', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { role } = req.body;
+      
+      if (!['student', 'parent', 'teacher'].includes(role)) {
+        return res.status(400).json({ message: "Invalid role" });
+      }
+
+      // For testing purposes, create a mock organization for teacher role
+      let organizationId = null;
+      if (role === 'teacher') {
+        const testOrg = await storage.createOrganization({
+          id: `test_org_${Date.now()}`,
+          name: "Test Elementary School",
+          type: "school",
+          email: "test@testeducation.com",
+          phone: "(555) 123-4567",
+          address: "123 Test St, Austin, TX 78701",
+          isVerified: true
+        });
+        organizationId = testOrg.id;
+      }
+
+      // Update user role directly for testing
+      const updatedUser = await storage.updateUserProfile(userId, {
+        role,
+        organizationId
+      });
+
+      res.json({ message: `Role changed to ${role}`, user: updatedUser });
+    } catch (error) {
+      console.error("Error changing test role:", error);
+      res.status(500).json({ message: "Failed to change role" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

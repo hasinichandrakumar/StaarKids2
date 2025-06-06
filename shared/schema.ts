@@ -44,7 +44,7 @@ export const users = pgTable("users", {
   avatarColor: varchar("avatar_color").default("#FF5B00"),
   userRank: varchar("user_rank").default("Cadet"),
   // Role-based access fields
-  role: varchar("role").notNull().default("student"), // student, parent, teacher
+  role: varchar("role").default("student"), // student, parent, teacher
   organizationId: varchar("organization_id"),
   parentId: varchar("parent_id"), // For student accounts linked to parents
   isVerified: boolean("is_verified").default(false), // For teacher/organization verification

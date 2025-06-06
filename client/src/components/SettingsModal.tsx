@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, GraduationCap, Settings } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { User, GraduationCap, Settings, TestTube, Heart, Building2 } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import type { User as UserType } from "@shared/schema";
 
 interface SettingsModalProps {
@@ -16,10 +19,32 @@ interface SettingsModalProps {
 
 export default function SettingsModal({ user, selectedGrade, onGradeChange, onClose }: SettingsModalProps) {
   const [tempGrade, setTempGrade] = useState(selectedGrade);
+  const [isChangingRole, setIsChangingRole] = useState(false);
+  const { toast } = useToast();
 
   const handleSave = () => {
     onGradeChange(tempGrade);
     onClose();
+  };
+
+  const handleRoleChange = async (newRole: string) => {
+    setIsChangingRole(true);
+    try {
+      await apiRequest("POST", "/api/test/role", { role: newRole });
+      toast({
+        title: "Role Changed",
+        description: `Successfully switched to ${newRole} account. Refreshing...`,
+      });
+      setTimeout(() => window.location.reload(), 1000);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to change role. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsChangingRole(false);
+    }
   };
 
   return (
@@ -78,6 +103,66 @@ export default function SettingsModal({ user, selectedGrade, onGradeChange, onCl
                 </Select>
                 <p className="text-xs text-gray-500">
                   This affects the questions and content you'll see across all practice areas.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Role Testing Section */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <TestTube className="w-4 h-4" />
+                Role Testing
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-gray-600">Current Role:</span>
+                  <Badge variant="outline">{user.role || 'student'}</Badge>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label className="text-xs font-medium text-gray-600">Switch to test role:</Label>
+                  <div className="grid grid-cols-1 gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleRoleChange('student')}
+                      disabled={isChangingRole || user.role === 'student'}
+                      className="justify-start"
+                    >
+                      <GraduationCap className="w-4 h-4 mr-2" />
+                      Student Dashboard
+                    </Button>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleRoleChange('parent')}
+                      disabled={isChangingRole || user.role === 'parent'}
+                      className="justify-start"
+                    >
+                      <Heart className="w-4 h-4 mr-2" />
+                      Parent Dashboard
+                    </Button>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleRoleChange('teacher')}
+                      disabled={isChangingRole || user.role === 'teacher'}
+                      className="justify-start"
+                    >
+                      <Building2 className="w-4 h-4 mr-2" />
+                      Teacher Dashboard
+                    </Button>
+                  </div>
+                </div>
+                
+                <p className="text-xs text-gray-500">
+                  Test different account types to see role-based dashboards and features.
                 </p>
               </div>
             </CardContent>
