@@ -13,7 +13,9 @@ export default function Landing() {
               <div className="w-10 h-10 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center">
                 <Star className="w-6 h-6 text-white" />
               </div>
-              <h1 className="text-2xl font-bold text-gray-700">StaarKids</h1>
+              <h1 className="text-2xl font-bold text-gray-700">
+                <span className="bg-gradient-to-r from-[#FF5B00] to-[#FCC201] bg-clip-text text-transparent">Staar</span>Kids
+              </h1>
             </div>
             <Button 
               onClick={() => window.location.href = '/api/login'}
