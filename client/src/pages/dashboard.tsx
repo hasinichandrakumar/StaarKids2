@@ -3,7 +3,6 @@ import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/Header";
 import WelcomeSection from "@/components/WelcomeSection";
 import StarPowerDashboard from "@/components/StarPowerDashboard";
-import GradeSelector from "@/components/GradeSelector";
 import NavigationTabs from "@/components/NavigationTabs";
 import PracticeTab from "@/components/PracticeTab";
 import MockExamsTab from "@/components/MockExamsTab";
@@ -11,6 +10,7 @@ import PerformanceTab from "@/components/PerformanceTab";
 import AvatarCustomizationModal from "@/components/AvatarCustomizationModal";
 import QuestionPracticeModal from "@/components/QuestionPracticeModal";
 import NovaChat from "@/components/NovaChat";
+import SettingsModal from "@/components/SettingsModal";
 
 export default function Dashboard() {
   const { user, isLoading } = useAuth();

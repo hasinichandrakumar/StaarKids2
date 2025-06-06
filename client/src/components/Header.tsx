@@ -7,9 +7,10 @@ interface HeaderProps {
   user: User;
   onOpenAvatarModal: () => void;
   onOpenNovaChat: () => void;
+  onOpenSettings: () => void;
 }
 
-export default function Header({ user, onOpenAvatarModal, onOpenNovaChat }: HeaderProps) {
+export default function Header({ user, onOpenAvatarModal, onOpenNovaChat, onOpenSettings }: HeaderProps) {
   const getRankColor = (rank: string) => {
     switch (rank) {
       case "Commander": return "bg-success";
@@ -69,7 +70,7 @@ export default function Header({ user, onOpenAvatarModal, onOpenNovaChat }: Head
             <Button
               variant="ghost"
               size="sm"
-              onClick={onOpenAvatarModal}
+              onClick={onOpenSettings}
               className="text-gray-700 hover:text-primary"
             >
               <Settings className="w-5 h-5" />
