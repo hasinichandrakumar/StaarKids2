@@ -127,7 +127,7 @@ export default function Landing() {
           <div className="bg-gradient-to-r from-primary to-secondary rounded-2xl p-8 text-white">
             <h3 className="text-3xl font-bold mb-4">Ready to Excel on Your STAAR Tests?</h3>
             <p className="text-lg mb-6 opacity-90">
-              Join thousands of Texas students who are already improving their scores with StaarKid
+              Join thousands of Texas students who are already improving their scores with StaarKids
             </p>
             <Button 
               onClick={() => window.location.href = '/api/login'}

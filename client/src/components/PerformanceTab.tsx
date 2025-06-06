@@ -104,6 +104,33 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
     return `${Math.ceil(diffDays / 7)} weeks ago`;
   };
 
+  const getTeksForCategory = (grade: number, subject: string, category: string) => {
+    const teksMap: Record<string, Record<string, string>> = {
+      math: {
+        "Number and Operations": grade === 3 ? "3.2A, 3.2B, 3.2C" : grade === 4 ? "4.2A, 4.2B, 4.2C" : "5.2A, 5.2B, 5.2C",
+        "Algebraic Reasoning": grade === 3 ? "3.5A, 3.5B" : grade === 4 ? "4.5A, 4.5B" : "5.4A, 5.4B, 5.4C",
+        "Geometry and Measurement": grade === 3 ? "3.6A, 3.6B, 3.6C" : grade === 4 ? "4.6A, 4.6B, 4.6C" : "5.6A, 5.6B, 5.6C",
+        "Data Analysis": grade === 3 ? "3.8A, 3.8B" : grade === 4 ? "4.9A, 4.9B" : "5.9A, 5.9B, 5.9C",
+        "Multi-digit Operations": grade === 3 ? "3.4A, 3.4B" : grade === 4 ? "4.4A, 4.4B" : "5.3A, 5.3B"
+      },
+      reading: {
+        "Literary Elements": grade === 3 ? "3.8A, 3.8B, 3.8C" : grade === 4 ? "4.8A, 4.8B, 4.8C" : "5.8A, 5.8B, 5.8C",
+        "Reading Comprehension": grade === 3 ? "3.6A, 3.6B, 3.6C" : grade === 4 ? "4.6A, 4.6B, 4.6C" : "5.6A, 5.6B, 5.6C",
+        "Vocabulary Development": grade === 3 ? "3.3A, 3.3B" : grade === 4 ? "4.3A, 4.3B" : "5.3A, 5.3B",
+        "Author's Purpose": grade === 3 ? "3.9A, 3.9B" : grade === 4 ? "4.9A, 4.9B" : "5.9A, 5.9B"
+      }
+    };
+    return teksMap[subject]?.[category] || "Various TEKS standards";
+  };
+
+  const getDetailedAnalysis = (accuracy: number, totalQuestions: number) => {
+    if (totalQuestions < 5) return "Complete more questions to get detailed analysis.";
+    if (accuracy >= 85) return "Excellent mastery! You've shown strong understanding of this concept.";
+    if (accuracy >= 70) return "Good progress! Consider reviewing challenging areas to reach mastery.";
+    if (accuracy >= 50) return "Developing skills. Focus on this area with additional practice.";
+    return "This area needs attention. Consider working with additional resources or asking for help.";
+  };
+
   return (
     <div className="space-y-8">
       {/* Grade Overview Header */}
@@ -314,21 +341,31 @@ export default function PerformanceTab({ grade }: PerformanceTabProps) {
           <CardContent>
             {readingCategoryStats.length > 0 ? (
               <div className="space-y-3">
-                {readingCategoryStats.map((stat, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div className="flex-1">
-                      <div className="font-medium text-gray-800">{stat.category}</div>
-                      <div className="text-sm text-gray-500 flex items-center gap-2">
+                {readingCategoryStats.map((stat, index) => {
+                  const teksStandards = getTeksForCategory(grade, 'reading', stat.category);
+                  const analysis = getDetailedAnalysis(stat.accuracy, stat.totalQuestions);
+                  return (
+                    <div key={index} className="p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border border-yellow-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="font-medium text-gray-800">{stat.category}</div>
+                        <Badge className={getAccuracyBadgeColor(stat.accuracy)}>
+                          {stat.accuracy}%
+                        </Badge>
+                      </div>
+                      <div className="text-sm text-gray-600 mb-2">
+                        <strong>TEKS Standards:</strong> {teksStandards}
+                      </div>
+                      <div className="text-sm text-gray-500 flex items-center gap-2 mb-2">
                         <span>{stat.correctAnswers}/{stat.totalQuestions} correct</span>
                         <Clock className="w-3 h-3" />
                         <span>{formatLastAttempted(stat.lastAttempted)}</span>
                       </div>
+                      <div className="text-xs text-yellow-700 bg-yellow-100 p-2 rounded">
+                        <strong>Analysis:</strong> {analysis}
+                      </div>
                     </div>
-                    <Badge className={getAccuracyBadgeColor(stat.accuracy)}>
-                      {stat.accuracy}%
-                    </Badge>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="text-center py-8 text-gray-500">

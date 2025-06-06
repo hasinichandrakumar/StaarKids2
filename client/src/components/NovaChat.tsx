@@ -158,13 +158,13 @@ export default function NovaChat({ grade, isOpen, onClose }: NovaChatProps) {
                   </div>
                 )}
                 <div
-                  className={`max-w-[80%] p-3 rounded-lg ${
+                  className={`max-w-[75%] p-3 rounded-lg break-words ${
                     message.isUser
                       ? 'bg-blue-500 text-white rounded-br-none'
                       : 'bg-white border border-gray-200 text-gray-800 rounded-bl-none shadow-sm'
                   }`}
                 >
-                  <p className="text-sm">{message.content}</p>
+                  <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">{message.content}</p>
                 </div>
               </div>
             ))}

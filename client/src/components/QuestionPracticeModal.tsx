@@ -282,11 +282,11 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
                   ) : (
                     <>
                       <div className="bg-white p-4 rounded-lg border border-yellow-100 mb-4 shadow-sm">
-                        <p className="text-orange-700 mb-3">{aiExplanation}</p>
+                        <p className="text-orange-700 mb-3 whitespace-pre-wrap break-words leading-relaxed">{aiExplanation}</p>
                         <div className="border-t border-yellow-100 pt-3">
                           <p className="text-sm text-gray-600 mb-1">Correct Answer:</p>
                           <p className="font-medium text-green-700">{currentQuestion.correctAnswer}</p>
-                          <p className="text-sm text-gray-600 mt-2">{currentQuestion.explanation}</p>
+                          <p className="text-sm text-gray-600 mt-2 whitespace-pre-wrap break-words">{currentQuestion.explanation}</p>
                         </div>
                       </div>
                       <div className="flex space-x-3">
