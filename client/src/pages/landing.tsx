@@ -170,7 +170,12 @@ export default function Landing() {
                   color: '#FF5B00',
                   backgroundColor: 'transparent'
                 }}
-                onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+                onClick={() => {
+                  const featuresSection = document.getElementById('features');
+                  if (featuresSection) {
+                    featuresSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }}
               >
                 Explore Features
                 <ArrowRight className="w-5 h-5 ml-2" />

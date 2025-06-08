@@ -52,6 +52,12 @@ export default function NovaChat({ grade, isOpen, onClose }: NovaChatProps) {
     scrollToBottom();
   }, [messages]);
 
+  useEffect(() => {
+    if (isLoading) {
+      scrollToBottom();
+    }
+  }, [isLoading]);
+
   const getNovaResponse = async (userMessage: string): Promise<string> => {
     try {
       const response = await fetch('/api/nova-chat', {
@@ -149,15 +155,15 @@ export default function NovaChat({ grade, isOpen, onClose }: NovaChatProps) {
           </div>
         </CardHeader>
 
-        <CardContent className="flex-1 flex flex-col p-0">
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0" style={{ maxHeight: 'calc(600px - 120px - 80px)' }}>
             {messages.map((message) => (
               <div
                 key={message.id}
                 className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
               >
                 {!message.isUser && (
-                  <div className="mr-2 mt-1">
+                  <div className="mr-2 mt-1 flex-shrink-0">
                     <NovaAvatar />
                   </div>
                 )}
@@ -171,13 +177,13 @@ export default function NovaChat({ grade, isOpen, onClose }: NovaChatProps) {
                     background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)'
                   } : {}}
                 >
-                  <p className="text-sm whitespace-pre-wrap break-words leading-relaxed overflow-wrap-anywhere hyphens-auto" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{message.content}</p>
+                  <p className="text-sm whitespace-pre-wrap break-words leading-relaxed" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>{message.content}</p>
                 </div>
               </div>
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="mr-2 mt-1">
+                <div className="mr-2 mt-1 flex-shrink-0">
                   <NovaAvatar isAnimated />
                 </div>
                 <div className="bg-white border border-gray-200 rounded-lg rounded-bl-none p-3 shadow-sm">
@@ -189,7 +195,7 @@ export default function NovaChat({ grade, isOpen, onClose }: NovaChatProps) {
                 </div>
               </div>
             )}
-            <div ref={messagesEndRef} />
+            <div ref={messagesEndRef} className="h-1" />
           </div>
 
           <div className="border-t p-4 bg-white">
