@@ -115,6 +115,10 @@ export default function Dashboard() {
         {activeTab === "performance" && (
           <PerformanceTab grade={selectedGrade} />
         )}
+        
+        {activeTab === "ai-coach" && (
+          <AICoachTab grade={selectedGrade} />
+        )}
       </main>
 
       {showAvatarModal && (
