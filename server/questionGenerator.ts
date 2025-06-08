@@ -1,50 +1,8 @@
 import { InsertQuestion } from "../shared/schema";
+import { AUTHENTIC_STAAR_MATH_QUESTIONS, AUTHENTIC_STAAR_READING_QUESTIONS, AUTHENTIC_TEKS_STANDARDS, STAAR_QUESTION_PATTERNS, STAAR_DIFFICULTY_PATTERNS } from "./staarAnalysis";
 
-// TEKS Standards mapping for question categories
-export const TEKS_STANDARDS = {
-  3: {
-    math: {
-      "Number and Operations": ["3.2A", "3.2B", "3.2C", "3.2D"],
-      "Algebraic Reasoning": ["3.4A", "3.4B", "3.4C", "3.4D", "3.4E"],
-      "Geometry and Measurement": ["3.6A", "3.6B", "3.6C", "3.6D", "3.7A", "3.7B", "3.7C", "3.7D", "3.7E"],
-      "Data Analysis": ["3.8A", "3.8B"]
-    },
-    reading: {
-      "Reading Comprehension": ["3.6A", "3.6B", "3.6C", "3.6D", "3.6E", "3.6F", "3.6G", "3.6H"],
-      "Literary Elements": ["3.8A", "3.8B", "3.8C", "3.8D"],
-      "Vocabulary": ["3.3A", "3.3B", "3.3C", "3.3D"],
-      "Response Skills": ["3.7A", "3.7B", "3.7C", "3.7D", "3.7E", "3.7F", "3.7G"]
-    }
-  },
-  4: {
-    math: {
-      "Number and Operations": ["4.2A", "4.2B", "4.2C", "4.2D", "4.2E", "4.2F", "4.2G", "4.2H"],
-      "Algebraic Reasoning": ["4.4A", "4.4B", "4.4C", "4.4D", "4.4E", "4.4F", "4.4G"],
-      "Geometry and Measurement": ["4.5A", "4.5B", "4.5C", "4.5D", "4.6A", "4.6B", "4.6C", "4.6D", "4.7A", "4.7B", "4.7C", "4.7D", "4.7E"],
-      "Data Analysis": ["4.9A", "4.9B"]
-    },
-    reading: {
-      "Reading Comprehension": ["4.6A", "4.6B", "4.6C", "4.6D", "4.6E", "4.6F", "4.6G", "4.6H"],
-      "Literary Elements": ["4.8A", "4.8B", "4.8C"],
-      "Vocabulary": ["4.3A", "4.3B", "4.3C", "4.3D"],
-      "Response Skills": ["4.7A", "4.7B", "4.7C", "4.7D", "4.7E", "4.7F"]
-    }
-  },
-  5: {
-    math: {
-      "Number and Operations": ["5.2A", "5.2B", "5.2C", "5.3A", "5.3B", "5.3C", "5.3D", "5.3E", "5.3F", "5.3G", "5.3H", "5.3I", "5.3J", "5.3K", "5.3L"],
-      "Algebraic Reasoning": ["5.4A", "5.4B", "5.4C", "5.4D", "5.4E", "5.4F"],
-      "Geometry and Measurement": ["5.5A", "5.6A", "5.6B", "5.7A", "5.8A", "5.8B", "5.8C"],
-      "Data Analysis": ["5.9A", "5.9B", "5.9C"]
-    },
-    reading: {
-      "Reading Comprehension": ["5.6A", "5.6B", "5.6C", "5.6D", "5.6E", "5.6F", "5.6G", "5.6H", "5.6I"],
-      "Literary Elements": ["5.8A", "5.8B", "5.8C"],
-      "Vocabulary": ["5.3A", "5.3B", "5.3C", "5.3D"],
-      "Response Skills": ["5.7A", "5.7B", "5.7C", "5.7D", "5.7E", "5.7F"]
-    }
-  }
-};
+// Using authentic TEKS Standards extracted from actual STAAR tests (2013-2015)
+export const TEKS_STANDARDS = AUTHENTIC_TEKS_STANDARDS;
 
 // Sample questions extracted from STAAR documents to use as examples
 export const SAMPLE_QUESTIONS = {
