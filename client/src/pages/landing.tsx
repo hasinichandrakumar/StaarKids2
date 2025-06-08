@@ -118,19 +118,27 @@ export default function Landing() {
           <div className="text-center">
             {/* Logo and Title */}
             <div className="flex justify-center items-center mb-8">
-              <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-yellow-500 rounded-2xl flex items-center justify-center shadow-2xl transform rotate-12 hover:rotate-0 transition-transform duration-300">
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-2xl transform rotate-12 hover:rotate-0 transition-transform duration-300" style={{
+                background: 'linear-gradient(135deg, #D2691E 0%, #CD853F 50%, #DAA520 100%)'
+              }}>
                 <Star className="w-8 h-8 text-white" />
               </div>
               <div className="ml-4">
-                <h1 className="text-5xl font-bold bg-gradient-to-r from-orange-600 to-yellow-600 bg-clip-text text-transparent">
+                <h1 className="text-5xl font-bold bg-clip-text text-transparent" style={{
+                  background: 'linear-gradient(135deg, #D2691E 0%, #CD853F 50%, #DAA520 100%)',
+                  WebkitBackgroundClip: 'text'
+                }}>
                   StaarKids
                 </h1>
-                <p className="text-orange-600 font-medium">STAAR Test Mastery Platform</p>
+                <p className="font-medium" style={{ color: '#D2691E' }}>STAAR Test Mastery Platform</p>
               </div>
             </div>
 
             <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-              Master the <span className="bg-gradient-to-r from-orange-500 to-yellow-500 bg-clip-text text-transparent">STAAR Test</span>
+              Master the <span className="bg-clip-text text-transparent" style={{
+                background: 'linear-gradient(135deg, #D2691E 0%, #CD853F 50%, #DAA520 100%)',
+                WebkitBackgroundClip: 'text'
+              }}>STAAR Test</span>
               <br />
               with Confidence
             </h2>
@@ -145,14 +153,22 @@ export default function Landing() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <Button
                 onClick={handleLogin}
-                className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8 py-4 text-lg font-semibold rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200"
+                className="text-white px-8 py-4 text-lg font-semibold rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200 hover:opacity-90"
+                style={{
+                  background: 'linear-gradient(135deg, #D2691E 0%, #CD853F 50%, #DAA520 100%)'
+                }}
               >
                 <Play className="w-5 h-5 mr-2" />
                 Start Learning Free
               </Button>
               <Button
                 variant="outline"
-                className="border-2 border-orange-500 text-orange-600 hover:bg-orange-50 px-8 py-4 text-lg font-semibold rounded-2xl"
+                className="border-2 px-8 py-4 text-lg font-semibold rounded-2xl hover:bg-opacity-10"
+                style={{ 
+                  borderColor: '#D2691E', 
+                  color: '#D2691E',
+                  backgroundColor: 'transparent'
+                }}
                 onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
               >
                 Explore Features
@@ -164,7 +180,7 @@ export default function Landing() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
               {stats.map((stat, index) => (
                 <div key={index} className="text-center">
-                  <div className="text-4xl font-bold text-orange-600 mb-2">
+                  <div className="text-4xl font-bold mb-2" style={{ color: '#D2691E' }}>
                     {stat.value}
                   </div>
                   <div className="text-gray-600 font-medium">{stat.label}</div>
@@ -180,7 +196,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h3 className="text-4xl font-bold text-gray-900 mb-4">
-              Everything You Need to <span className="text-orange-600">Excel</span>
+              Everything You Need to <span style={{ color: '#D2691E' }}>Excel</span>
             </h3>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Our comprehensive platform provides authentic STAAR preparation with gamified learning that keeps students engaged and motivated.
