@@ -59,15 +59,15 @@ export default function Landing() {
       icon: Trophy,
       title: "Mock Exams",
       description: "Full-length practice tests with detailed analytics",
-      color: "from-purple-500 to-blue-500",
-      bgColor: "from-purple-50 to-blue-50"
+      color: "#FF5B00",
+      bgColor: "#FF5B0010"
     },
     {
       icon: Target,
       title: "Progress Tracking",
       description: "Monitor improvement across all TEKS standards",
-      color: "from-green-500 to-emerald-500",
-      bgColor: "from-green-50 to-emerald-50"
+      color: "#FCC201",
+      bgColor: "#FCC20110"
     }
   ];
 
@@ -208,25 +208,27 @@ export default function Landing() {
               const Icon = feature.icon;
               const isReadingFeature = feature.title === "Reading Excellence";
               const isMathFeature = feature.title === "Math Mastery";
+              const isMockExams = feature.title === "Mock Exams";
+              const isProgressTracking = feature.title === "Progress Tracking";
               
               return (
                 <Card key={index} className={`group relative overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-0 ${
-                  isReadingFeature 
+                  isReadingFeature || isProgressTracking
                     ? 'bg-gradient-to-br from-yellow-50 to-amber-50'
-                    : isMathFeature
+                    : (isMathFeature || isMockExams)
                       ? 'bg-gradient-to-br from-orange-50 to-yellow-50'
                       : `bg-gradient-to-br ${feature.bgColor}`
                 }`}>
                   <div className={`absolute inset-0 opacity-5 group-hover:opacity-10 transition-opacity duration-300`} style={{
-                    backgroundColor: isReadingFeature ? feature.color : isMathFeature ? feature.color : undefined
+                    backgroundColor: feature.color
                   }}></div>
                   <CardContent className="relative p-8 text-center">
                     <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 text-white`} style={{
-                      background: isReadingFeature 
+                      background: isReadingFeature || isProgressTracking
                         ? `linear-gradient(135deg, ${feature.color}, #B8860B)` 
-                        : isMathFeature
+                        : (isMathFeature || isMockExams)
                           ? 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)'
-                          : undefined
+                          : 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)'
                     }}>
                       <Icon className="w-8 h-8 text-white" />
                     </div>
