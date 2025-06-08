@@ -1,5 +1,6 @@
 import { InsertQuestion } from "../shared/schema";
 import { AUTHENTIC_STAAR_MATH_QUESTIONS, AUTHENTIC_STAAR_READING_QUESTIONS, AUTHENTIC_TEKS_STANDARDS, STAAR_QUESTION_PATTERNS, STAAR_DIFFICULTY_PATTERNS } from "./staarAnalysis";
+import { createEnhancedSTAARPrompt, getDifficultyLevel, TEKS_DESCRIPTIONS } from "./staarTraining";
 
 // Using authentic TEKS Standards extracted from actual STAAR tests (2013-2015)
 export const TEKS_STANDARDS = AUTHENTIC_TEKS_STANDARDS;
@@ -147,8 +148,8 @@ export async function generateQuestionWithPerplexity(
   teksStandard: string,
   category?: string
 ): Promise<Omit<InsertQuestion, "id" | "createdAt">> {
-  // Use authentic STAAR test patterns from 2013-2019 documents
-  const authenticPrompt = createAuthenticSTAARPrompt(grade, subject, teksStandard, category);
+  // Use enhanced STAAR prompt with authentic test patterns from 2013-2015 documents
+  const authenticPrompt = createEnhancedSTAARPrompt(grade, subject, teksStandard, category);
   
   const sampleQuestions = SAMPLE_QUESTIONS[grade as keyof typeof SAMPLE_QUESTIONS]?.[subject] || [];
   const exampleQuestion = sampleQuestions.find(q => q.teks === teksStandard) || sampleQuestions[0];
