@@ -224,8 +224,10 @@ export default function Landing() {
                   }}></div>
                   <CardContent className="relative p-8 text-center">
                     <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 text-white`} style={{
-                      background: isReadingFeature || isProgressTracking
+                      background: isReadingFeature
                         ? `linear-gradient(135deg, ${feature.color}, #B8860B)` 
+                        : isProgressTracking
+                          ? `linear-gradient(135deg, #DAA520, ${feature.color})`
                         : (isMathFeature || isMockExams)
                           ? 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)'
                           : 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)'
