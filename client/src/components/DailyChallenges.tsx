@@ -90,7 +90,7 @@ export default function DailyChallenges({ grade, onStartPractice }: DailyChallen
                     <Icon className={`w-6 h-6`} style={
                       challenge.subject === 'reading' 
                         ? { color: '#FCC201' } 
-                        : { color: '#D2691E' }
+                        : { color: '#FF5B00' }
                     } />
                   </div>
                   
@@ -124,7 +124,7 @@ export default function DailyChallenges({ grade, onStartPractice }: DailyChallen
                     style={!isCompleted ? (
                       challenge.subject === 'reading' 
                         ? { backgroundColor: '#FCC201' }
-                        : { background: 'linear-gradient(135deg, #D2691E 0%, #CD853F 50%, #DAA520 100%)' }
+                        : { background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)' }
                     ) : {}}
                     size="sm"
                   >

@@ -108,7 +108,7 @@ export default function InteractiveDemo() {
                   : 'bg-yellow-50'
               }`}>
                 {question.subject === 'math' ? (
-                  <Calculator className={`w-5 h-5`} style={{ color: '#D2691E' }} />
+                  <Calculator className={`w-5 h-5`} style={{ color: '#FF5B00' }} />
                 ) : (
                   <BookOpen className={`w-5 h-5`} style={{ color: '#FCC201' }} />
                 )}
@@ -204,14 +204,10 @@ export default function InteractiveDemo() {
               <Button
                 onClick={handleSubmit}
                 disabled={!selectedAnswer}
-                className={`px-8 py-3 font-semibold rounded-xl text-white disabled:bg-gray-300 disabled:cursor-not-allowed ${
-                  question.subject === 'math'
-                    ? 'hover:opacity-90'
-                    : 'hover:opacity-90'
-                }`}
+                className={`px-8 py-3 font-semibold rounded-xl text-white disabled:bg-gray-300 disabled:cursor-not-allowed hover:opacity-90`}
                 style={question.subject === 'reading' 
                   ? { backgroundColor: '#FCC201' }
-                  : { background: 'linear-gradient(135deg, #D2691E 0%, #CD853F 50%, #DAA520 100%)' }
+                  : { background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)' }
                 }
               >
                 Submit Answer
@@ -222,7 +218,7 @@ export default function InteractiveDemo() {
                 className={`px-8 py-3 font-semibold rounded-xl text-white hover:opacity-90`}
                 style={question.subject === 'reading' 
                   ? { backgroundColor: '#FCC201' }
-                  : { background: 'linear-gradient(135deg, #D2691E 0%, #CD853F 50%, #DAA520 100%)' }
+                  : { background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)' }
                 }
               >
                 {currentQuestion < demoQuestions.length - 1 ? 'Next Question' : 'Complete Demo'}
