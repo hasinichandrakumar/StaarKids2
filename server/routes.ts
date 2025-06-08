@@ -382,6 +382,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Nova chat endpoint
+  app.post('/api/nova-chat', isAuthenticated, async (req: any, res) => {
+    try {
+      const { message, grade } = req.body;
+      const userId = req.user.claims.sub;
+      
+      if (!message || !grade) {
+        return res.status(400).json({ message: "Message and grade are required" });
+      }
+
+      // Get user stats for personalized responses
+      const userStats = await storage.getUserStats(userId, grade, 'math');
+      const readingStats = await storage.getUserStats(userId, grade, 'reading');
+      
+      const prompt = `You are Nova, a friendly and encouraging AI learning buddy for Texas elementary students preparing for STAAR tests. You help with grades 3-5 Math and Reading.
+
+PERSONALITY: You are enthusiastic, supportive, and use age-appropriate language. You love celebrating student progress and giving detailed explanations. You frequently mention StarPower rewards for correct answers.
+
+STUDENT CONTEXT:
+- Grade: ${grade}
+- Math accuracy: ${userStats.averageScore || 0}%
+- Reading accuracy: ${readingStats.averageScore || 0}%
+- Total attempts: ${userStats.totalAttempts + readingStats.totalAttempts}
+
+RESPONSE GUIDELINES:
+- Keep responses under 150 words
+- Use encouraging, grade-appropriate language
+- Reference STAAR test concepts when relevant
+- Mention StarPower rewards for motivation
+- Provide specific study tips when asked
+- If asked about math, focus on TEKS standards for grade ${grade}
+- If asked about reading, focus on comprehension and vocabulary
+
+Student message: "${message}"
+
+Respond as Nova would, being helpful and encouraging while staying in character.`;
+
+      const response = await fetch('https://api.perplexity.ai/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'llama-3.1-sonar-small-128k-online',
+          messages: [
+            {
+              role: 'system',
+              content: prompt
+            }
+          ],
+          max_tokens: 300,
+          temperature: 0.7
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Perplexity API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const novaResponse = data.choices?.[0]?.message?.content || "I'm having trouble thinking right now. Can you try asking me again?";
+
+      res.json({ response: novaResponse });
+    } catch (error) {
+      console.error("Error in Nova chat:", error);
+      res.json({ 
+        response: "Hi there! I'm Nova, your learning buddy! I'm here to help you with your STAAR test prep. I love giving detailed explanations and celebrating your progress with StarPower rewards! What would you like to work on today?" 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
