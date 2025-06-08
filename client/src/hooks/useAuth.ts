@@ -6,9 +6,14 @@ export function useAuth() {
     retry: false,
   });
 
+  const login = () => {
+    window.location.href = "/auth/replit";
+  };
+
   return {
     user,
     isLoading,
     isAuthenticated: !!user,
+    login,
   };
 }

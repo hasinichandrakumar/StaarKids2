@@ -1,145 +1,337 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Star, Calculator, BookOpen, User, Award } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Star, BookOpen, Calculator, Trophy, Target, Zap, ArrowRight, CheckCircle, Users, Award, Play } from "lucide-react";
+import { useLocation } from "wouter";
+import InteractiveDemo from "@/components/InteractiveDemo";
 
 export default function Landing() {
+  const { login } = useAuth();
+  const [_, setLocation] = useLocation();
+  const [animatedCount, setAnimatedCount] = useState(0);
+  const [currentTestimonial, setCurrentTestimonial] = useState(0);
+
+  useEffect(() => {
+    // Animate student count
+    const timer = setTimeout(() => {
+      let count = 0;
+      const target = 15000;
+      const increment = target / 100;
+      const interval = setInterval(() => {
+        count += increment;
+        if (count >= target) {
+          setAnimatedCount(target);
+          clearInterval(interval);
+        } else {
+          setAnimatedCount(Math.floor(count));
+        }
+      }, 20);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    // Rotate testimonials
+    const interval = setInterval(() => {
+      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const features = [
+    {
+      icon: Calculator,
+      title: "Math Mastery",
+      description: "Complete TEKS-aligned math practice with instant feedback",
+      color: "from-orange-500 to-red-500",
+      bgColor: "from-orange-50 to-red-50"
+    },
+    {
+      icon: BookOpen,
+      title: "Reading Excellence",
+      description: "Improve comprehension with authentic STAAR passages",
+      color: "from-yellow-500 to-amber-500",
+      bgColor: "from-yellow-50 to-amber-50"
+    },
+    {
+      icon: Trophy,
+      title: "Mock Exams",
+      description: "Full-length practice tests with detailed analytics",
+      color: "from-purple-500 to-blue-500",
+      bgColor: "from-purple-50 to-blue-50"
+    },
+    {
+      icon: Target,
+      title: "Progress Tracking",
+      description: "Monitor improvement across all TEKS standards",
+      color: "from-green-500 to-emerald-500",
+      bgColor: "from-green-50 to-emerald-50"
+    }
+  ];
+
+  const testimonials = [
+    {
+      text: "My daughter improved her math scores by 40% in just 2 months!",
+      author: "Sarah Johnson",
+      role: "Parent",
+      grade: "Grade 4 Student"
+    },
+    {
+      text: "The daily challenges keep my students motivated and engaged.",
+      author: "Mr. Rodriguez",
+      role: "Teacher",
+      grade: "Elementary School"
+    },
+    {
+      text: "I love earning StarPower points - it makes studying fun!",
+      author: "Alex Chen",
+      role: "Student",
+      grade: "Grade 5"
+    }
+  ];
+
+  const stats = [
+    { value: "98%", label: "Student Improvement Rate" },
+    { value: "50K+", label: "Practice Questions" },
+    { value: "15+", label: "TEKS Standards Covered" }
+  ];
+
+  const handleLogin = () => {
+    login();
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b-2 border-secondary">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center">
-                <Star className="w-6 h-6 text-white" />
-              </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-[#FF5B00] to-[#FCC201] bg-clip-text text-transparent">
-                StaarKids
-              </h1>
-            </div>
-            <Button 
-              onClick={() => window.location.href = '/api/login'}
-              className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white font-semibold px-6 py-2 shadow-lg transform hover:scale-105 transition-all duration-200"
-            >
-              Get Started
-            </Button>
-          </div>
-        </div>
-      </header>
-
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-white">
       {/* Hero Section */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="text-center mb-16">
-          <h2 className="text-5xl font-bold text-gray-700 mb-6">
-            Master Your <span className="bg-gradient-to-r from-[#FF5B00] to-[#FCC201] bg-clip-text text-transparent">STAAR</span> Tests
-          </h2>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Empower Texas students in grades 3–5 to effectively prepare for STAAR tests 
-            in Math and Reading through personalized, engaging, and standards-aligned practice.
-          </p>
-          <Button 
-            onClick={() => window.location.href = '/api/login'}
-            className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white text-lg font-semibold px-8 py-4 rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200"
-          >
-            Start Learning Today
-          </Button>
+      <div className="relative overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-20 left-10 w-32 h-32 bg-orange-400 rounded-full animate-pulse"></div>
+          <div className="absolute top-40 right-20 w-24 h-24 bg-yellow-400 rounded-full animate-bounce delay-300"></div>
+          <div className="absolute bottom-20 left-1/4 w-16 h-16 bg-red-400 rounded-full animate-ping delay-700"></div>
+          <div className="absolute top-1/3 right-1/3 w-20 h-20 bg-amber-400 rounded-full animate-pulse delay-1000"></div>
         </div>
 
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-          <Card className="hover:shadow-xl transition-shadow duration-300">
-            <CardContent className="pt-6 text-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Calculator className="w-8 h-8 text-primary" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+          <div className="text-center">
+            {/* Logo and Title */}
+            <div className="flex justify-center items-center mb-8">
+              <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-yellow-500 rounded-2xl flex items-center justify-center shadow-2xl transform rotate-12 hover:rotate-0 transition-transform duration-300">
+                <Star className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-gray-700 mb-2">Math Practice</h3>
-              <p className="text-gray-600">
-                TEKS-aligned math questions covering fractions, geometry, and problem-solving
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-xl transition-shadow duration-300">
-            <CardContent className="pt-6 text-center">
-              <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <BookOpen className="w-8 h-8 text-secondary" />
+              <div className="ml-4">
+                <h1 className="text-5xl font-bold bg-gradient-to-r from-orange-600 to-yellow-600 bg-clip-text text-transparent">
+                  StaarKids
+                </h1>
+                <p className="text-orange-600 font-medium">STAAR Test Mastery Platform</p>
               </div>
-              <h3 className="text-xl font-bold text-gray-700 mb-2">Reading Skills</h3>
-              <p className="text-gray-600">
-                Comprehension, literary elements, and critical thinking exercises
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-xl transition-shadow duration-300">
-            <CardContent className="pt-6 text-center">
-              <div className="w-16 h-16 bg-orange-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <User className="w-8 h-8 text-orange-500" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-700 mb-2">Personalized Learning</h3>
-              <p className="text-gray-600">
-                Adaptive practice paths tailored to your strengths and weaknesses
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-xl transition-shadow duration-300">
-            <CardContent className="pt-6 text-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Award className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-700 mb-2">Gamified Experience</h3>
-              <p className="text-gray-600">
-                Earn Star Power points, unlock avatars, and track your progress
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* How It Works */}
-        <div className="bg-white rounded-2xl p-8 shadow-lg">
-          <h3 className="text-3xl font-bold text-gray-700 text-center mb-8">How StaarKids Works</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
-                1
-              </div>
-              <h4 className="text-xl font-semibold text-gray-700 mb-2">Select Your Grade</h4>
-              <p className="text-gray-600">Choose your grade level (3, 4, or 5) and subject to begin practicing</p>
             </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-secondary text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
-                2
-              </div>
-              <h4 className="text-xl font-semibold text-gray-700 mb-2">Practice & Learn</h4>
-              <p className="text-gray-600">Work through TEKS-aligned questions with hints and detailed explanations</p>
+
+            <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+              Master the <span className="bg-gradient-to-r from-orange-500 to-yellow-500 bg-clip-text text-transparent">STAAR Test</span>
+              <br />
+              with Confidence
+            </h2>
+
+            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+              Join thousands of Texas students mastering grades 3-5 STAAR Math and Reading 
+              with our gamified, TEKS-aligned practice platform featuring real test questions 
+              and AI-powered personalized learning.
+            </p>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+              <Button
+                onClick={handleLogin}
+                className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8 py-4 text-lg font-semibold rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200"
+              >
+                <Play className="w-5 h-5 mr-2" />
+                Start Learning Free
+              </Button>
+              <Button
+                variant="outline"
+                className="border-2 border-orange-500 text-orange-600 hover:bg-orange-50 px-8 py-4 text-lg font-semibold rounded-2xl"
+                onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                Explore Features
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
             </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-red-500 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
-                3
-              </div>
-              <h4 className="text-xl font-semibold text-gray-700 mb-2">Track Progress</h4>
-              <p className="text-gray-600">Monitor your improvement and earn rewards as you master new skills</p>
+
+            {/* Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+              {stats.map((stat, index) => (
+                <div key={index} className="text-center">
+                  <div className="text-4xl font-bold text-orange-600 mb-2">
+                    {stat.value}
+                  </div>
+                  <div className="text-gray-600 font-medium">{stat.label}</div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
+      </div>
 
-        {/* CTA Section */}
-        <div className="text-center mt-16">
-          <div className="bg-gradient-to-r from-primary to-secondary rounded-2xl p-8 text-white">
-            <h3 className="text-3xl font-bold mb-4">Ready to Excel on Your STAAR Tests?</h3>
-            <p className="text-lg mb-6 opacity-90">
-              Join thousands of Texas students who are already improving their scores with StaarKids
+      {/* Features Section */}
+      <section id="features" className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h3 className="text-4xl font-bold text-gray-900 mb-4">
+              Everything You Need to <span className="text-orange-600">Excel</span>
+            </h3>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Our comprehensive platform provides authentic STAAR preparation with gamified learning that keeps students engaged and motivated.
             </p>
-            <Button 
-              onClick={() => window.location.href = '/api/login'}
-              className="bg-white text-primary hover:bg-gray-100 text-lg font-semibold px-8 py-4 rounded-xl"
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => {
+              const Icon = feature.icon;
+              return (
+                <Card key={index} className={`group relative overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-0 bg-gradient-to-br ${feature.bgColor}`}>
+                  <div className={`absolute inset-0 bg-gradient-to-r ${feature.color} opacity-5 group-hover:opacity-10 transition-opacity duration-300`}></div>
+                  <CardContent className="relative p-8 text-center">
+                    <div className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                      <Icon className="w-8 h-8 text-white" />
+                    </div>
+                    <h4 className="text-xl font-bold text-gray-900 mb-4">{feature.title}</h4>
+                    <p className="text-gray-600">{feature.description}</p>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Interactive Demo Section */}
+      <section className="py-20 bg-gradient-to-br from-blue-50 to-indigo-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h3 className="text-4xl font-bold text-gray-900 mb-4">
+              Try It <span className="text-blue-600">Yourself</span>
+            </h3>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Experience authentic STAAR questions with instant feedback and detailed explanations. 
+              See how our platform makes learning engaging and effective.
+            </p>
+          </div>
+          
+          <InteractiveDemo />
+          
+          <div className="text-center mt-12">
+            <p className="text-gray-600 mb-6">
+              This is just a small sample. Get access to thousands more questions!
+            </p>
+            <Button
+              onClick={handleLogin}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200"
             >
-              Start Your Journey
+              <Play className="w-5 h-5 mr-2" />
+              Start Your Free Account
             </Button>
           </div>
         </div>
-      </main>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-20 bg-gradient-to-r from-orange-50 to-yellow-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h3 className="text-4xl font-bold text-gray-900 mb-4">
+              Loved by <span className="text-orange-600">Students, Parents & Teachers</span>
+            </h3>
+            <div className="flex justify-center items-center space-x-2 mb-8">
+              <Users className="w-6 h-6 text-orange-500" />
+              <span className="text-2xl font-bold text-orange-600">
+                {animatedCount.toLocaleString()}+
+              </span>
+              <span className="text-gray-600">Happy Students</span>
+            </div>
+          </div>
+
+          <div className="relative h-48">
+            {testimonials.map((testimonial, index) => (
+              <div
+                key={index}
+                className={`absolute inset-0 transition-all duration-500 ${
+                  index === currentTestimonial 
+                    ? 'opacity-100 transform translate-x-0' 
+                    : 'opacity-0 transform translate-x-full'
+                }`}
+              >
+                <Card className="bg-white shadow-xl border-0">
+                  <CardContent className="p-8 text-center">
+                    <div className="flex justify-center mb-4">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                      ))}
+                    </div>
+                    <blockquote className="text-xl text-gray-700 mb-6 italic">
+                      "{testimonial.text}"
+                    </blockquote>
+                    <div>
+                      <div className="font-bold text-gray-900">{testimonial.author}</div>
+                      <div className="text-gray-600">{testimonial.role}</div>
+                      <div className="text-sm text-orange-600">{testimonial.grade}</div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex justify-center mt-8 space-x-2">
+            {testimonials.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentTestimonial(index)}
+                className={`w-3 h-3 rounded-full transition-all duration-200 ${
+                  index === currentTestimonial ? 'bg-orange-500' : 'bg-gray-300'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-orange-500 to-yellow-500 text-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h3 className="text-4xl font-bold mb-4">Ready to Start Your STAAR Success Journey?</h3>
+          <p className="text-xl mb-8 opacity-90">
+            Join thousands of students already improving their scores with StaarKids
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button
+              onClick={handleLogin}
+              className="bg-white text-orange-600 hover:bg-gray-100 px-8 py-4 text-lg font-semibold rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200"
+            >
+              <Award className="w-5 h-5 mr-2" />
+              Get Started Today
+            </Button>
+          </div>
+          
+          <div className="mt-8 flex justify-center items-center space-x-6 text-sm opacity-80">
+            <div className="flex items-center">
+              <CheckCircle className="w-4 h-4 mr-2" />
+              Free to Start
+            </div>
+            <div className="flex items-center">
+              <CheckCircle className="w-4 h-4 mr-2" />
+              Authentic STAAR Questions
+            </div>
+            <div className="flex items-center">
+              <CheckCircle className="w-4 h-4 mr-2" />
+              Instant Results
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
