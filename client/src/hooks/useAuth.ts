@@ -7,7 +7,7 @@ export function useAuth() {
   });
 
   const login = () => {
-    window.location.href = "/auth/replit";
+    window.location.href = "/api/login";
   };
 
   return {

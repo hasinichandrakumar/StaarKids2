@@ -99,13 +99,8 @@ export default function Landing() {
     { value: "15+", label: "TEKS Standards Covered" }
   ];
 
-  const handleLogin = async () => {
-    try {
-      await login();
-      setLocation("/dashboard");
-    } catch (error) {
-      console.error("Login failed:", error);
-    }
+  const handleLogin = () => {
+    login();
   };
 
   return (
