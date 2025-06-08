@@ -11,9 +11,9 @@ export const TEKS_STANDARDS = {
     },
     reading: {
       "Reading Comprehension": ["3.6A", "3.6B", "3.6C", "3.6D", "3.6E", "3.6F", "3.6G", "3.6H"],
-      "Literary Elements": ["3.7A", "3.7B", "3.7C", "3.7D"],
-      "Author's Purpose": ["3.9A", "3.9B", "3.9C", "3.9D"],
-      "Genre Features": ["3.8A", "3.8B", "3.8C", "3.8D"]
+      "Literary Elements": ["3.8A", "3.8B", "3.8C", "3.8D"],
+      "Vocabulary": ["3.3A", "3.3B", "3.3C", "3.3D"],
+      "Response Skills": ["3.7A", "3.7B", "3.7C", "3.7D", "3.7E", "3.7F", "3.7G"]
     }
   },
   4: {
@@ -25,9 +25,9 @@ export const TEKS_STANDARDS = {
     },
     reading: {
       "Reading Comprehension": ["4.6A", "4.6B", "4.6C", "4.6D", "4.6E", "4.6F", "4.6G", "4.6H"],
-      "Literary Elements": ["4.7A", "4.7B", "4.7C", "4.7D", "4.7E", "4.7F"],
-      "Author's Purpose": ["4.9A", "4.9B", "4.9C", "4.9D"],
-      "Genre Features": ["4.8A", "4.8B", "4.8C"]
+      "Literary Elements": ["4.8A", "4.8B", "4.8C"],
+      "Vocabulary": ["4.3A", "4.3B", "4.3C", "4.3D"],
+      "Response Skills": ["4.7A", "4.7B", "4.7C", "4.7D", "4.7E", "4.7F"]
     }
   },
   5: {
@@ -39,9 +39,9 @@ export const TEKS_STANDARDS = {
     },
     reading: {
       "Reading Comprehension": ["5.6A", "5.6B", "5.6C", "5.6D", "5.6E", "5.6F", "5.6G", "5.6H", "5.6I"],
-      "Literary Elements": ["5.7A", "5.7B", "5.7C", "5.7D"],
-      "Author's Purpose": ["5.9A", "5.9B", "5.9C", "5.9D", "5.9E"],
-      "Genre Features": ["5.8A", "5.8B", "5.8C"]
+      "Literary Elements": ["5.8A", "5.8B", "5.8C"],
+      "Vocabulary": ["5.3A", "5.3B", "5.3C", "5.3D"],
+      "Response Skills": ["5.7A", "5.7B", "5.7C", "5.7D", "5.7E", "5.7F"]
     }
   }
 };

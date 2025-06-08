@@ -18,9 +18,10 @@ export const STAAR_CATEGORY_DISTRIBUTIONS = {
       "Data Analysis": 0.20
     },
     reading: {
-      "Literary Elements": 0.40,
-      "Reading Comprehension": 0.35,
-      "Vocabulary": 0.25
+      "Literary Elements": 0.30,
+      "Reading Comprehension": 0.40,
+      "Vocabulary": 0.15,
+      "Response Skills": 0.15
     }
   },
   4: {
