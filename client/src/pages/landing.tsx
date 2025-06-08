@@ -334,8 +334,8 @@ export default function Landing() {
                         "Butterflies undergo complete metamorphosis, which means they go through four distinct stages..."
                       </p>
                       <div className="flex items-center space-x-2">
-                        <Badge className="bg-green-100 text-green-800">Literary Nonfiction</Badge>
-                        <Badge className="bg-blue-100 text-blue-800">Main Idea</Badge>
+                        <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200">Literary Nonfiction</Badge>
+                        <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-200">Main Idea</Badge>
                       </div>
                     </div>
                     <div className="space-y-3">
