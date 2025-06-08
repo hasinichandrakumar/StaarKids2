@@ -99,8 +99,13 @@ export default function Landing() {
     { value: "15+", label: "TEKS Standards Covered" }
   ];
 
-  const handleLogin = () => {
-    login();
+  const handleLogin = async () => {
+    try {
+      await login();
+      setLocation("/dashboard");
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
   };
 
   return (
@@ -617,24 +622,32 @@ export default function Landing() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-orange-500 to-yellow-500 text-white">
+      <section className="py-16 bg-gradient-to-r from-orange-500 to-yellow-500 text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h3 className="text-4xl font-bold mb-4">Ready to Start Your STAAR Success Journey?</h3>
           <p className="text-xl mb-8 opacity-90">
             Join thousands of students already improving their scores with StaarKids
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
             <Button
               onClick={handleLogin}
               className="bg-white text-orange-600 hover:bg-gray-100 px-8 py-4 text-lg font-semibold rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200"
             >
               <Award className="w-5 h-5 mr-2" />
-              Get Started Today
+              Start Learning Free
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+              className="border-2 border-white text-white hover:bg-white hover:text-orange-600 px-8 py-4 text-lg font-semibold rounded-2xl transition-all duration-200"
+            >
+              Explore Features
+              <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           </div>
           
-          <div className="mt-8 flex justify-center items-center space-x-6 text-sm opacity-80">
+          <div className="flex justify-center items-center space-x-6 text-sm opacity-80">
             <div className="flex items-center">
               <CheckCircle className="w-4 h-4 mr-2" />
               Free to Start
@@ -650,6 +663,28 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="flex items-center space-x-3 mb-4 md:mb-0">
+              <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full flex items-center justify-center">
+                <Star className="w-4 h-4 text-white" />
+              </div>
+              <span className="text-xl font-bold">StaarKids</span>
+            </div>
+            <div className="text-center md:text-right">
+              <p className="text-gray-400 text-sm">
+                © 2024 StaarKids. Empowering Texas students to excel in STAAR tests.
+              </p>
+              <p className="text-gray-500 text-xs mt-1">
+                TEKS-aligned • Authentic Questions • AI-Powered Learning
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
