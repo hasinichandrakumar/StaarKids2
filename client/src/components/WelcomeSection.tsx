@@ -3,7 +3,7 @@ import { BookOpen, Star, Trophy, Target, Zap } from "lucide-react";
 import { useState, useEffect } from "react";
 
 interface WelcomeSectionProps {
-  user: User;
+  user: User | any;
 }
 
 export default function WelcomeSection({ user }: WelcomeSectionProps) {
