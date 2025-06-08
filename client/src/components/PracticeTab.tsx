@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Calculator, BookOpen, Clock, Plus, Minus, X, Divide } from "lucide-react";
+import { Calculator, BookOpen, Clock, Plus, Minus, X, Divide, Play, Star, Target, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import ProgressRing from "./ProgressRing";
@@ -138,15 +138,28 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
   return (
     <div>
       {/* Subject Selection */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         {/* Math Section */}
-        <Card className="hover:shadow-xl transition-shadow duration-300">
-          <CardContent className="p-6">
-            <div className="flex items-center mb-4">
-              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mr-4">
-                <Calculator className="w-6 h-6 text-orange-600" />
+        <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-0 bg-gradient-to-br from-orange-50 to-red-50">
+          <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-red-400 opacity-5 group-hover:opacity-10 transition-opacity duration-300"></div>
+          <CardContent className="relative p-8">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Calculator className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-3xl font-bold text-orange-700 mb-1">Math</h3>
+                  <p className="text-orange-600 text-sm">Problem Solving & Numbers</p>
+                </div>
               </div>
-              <h3 className="text-2xl font-bold text-orange-700">Math</h3>
+              <div className="text-right">
+                <div className="flex items-center space-x-1 mb-2">
+                  <Star className="w-4 h-4 text-orange-500" />
+                  <span className="text-2xl font-bold text-orange-700">{mathProgress}%</span>
+                </div>
+                <span className="text-xs text-orange-600 font-medium">Current Progress</span>
+              </div>
             </div>
             
             {/* Progress Ring */}
@@ -192,13 +205,26 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
         </Card>
 
         {/* Reading Section */}
-        <Card className="hover:shadow-xl transition-shadow duration-300">
-          <CardContent className="p-6">
-            <div className="flex items-center mb-4">
-              <div className="w-12 h-12 rounded-full flex items-center justify-center mr-4" style={{ backgroundColor: "#FCC20120" }}>
-                <BookOpen className="w-6 h-6" style={{ color: "#FCC201" }} />
+        <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-0 bg-gradient-to-br from-yellow-50 to-amber-50">
+          <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-amber-400 opacity-5 group-hover:opacity-10 transition-opacity duration-300"></div>
+          <CardContent className="relative p-8">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-yellow-500 to-amber-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <BookOpen className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-3xl font-bold text-amber-700 mb-1">Reading</h3>
+                  <p className="text-amber-600 text-sm">Comprehension & Analysis</p>
+                </div>
               </div>
-              <h3 className="text-2xl font-bold" style={{ color: "#B8860B" }}>Reading</h3>
+              <div className="text-right">
+                <div className="flex items-center space-x-1 mb-2">
+                  <Star className="w-4 h-4 text-amber-500" />
+                  <span className="text-2xl font-bold text-amber-700">{readingProgress}%</span>
+                </div>
+                <span className="text-xs text-amber-600 font-medium">Current Progress</span>
+              </div>
             </div>
             
             {/* Progress Ring */}

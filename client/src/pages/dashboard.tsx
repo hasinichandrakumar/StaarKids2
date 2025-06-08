@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/Header";
 import WelcomeSection from "@/components/WelcomeSection";
 import StarPowerDashboard from "@/components/StarPowerDashboard";
+import QuickStatsOverview from "@/components/QuickStatsOverview";
 import NavigationTabs from "@/components/NavigationTabs";
 import PracticeTab from "@/components/PracticeTab";
 import MockExamsTab from "@/components/MockExamsTab";

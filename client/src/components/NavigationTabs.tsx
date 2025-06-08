@@ -7,33 +7,81 @@ interface NavigationTabsProps {
 
 export default function NavigationTabs({ activeTab, onTabChange }: NavigationTabsProps) {
   const tabs = [
-    { id: "practice", label: "Practice", icon: PencilIcon },
-    { id: "mock-exams", label: "Mock Exams", icon: ClipboardDocumentListIcon },
-    { id: "performance", label: "Performance", icon: ChartBarIcon },
+    { 
+      id: "practice", 
+      label: "Practice", 
+      icon: PencilIcon,
+      description: "Quick practice sessions",
+      color: "from-blue-500 to-blue-600"
+    },
+    { 
+      id: "mock-exams", 
+      label: "Mock Exams", 
+      icon: ClipboardDocumentListIcon,
+      description: "Full-length practice tests",
+      color: "from-purple-500 to-purple-600"
+    },
+    { 
+      id: "performance", 
+      label: "Performance", 
+      icon: ChartBarIcon,
+      description: "Track your progress",
+      color: "from-green-500 to-green-600"
+    },
   ];
 
   return (
     <div className="mb-8">
-      <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => onTabChange(tab.id)}
-                className={`flex items-center py-4 px-1 text-lg font-medium transition-colors duration-200 ${
-                  activeTab === tab.id
-                    ? "border-b-2 border-primary text-primary"
-                    : "border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-              >
-                <Icon className="w-5 h-5 mr-2" />
-                {tab.label}
-              </button>
-            );
-          })}
-        </nav>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          
+          return (
+            <button
+              key={tab.id}
+              onClick={() => onTabChange(tab.id)}
+              className={`relative group p-6 rounded-2xl transition-all duration-300 transform hover:scale-105 ${
+                isActive
+                  ? `bg-gradient-to-br ${tab.color} text-white shadow-xl scale-105`
+                  : "bg-white hover:bg-gray-50 text-gray-700 shadow-lg border border-gray-200"
+              }`}
+            >
+              <div className="flex flex-col items-center text-center">
+                <div className={`p-3 rounded-xl mb-3 transition-colors duration-200 ${
+                  isActive 
+                    ? "bg-white bg-opacity-20" 
+                    : "bg-gray-100 group-hover:bg-orange-100"
+                }`}>
+                  <Icon className={`w-8 h-8 ${
+                    isActive 
+                      ? "text-white" 
+                      : "text-gray-600 group-hover:text-orange-500"
+                  }`} />
+                </div>
+                
+                <h3 className={`text-xl font-bold mb-1 ${
+                  isActive ? "text-white" : "text-gray-900"
+                }`}>
+                  {tab.label}
+                </h3>
+                
+                <p className={`text-sm ${
+                  isActive ? "text-white text-opacity-90" : "text-gray-500"
+                }`}>
+                  {tab.description}
+                </p>
+              </div>
+              
+              {/* Active indicator */}
+              {isActive && (
+                <div className="absolute -top-1 -right-1 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center animate-pulse">
+                  <div className="w-3 h-3 bg-white rounded-full"></div>
+                </div>
+              )}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
