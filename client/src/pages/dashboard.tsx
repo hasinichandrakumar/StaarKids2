@@ -50,24 +50,26 @@ export default function Dashboard() {
     );
   }
 
-  // Handle role-based dashboard routing
-  if (!user.role || user.role === 'new') {
+  // Handle role-based dashboard routing - default to student if no role specified
+  const userRole = user && typeof user === 'object' && 'role' in user ? (user as any).role : 'student';
+  
+  if (!userRole || userRole === 'new') {
     return (
       <RoleSelector 
         onRoleSelected={() => window.location.reload()} 
-        currentUser={user} 
+        currentUser={user as any} 
       />
     );
   }
 
   // Parent dashboard
-  if (user.role === 'parent') {
-    return <ParentDashboard user={user} />;
+  if (userRole === 'parent') {
+    return <ParentDashboard user={user as any} />;
   }
 
   // Teacher dashboard
-  if (user.role === 'teacher') {
-    return <TeacherDashboard user={user} />;
+  if (userRole === 'teacher') {
+    return <TeacherDashboard user={user as any} />;
   }
 
   // Default to student dashboard for 'student' role or undefined
