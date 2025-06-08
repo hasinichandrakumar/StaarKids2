@@ -49,7 +49,7 @@ export default function WelcomeSection({ user }: WelcomeSectionProps) {
   const StarIcon = starLevel.icon;
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-orange-500 via-orange-400 to-yellow-400 rounded-3xl p-8 text-white mb-8 shadow-2xl">
+    <div className="relative overflow-hidden bg-gradient-to-br from-orange-500 via-orange-400 to-[#FCC201] rounded-3xl p-8 text-white mb-8 shadow-2xl">
       {/* Animated background elements */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-4 right-8 w-16 h-16 bg-white rounded-full animate-pulse"></div>

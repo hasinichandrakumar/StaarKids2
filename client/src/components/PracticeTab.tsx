@@ -205,25 +205,25 @@ export default function PracticeTab({ grade, onStartPractice }: PracticeTabProps
         </Card>
 
         {/* Reading Section */}
-        <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-0 bg-gradient-to-br from-yellow-50 to-amber-50">
-          <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-amber-400 opacity-5 group-hover:opacity-10 transition-opacity duration-300"></div>
+        <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-0" style={{ background: "linear-gradient(135deg, #FCC20110, #FCC20120)" }}>
+          <div className="absolute inset-0 opacity-5 group-hover:opacity-10 transition-opacity duration-300" style={{ background: "linear-gradient(90deg, #FCC201, #FCC201)" }}></div>
           <CardContent className="relative p-8">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-yellow-500 to-amber-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mr-4 shadow-lg group-hover:scale-110 transition-transform duration-300" style={{ background: "linear-gradient(135deg, #FCC201, #B8860B)" }}>
                   <BookOpen className="w-8 h-8 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-3xl font-bold text-amber-700 mb-1">Reading</h3>
-                  <p className="text-amber-600 text-sm">Comprehension & Analysis</p>
+                  <h3 className="text-3xl font-bold mb-1" style={{ color: "#B8860B" }}>Reading</h3>
+                  <p className="text-sm" style={{ color: "#B8860B" }}>Comprehension & Analysis</p>
                 </div>
               </div>
               <div className="text-right">
                 <div className="flex items-center space-x-1 mb-2">
-                  <Star className="w-4 h-4 text-amber-500" />
-                  <span className="text-2xl font-bold text-amber-700">{readingProgress}%</span>
+                  <Star className="w-4 h-4" style={{ color: "#FCC201" }} />
+                  <span className="text-2xl font-bold" style={{ color: "#B8860B" }}>{readingProgress}%</span>
                 </div>
-                <span className="text-xs text-amber-600 font-medium">Current Progress</span>
+                <span className="text-xs font-medium" style={{ color: "#B8860B" }}>Current Progress</span>
               </div>
             </div>
             

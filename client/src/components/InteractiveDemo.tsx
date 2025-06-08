@@ -105,12 +105,12 @@ export default function InteractiveDemo() {
               <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
                 question.subject === 'math' 
                   ? 'bg-orange-100' 
-                  : 'bg-yellow-100'
+                  : 'bg-yellow-50'
               }`}>
                 {question.subject === 'math' ? (
                   <Calculator className={`w-5 h-5 text-orange-600`} />
                 ) : (
-                  <BookOpen className={`w-5 h-5 text-yellow-600`} />
+                  <BookOpen className={`w-5 h-5`} style={{ color: '#FCC201' }} />
                 )}
               </div>
               <div>
@@ -204,22 +204,24 @@ export default function InteractiveDemo() {
               <Button
                 onClick={handleSubmit}
                 disabled={!selectedAnswer}
-                className={`px-8 py-3 font-semibold rounded-xl ${
+                className={`px-8 py-3 font-semibold rounded-xl text-white disabled:bg-gray-300 disabled:cursor-not-allowed ${
                   question.subject === 'math'
                     ? 'bg-orange-500 hover:bg-orange-600'
-                    : 'bg-yellow-500 hover:bg-yellow-600'
-                } text-white disabled:bg-gray-300 disabled:cursor-not-allowed`}
+                    : 'hover:opacity-90'
+                }`}
+                style={question.subject === 'reading' ? { backgroundColor: '#FCC201' } : {}}
               >
                 Submit Answer
               </Button>
             ) : (
               <Button
                 onClick={handleNext}
-                className={`px-8 py-3 font-semibold rounded-xl ${
+                className={`px-8 py-3 font-semibold rounded-xl text-white ${
                   question.subject === 'math'
                     ? 'bg-orange-500 hover:bg-orange-600'
-                    : 'bg-yellow-500 hover:bg-yellow-600'
-                } text-white`}
+                    : 'hover:opacity-90'
+                }`}
+                style={question.subject === 'reading' ? { backgroundColor: '#FCC201' } : {}}
               >
                 {currentQuestion < demoQuestions.length - 1 ? 'Next Question' : 'Complete Demo'}
               </Button>

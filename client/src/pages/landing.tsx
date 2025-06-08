@@ -52,8 +52,8 @@ export default function Landing() {
       icon: BookOpen,
       title: "Reading Excellence",
       description: "Improve comprehension with authentic STAAR passages",
-      color: "from-yellow-500 to-amber-500",
-      bgColor: "from-yellow-50 to-amber-50"
+      color: "#FCC201",
+      bgColor: "#FCC20110"
     },
     {
       icon: Trophy,
@@ -190,11 +190,25 @@ export default function Landing() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => {
               const Icon = feature.icon;
+              const isReadingFeature = feature.title === "Reading Excellence";
+              
               return (
-                <Card key={index} className={`group relative overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-0 bg-gradient-to-br ${feature.bgColor}`}>
-                  <div className={`absolute inset-0 bg-gradient-to-r ${feature.color} opacity-5 group-hover:opacity-10 transition-opacity duration-300`}></div>
+                <Card key={index} className={`group relative overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-0 ${
+                  isReadingFeature 
+                    ? 'bg-gradient-to-br from-yellow-50 to-amber-50'
+                    : `bg-gradient-to-br ${feature.bgColor}`
+                }`}>
+                  <div className={`absolute inset-0 opacity-5 group-hover:opacity-10 transition-opacity duration-300 ${
+                    isReadingFeature 
+                      ? 'bg-gradient-to-r'
+                      : `bg-gradient-to-r ${feature.color}`
+                  }`} style={isReadingFeature ? { backgroundColor: feature.color } : {}}></div>
                   <CardContent className="relative p-8 text-center">
-                    <div className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 ${
+                      isReadingFeature 
+                        ? 'text-white'
+                        : `bg-gradient-to-br ${feature.color} text-white`
+                    }`} style={isReadingFeature ? { background: `linear-gradient(135deg, ${feature.color}, #B8860B)` } : {}}>
                       <Icon className="w-8 h-8 text-white" />
                     </div>
                     <h4 className="text-xl font-bold text-gray-900 mb-4">{feature.title}</h4>

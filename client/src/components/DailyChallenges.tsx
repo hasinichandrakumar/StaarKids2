@@ -85,13 +85,13 @@ export default function DailyChallenges({ grade, onStartPractice }: DailyChallen
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
                     challenge.subject === 'math' 
                       ? 'bg-orange-100' 
-                      : 'bg-yellow-100'
+                      : 'bg-yellow-50'
                   }`}>
                     <Icon className={`w-6 h-6 ${
                       challenge.subject === 'math' 
                         ? 'text-orange-600' 
-                        : 'text-yellow-600'
-                    }`} />
+                        : ''
+                    }`} style={challenge.subject === 'reading' ? { color: '#FCC201' } : {}} />
                   </div>
                   
                   <div className="flex-1">
@@ -116,13 +116,14 @@ export default function DailyChallenges({ grade, onStartPractice }: DailyChallen
                   <Button
                     onClick={() => startChallenge(challenge)}
                     disabled={isCompleted}
-                    className={`${
+                    className={`transition-colors duration-200 text-white ${
                       isCompleted 
-                        ? 'bg-green-500 text-white cursor-not-allowed' 
+                        ? 'bg-green-500 cursor-not-allowed' 
                         : challenge.subject === 'math'
-                          ? 'bg-orange-500 hover:bg-orange-600 text-white'
-                          : 'bg-yellow-500 hover:bg-yellow-600 text-white'
-                    } transition-colors duration-200`}
+                          ? 'bg-orange-500 hover:bg-orange-600'
+                          : 'hover:opacity-90'
+                    }`}
+                    style={!isCompleted && challenge.subject === 'reading' ? { backgroundColor: '#FCC201' } : {}}
                     size="sm"
                   >
                     {isCompleted ? 'Complete!' : 'Start'}
