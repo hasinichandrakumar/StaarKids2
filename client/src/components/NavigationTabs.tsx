@@ -1,4 +1,4 @@
-import { PencilIcon, ClipboardDocumentListIcon, ChartBarIcon } from "@heroicons/react/24/outline";
+import { PencilIcon, ClipboardDocumentListIcon, ChartBarIcon, CpuChipIcon } from "@heroicons/react/24/outline";
 
 interface NavigationTabsProps {
   activeTab: string;
@@ -28,11 +28,18 @@ export default function NavigationTabs({ activeTab, onTabChange }: NavigationTab
       description: "Track your progress",
       color: "from-green-500 to-green-600"
     },
+    { 
+      id: "ai-coach", 
+      label: "AI Coach", 
+      icon: CpuChipIcon,
+      description: "Personalized learning guidance",
+      color: "from-orange-500 to-yellow-500"
+    },
   ];
 
   return (
     <div className="mb-8">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;

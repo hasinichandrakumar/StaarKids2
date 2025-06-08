@@ -9,6 +9,7 @@ import NavigationTabs from "@/components/NavigationTabs";
 import PracticeTab from "@/components/PracticeTab";
 import MockExamsTab from "@/components/MockExamsTab";
 import PerformanceTab from "@/components/PerformanceTab";
+import AICoachTab from "@/components/AICoachTab";
 import AvatarCustomizationModal from "@/components/AvatarCustomizationModal";
 import QuestionPracticeModal from "@/components/QuestionPracticeModal";
 import NovaChat from "@/components/NovaChat";
