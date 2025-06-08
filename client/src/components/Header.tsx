@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import type { User } from "@shared/schema";
 
 interface HeaderProps {
-  user: User;
+  user: User | any;
   onOpenAvatarModal: () => void;
   onOpenNovaChat: () => void;
   onOpenSettings: () => void;

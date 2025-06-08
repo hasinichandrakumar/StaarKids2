@@ -83,14 +83,14 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen">
       <Header 
-        user={user} 
+        user={user as any} 
         onOpenAvatarModal={() => setShowAvatarModal(true)}
         onOpenNovaChat={() => setShowNovaChat(true)}
         onOpenSettings={() => setShowSettingsModal(true)}
       />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <WelcomeSection user={user} />
+        <WelcomeSection user={user as any} />
         
         <QuickStatsOverview grade={selectedGrade} />
         
@@ -125,7 +125,7 @@ export default function Dashboard() {
 
       {showAvatarModal && (
         <AvatarCustomizationModal 
-          user={user}
+          user={user as any}
           onClose={() => setShowAvatarModal(false)} 
         />
       )}
@@ -152,7 +152,7 @@ export default function Dashboard() {
 
       {showSettingsModal && (
         <SettingsModal
-          user={user}
+          user={user as any}
           selectedGrade={selectedGrade}
           onGradeChange={setSelectedGrade}
           onClose={() => setShowSettingsModal(false)}

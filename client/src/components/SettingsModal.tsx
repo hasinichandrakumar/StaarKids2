@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { User as UserType } from "@shared/schema";
 
 interface SettingsModalProps {
-  user: UserType;
+  user: UserType | any;
   selectedGrade: number;
   onGradeChange: (grade: number) => void;
   onClose: () => void;

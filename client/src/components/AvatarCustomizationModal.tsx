@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { User } from "@shared/schema";
 
 interface AvatarCustomizationModalProps {
-  user: User;
+  user: User | any;
   onClose: () => void;
 }
 
