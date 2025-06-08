@@ -20,9 +20,11 @@ interface NovaChatProps {
 
 const NovaAvatar = ({ isAnimated = false }: { isAnimated?: boolean }) => (
   <div className={`relative ${isAnimated ? 'animate-pulse' : ''}`}>
-    <StarIcon className="w-12 h-12 text-yellow-400 drop-shadow-lg" />
+    <StarIcon className="w-12 h-12" style={{ color: '#FCC201' }} />
     <div className="absolute inset-0 flex items-center justify-center">
-      <div className="w-6 h-6 bg-gradient-to-br from-yellow-300 to-orange-400 rounded-full flex items-center justify-center">
+      <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ 
+        background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)' 
+      }}>
         <SparklesIcon className="w-3 h-3 text-white" />
       </div>
     </div>
@@ -124,14 +126,16 @@ export default function NovaChat({ grade, isOpen, onClose }: NovaChatProps) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <Card className="w-full max-w-md h-[600px] flex flex-col bg-gradient-to-br from-blue-50 to-purple-50">
-        <CardHeader className="border-b bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-t-lg">
+      <Card className="w-full max-w-md h-[600px] flex flex-col bg-gradient-to-br from-orange-50 to-yellow-50">
+        <CardHeader className="border-b text-white rounded-t-lg" style={{
+          background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)'
+        }}>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <NovaAvatar />
               <div>
                 <h3 className="font-bold text-lg">Nova</h3>
-                <p className="text-blue-100 text-sm">Your Learning Buddy</p>
+                <p className="text-orange-100 text-sm">Your Learning Buddy</p>
               </div>
             </div>
             <Button
@@ -160,9 +164,12 @@ export default function NovaChat({ grade, isOpen, onClose }: NovaChatProps) {
                 <div
                   className={`max-w-[70%] p-3 rounded-lg ${
                     message.isUser
-                      ? 'bg-blue-500 text-white rounded-br-none'
+                      ? 'text-white rounded-br-none'
                       : 'bg-white border border-gray-200 text-gray-800 rounded-bl-none shadow-sm'
                   }`}
+                  style={message.isUser ? {
+                    background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)'
+                  } : {}}
                 >
                   <p className="text-sm whitespace-pre-wrap break-words leading-relaxed overflow-wrap-anywhere hyphens-auto" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{message.content}</p>
                 </div>
@@ -199,7 +206,10 @@ export default function NovaChat({ grade, isOpen, onClose }: NovaChatProps) {
                 onClick={handleSendMessage}
                 disabled={!inputText.trim() || isLoading}
                 size="sm"
-                className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+                className="text-white"
+                style={{
+                  background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)',
+                }}
               >
                 <PaperAirplaneIcon className="w-4 h-4" />
               </Button>
