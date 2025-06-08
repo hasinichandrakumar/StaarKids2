@@ -45,68 +45,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid grade or subject" });
       }
 
-      let questions;
-      if (category) {
-        // Filter questions by TEKS standard category
-        questions = await storage.getQuestionsByTeksStandard(grade, subject, category as string);
-        
-        // If no questions exist for this category, generate them in background and return sample questions immediately
-        if (questions.length === 0) {
-          console.log(`No questions found for ${grade} ${subject} ${category}, generating in background...`);
-          
-          // Generate questions in background without blocking the request
-          setImmediate(async () => {
-            try {
-              const { generateQuestionWithPerplexity, getRandomTeksStandard } = await import('./questionGenerator');
-              for (let i = 0; i < 3; i++) {
-                try {
-                  const teksStandard = getRandomTeksStandard(grade, subject as "math" | "reading", category as string);
-                  const questionData = await generateQuestionWithPerplexity(grade, subject as "math" | "reading", teksStandard, category as string);
-                  await storage.createQuestion(questionData);
-                } catch (error) {
-                  console.error(`Background question generation error:`, error);
-                }
-              }
-            } catch (error) {
-              console.error(`Background generation failed:`, error);
-            }
-          });
-          
-          // Return sample questions immediately
-          const { SAMPLE_QUESTIONS } = await import('./questionGenerator');
-          const sampleQuestions = SAMPLE_QUESTIONS[`grade${grade}` as keyof typeof SAMPLE_QUESTIONS]?.[subject as 'math' | 'reading'] || [];
-          questions = sampleQuestions.slice(0, 3);
-        }
-      } else {
-        questions = await storage.getQuestionsByGradeAndSubject(grade, subject);
-        
-        // If no questions exist at all, return sample questions immediately and generate in background
-        if (questions.length === 0) {
-          console.log(`No questions found for ${grade} ${subject}, using authentic samples and generating in background...`);
-          
-          // Generate questions in background without blocking the response
-          setImmediate(async () => {
-            try {
-              const { generateQuestionWithPerplexity, getRandomTeksStandard } = await import('./questionGenerator');
-              for (let i = 0; i < 5; i++) {
-                try {
-                  const teksStandard = getRandomTeksStandard(grade, subject as "math" | "reading");
-                  const questionData = await generateQuestionWithPerplexity(grade, subject as "math" | "reading", teksStandard);
-                  await storage.createQuestion(questionData);
-                } catch (error) {
-                  console.error(`Background question generation error:`, error);
-                }
-              }
-            } catch (error) {
-              console.error(`Background generation failed:`, error);
-            }
-          });
-          
-          // Return authentic sample questions immediately
-          const { SAMPLE_QUESTIONS } = await import('./questionGenerator');
-          const sampleQuestions = SAMPLE_QUESTIONS[`grade${grade}` as keyof typeof SAMPLE_QUESTIONS]?.[subject as 'math' | 'reading'] || [];
-          questions = sampleQuestions.slice(0, 5);
-        }
+      // Get all questions for grade and subject
+      let questions = await storage.getQuestionsByGradeAndSubject(grade, subject);
+      
+      // Shuffle and limit questions for variety
+      if (questions.length > 0) {
+        questions = questions.sort(() => Math.random() - 0.5).slice(0, 10);
       }
       
       res.json(questions);
