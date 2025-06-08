@@ -50,7 +50,7 @@ export default function WelcomeSection({ user }: WelcomeSectionProps) {
 
   return (
     <div className="relative overflow-hidden rounded-3xl p-8 text-white mb-8 shadow-2xl" style={{
-      background: 'linear-gradient(135deg, #D2691E 0%, #CD853F 50%, #DAA520 100%)'
+      background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)'
     }}>
       {/* Animated background elements */}
       <div className="absolute inset-0 opacity-10">

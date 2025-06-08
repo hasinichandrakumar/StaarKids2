@@ -45,8 +45,8 @@ export default function Landing() {
       icon: Calculator,
       title: "Math Mastery",
       description: "Complete TEKS-aligned math practice with instant feedback",
-      color: "#D2691E",
-      bgColor: "#D2691E10"
+      color: "#FF5B00",
+      bgColor: "#FF5B0010"
     },
     {
       icon: BookOpen,
@@ -119,24 +119,24 @@ export default function Landing() {
             {/* Logo and Title */}
             <div className="flex justify-center items-center mb-8">
               <div className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-2xl transform rotate-12 hover:rotate-0 transition-transform duration-300" style={{
-                background: 'linear-gradient(135deg, #D2691E 0%, #CD853F 50%, #DAA520 100%)'
+                background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)'
               }}>
                 <Star className="w-8 h-8 text-white" />
               </div>
               <div className="ml-4">
                 <h1 className="text-5xl font-bold bg-clip-text text-transparent" style={{
-                  background: 'linear-gradient(135deg, #D2691E 0%, #CD853F 50%, #DAA520 100%)',
+                  background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)',
                   WebkitBackgroundClip: 'text'
                 }}>
                   StaarKids
                 </h1>
-                <p className="font-medium" style={{ color: '#D2691E' }}>STAAR Test Mastery Platform</p>
+                <p className="font-medium" style={{ color: '#FF5B00' }}>STAAR Test Mastery Platform</p>
               </div>
             </div>
 
             <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
               Master the <span className="bg-clip-text text-transparent" style={{
-                background: 'linear-gradient(135deg, #D2691E 0%, #CD853F 50%, #DAA520 100%)',
+                background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)',
                 WebkitBackgroundClip: 'text'
               }}>STAAR Test</span>
               <br />
@@ -155,7 +155,7 @@ export default function Landing() {
                 onClick={handleLogin}
                 className="text-white px-8 py-4 text-lg font-semibold rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200 hover:opacity-90"
                 style={{
-                  background: 'linear-gradient(135deg, #D2691E 0%, #CD853F 50%, #DAA520 100%)'
+                  background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)'
                 }}
               >
                 <Play className="w-5 h-5 mr-2" />
@@ -165,8 +165,8 @@ export default function Landing() {
                 variant="outline"
                 className="border-2 px-8 py-4 text-lg font-semibold rounded-2xl hover:bg-opacity-10"
                 style={{ 
-                  borderColor: '#D2691E', 
-                  color: '#D2691E',
+                  borderColor: '#FF5B00', 
+                  color: '#FF5B00',
                   backgroundColor: 'transparent'
                 }}
                 onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
@@ -180,7 +180,7 @@ export default function Landing() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
               {stats.map((stat, index) => (
                 <div key={index} className="text-center">
-                  <div className="text-4xl font-bold mb-2" style={{ color: '#D2691E' }}>
+                  <div className="text-4xl font-bold mb-2" style={{ color: '#FF5B00' }}>
                     {stat.value}
                   </div>
                   <div className="text-gray-600 font-medium">{stat.label}</div>
@@ -196,7 +196,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h3 className="text-4xl font-bold text-gray-900 mb-4">
-              Everything You Need to <span style={{ color: '#D2691E' }}>Excel</span>
+              Everything You Need to <span style={{ color: '#FF5B00' }}>Excel</span>
             </h3>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Our comprehensive platform provides authentic STAAR preparation with gamified learning that keeps students engaged and motivated.
@@ -225,7 +225,7 @@ export default function Landing() {
                       background: isReadingFeature 
                         ? `linear-gradient(135deg, ${feature.color}, #B8860B)` 
                         : isMathFeature
-                          ? 'linear-gradient(135deg, #D2691E 0%, #CD853F 50%, #DAA520 100%)'
+                          ? 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)'
                           : undefined
                     }}>
                       <Icon className="w-8 h-8 text-white" />
