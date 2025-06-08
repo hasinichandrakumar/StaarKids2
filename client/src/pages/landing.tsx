@@ -45,8 +45,8 @@ export default function Landing() {
       icon: Calculator,
       title: "Math Mastery",
       description: "Complete TEKS-aligned math practice with instant feedback",
-      color: "from-orange-500 to-red-500",
-      bgColor: "from-orange-50 to-red-50"
+      color: "#D2691E",
+      bgColor: "#D2691E10"
     },
     {
       icon: BookOpen,
@@ -207,24 +207,27 @@ export default function Landing() {
             {features.map((feature, index) => {
               const Icon = feature.icon;
               const isReadingFeature = feature.title === "Reading Excellence";
+              const isMathFeature = feature.title === "Math Mastery";
               
               return (
                 <Card key={index} className={`group relative overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-0 ${
                   isReadingFeature 
                     ? 'bg-gradient-to-br from-yellow-50 to-amber-50'
-                    : `bg-gradient-to-br ${feature.bgColor}`
+                    : isMathFeature
+                      ? 'bg-gradient-to-br from-orange-50 to-yellow-50'
+                      : `bg-gradient-to-br ${feature.bgColor}`
                 }`}>
-                  <div className={`absolute inset-0 opacity-5 group-hover:opacity-10 transition-opacity duration-300 ${
-                    isReadingFeature 
-                      ? 'bg-gradient-to-r'
-                      : `bg-gradient-to-r ${feature.color}`
-                  }`} style={isReadingFeature ? { backgroundColor: feature.color } : {}}></div>
+                  <div className={`absolute inset-0 opacity-5 group-hover:opacity-10 transition-opacity duration-300`} style={{
+                    backgroundColor: isReadingFeature ? feature.color : isMathFeature ? feature.color : undefined
+                  }}></div>
                   <CardContent className="relative p-8 text-center">
-                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 ${
-                      isReadingFeature 
-                        ? 'text-white'
-                        : `bg-gradient-to-br ${feature.color} text-white`
-                    }`} style={isReadingFeature ? { background: `linear-gradient(135deg, ${feature.color}, #B8860B)` } : {}}>
+                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 text-white`} style={{
+                      background: isReadingFeature 
+                        ? `linear-gradient(135deg, ${feature.color}, #B8860B)` 
+                        : isMathFeature
+                          ? 'linear-gradient(135deg, #D2691E 0%, #CD853F 50%, #DAA520 100%)'
+                          : undefined
+                    }}>
                       <Icon className="w-8 h-8 text-white" />
                     </div>
                     <h4 className="text-xl font-bold text-gray-900 mb-4">{feature.title}</h4>

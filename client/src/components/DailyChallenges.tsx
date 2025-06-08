@@ -87,11 +87,11 @@ export default function DailyChallenges({ grade, onStartPractice }: DailyChallen
                       ? 'bg-orange-100' 
                       : 'bg-yellow-50'
                   }`}>
-                    <Icon className={`w-6 h-6 ${
-                      challenge.subject === 'math' 
-                        ? 'text-orange-600' 
-                        : ''
-                    }`} style={challenge.subject === 'reading' ? { color: '#FCC201' } : {}} />
+                    <Icon className={`w-6 h-6`} style={
+                      challenge.subject === 'reading' 
+                        ? { color: '#FCC201' } 
+                        : { color: '#D2691E' }
+                    } />
                   </div>
                   
                   <div className="flex-1">
@@ -119,11 +119,13 @@ export default function DailyChallenges({ grade, onStartPractice }: DailyChallen
                     className={`transition-colors duration-200 text-white ${
                       isCompleted 
                         ? 'bg-green-500 cursor-not-allowed' 
-                        : challenge.subject === 'math'
-                          ? 'bg-orange-500 hover:bg-orange-600'
-                          : 'hover:opacity-90'
+                        : 'hover:opacity-90'
                     }`}
-                    style={!isCompleted && challenge.subject === 'reading' ? { backgroundColor: '#FCC201' } : {}}
+                    style={!isCompleted ? (
+                      challenge.subject === 'reading' 
+                        ? { backgroundColor: '#FCC201' }
+                        : { background: 'linear-gradient(135deg, #D2691E 0%, #CD853F 50%, #DAA520 100%)' }
+                    ) : {}}
                     size="sm"
                   >
                     {isCompleted ? 'Complete!' : 'Start'}
