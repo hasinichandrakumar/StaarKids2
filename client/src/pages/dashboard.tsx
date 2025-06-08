@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import WelcomeSection from "@/components/WelcomeSection";
 import StarPowerDashboard from "@/components/StarPowerDashboard";
 import QuickStatsOverview from "@/components/QuickStatsOverview";
+import DailyChallenges from "@/components/DailyChallenges";
 import NavigationTabs from "@/components/NavigationTabs";
 import PracticeTab from "@/components/PracticeTab";
 import MockExamsTab from "@/components/MockExamsTab";
@@ -87,6 +88,10 @@ export default function Dashboard() {
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <WelcomeSection user={user} />
+        
+        <QuickStatsOverview grade={selectedGrade} />
+        
+        <DailyChallenges grade={selectedGrade} onStartPractice={startPractice} />
         
         <StarPowerDashboard />
         
