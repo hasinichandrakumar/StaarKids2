@@ -31,9 +31,10 @@ export const STAAR_CATEGORY_DISTRIBUTIONS = {
       "Algebraic Reasoning": 0.30
     },
     reading: {
-      "Literary Elements": 0.45,
-      "Reading Comprehension": 0.35,
-      "Author's Purpose": 0.20
+      "Literary Elements": 0.30,
+      "Reading Comprehension": 0.40,
+      "Vocabulary": 0.15,
+      "Response Skills": 0.15
     }
   },
   5: {
@@ -43,9 +44,10 @@ export const STAAR_CATEGORY_DISTRIBUTIONS = {
       "Geometry and Measurement": 0.30
     },
     reading: {
-      "Literary Elements": 0.40,
-      "Reading Comprehension": 0.35,
-      "Critical Analysis": 0.25
+      "Literary Elements": 0.30,
+      "Reading Comprehension": 0.40,
+      "Vocabulary": 0.15,
+      "Response Skills": 0.15
     }
   }
 };
