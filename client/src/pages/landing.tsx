@@ -111,6 +111,45 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-50 to-yellow-50">
+      {/* Top Navigation */}
+      <nav className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo */}
+            <div className="flex items-center">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center mr-3" style={{
+                background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)'
+              }}>
+                <Star className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-xl font-bold bg-gradient-to-r from-orange-600 to-yellow-600 bg-clip-text text-transparent">
+                StaarKids
+              </span>
+            </div>
+
+            {/* Navigation Buttons */}
+            <div className="flex items-center space-x-4">
+              <Button
+                onClick={handleLogin}
+                variant="ghost"
+                className="text-gray-600 hover:text-orange-600"
+              >
+                Sign In
+              </Button>
+              <Button
+                onClick={handleLogin}
+                className="text-white font-semibold shadow-lg hover:opacity-90 transition-all duration-200"
+                style={{
+                  background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)'
+                }}
+              >
+                Sign Up Free
+              </Button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         {/* Animated background elements */}
@@ -156,50 +195,24 @@ export default function Landing() {
               and AI-powered personalized learning.
             </p>
 
-            {/* Authentication Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-              <Button
-                onClick={handleLogin}
-                variant="outline"
-                className="border-2 px-8 py-4 text-lg font-semibold rounded-2xl hover:bg-opacity-10"
-                style={{ 
-                  borderColor: '#FF5B00', 
-                  color: '#FF5B00',
-                  backgroundColor: 'transparent'
-                }}
-              >
-                Sign In
-              </Button>
-              <Button
-                onClick={handleLogin}
-                className="text-white px-8 py-4 text-lg font-semibold rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200 hover:opacity-90"
-                style={{
-                  background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)'
-                }}
-              >
-                <Play className="w-5 h-5 mr-2" />
-                Sign Up Free
-              </Button>
-            </div>
-
-            {/* Sign Up Options */}
+            {/* Call to Action */}
             <div className="text-center mb-8">
-              <p className="text-gray-600 mb-4">Choose your role to get started:</p>
-              <div className="flex flex-wrap gap-3 justify-center">
+              <p className="text-lg text-gray-600 mb-6">Available for Students, Parents, and Teachers</p>
+              <div className="flex flex-wrap gap-3 justify-center mb-6">
                 <Badge className="bg-orange-100 text-orange-700 px-4 py-2 text-sm font-medium">
                   <BookOpen className="w-4 h-4 mr-2" />
-                  Student
+                  Student Practice
                 </Badge>
                 <Badge className="bg-green-100 text-green-700 px-4 py-2 text-sm font-medium">
                   <Users className="w-4 h-4 mr-2" />
-                  Parent
+                  Parent Monitoring
                 </Badge>
                 <Badge className="bg-purple-100 text-purple-700 px-4 py-2 text-sm font-medium">
                   <Award className="w-4 h-4 mr-2" />
-                  Teacher
+                  Teacher Management
                 </Badge>
               </div>
-              <p className="text-sm text-gray-500 mt-4">Free account • No credit card required</p>
+              <p className="text-sm text-gray-500">Free account • No credit card required</p>
             </div>
 
             <Button
