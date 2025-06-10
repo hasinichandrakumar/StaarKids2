@@ -9,9 +9,8 @@ import { z } from "zod";
 export async function registerRoutes(app: Express): Promise<Server> {
   console.log("Registering routes...");
   
-  // CRITICAL: Add OAuth callback route FIRST, before any other middleware
-  // This must be the very first route to avoid Vite catch-all interference
-  app.get("/oauth/google/callback", async (req, res) => {
+  // CRITICAL: Add OAuth callback route using API prefix to bypass Vite
+  app.get("/api/oauth/google/callback", async (req, res) => {
     console.log("=== OAUTH GOOGLE CALLBACK REACHED ===");
     console.log("Query params:", req.query);
     
@@ -30,7 +29,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
       const clientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.trim();
-      const redirectUri = "https://staarkids.org/oauth/google/callback";
+      const redirectUri = "https://staarkids.org/api/oauth/google/callback";
 
       // Exchange code for tokens
       const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
@@ -117,7 +116,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
       const clientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.trim();
-      const redirectUri = "https://staarkids.org/oauth/google/callback";
+      const redirectUri = "https://staarkids.org/api/oauth/google/callback";
 
       // Exchange code for tokens
       const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
@@ -192,7 +191,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add our clean Google OAuth route with a completely different path
   app.get("/api/google-auth", (req, res) => {
     const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
-    const redirectUri = "https://staarkids.org/oauth/google/callback";
+    const redirectUri = "https://staarkids.org/api/oauth/google/callback";
     
     console.log("=== WORKING GOOGLE OAUTH ROUTE ===");
     console.log("Client ID:", `"${clientId}"`);
@@ -207,7 +206,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Also add to the conflicting route as backup
   app.get("/api/auth/google", (req, res) => {
     const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
-    const redirectUri = "https://staarkids.org/oauth/google/callback";
+    const redirectUri = "https://staarkids.org/api/oauth/google/callback";
     
     console.log("=== BACKUP GOOGLE OAUTH ROUTE ===");
     console.log("Client ID:", `"${clientId}"`);
