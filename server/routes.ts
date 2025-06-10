@@ -456,41 +456,67 @@ Respond as Nova would, being helpful and encouraging while staying in character.
     }
   });
 
-  // Classroom code management routes
-  app.post('/api/classroom/create', isAuthenticated, async (req: any, res) => {
+  // Teacher classroom management routes
+  app.post('/api/teacher/classrooms', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      // Handle both Google OAuth and Replit auth users
+      const userId = req.user.claims?.sub || req.user.id;
       const user = await storage.getUser(userId);
       
       if (user?.role !== 'teacher') {
-        return res.status(403).json({ message: "Only teachers can create classroom codes" });
+        return res.status(403).json({ message: "Only teachers can create classrooms" });
       }
 
-      const { className, grade, subject } = req.body;
+      const { className, grade, subject, maxStudents } = req.body;
       
       if (!className || !grade) {
         return res.status(400).json({ message: "Classroom name and grade are required" });
       }
 
+      // Generate a unique classroom code
+      const code = storage.generateClassroomCode();
+
       const classroom = await storage.createClassroomCode({
+        code,
         teacherId: userId,
         organizationId: user.organizationId,
         className,
         grade: parseInt(grade),
         subject: subject || 'both',
+        maxStudents: maxStudents || 30,
         isActive: true
       });
 
       res.json(classroom);
     } catch (error) {
-      console.error("Error creating classroom code:", error);
-      res.status(500).json({ message: "Failed to create classroom code" });
+      console.error("Error creating classroom:", error);
+      res.status(500).json({ message: "Failed to create classroom" });
     }
   });
 
+  app.get('/api/teacher/classrooms', isAuthenticated, async (req: any, res) => {
+    try {
+      // Handle both Google OAuth and Replit auth users
+      const userId = req.user.claims?.sub || req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (user?.role !== 'teacher') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const classrooms = await storage.getClassroomsByTeacher(userId);
+      res.json(classrooms);
+    } catch (error) {
+      console.error("Error fetching classrooms:", error);
+      res.status(500).json({ message: "Failed to fetch classrooms" });
+    }
+  });
+
+  // Legacy classroom route - keeping for compatibility
   app.get('/api/classroom/teacher', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      // Handle both Google OAuth and Replit auth users
+      const userId = req.user.claims?.sub || req.user.id;
       const user = await storage.getUser(userId);
       
       if (user?.role !== 'teacher') {
@@ -507,7 +533,8 @@ Respond as Nova would, being helpful and encouraging while staying in character.
 
   app.post('/api/classroom/join', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      // Handle both Google OAuth and Replit auth users
+      const userId = req.user.claims?.sub || req.user.id;
       const user = await storage.getUser(userId);
       
       if (user?.role !== 'student') {
@@ -522,11 +549,11 @@ Respond as Nova would, being helpful and encouraging while staying in character.
 
       const enrollment = await storage.joinClassroom(userId, classroomCode.toUpperCase());
       res.json(enrollment);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error joining classroom:", error);
-      if (error.message.includes('not found')) {
+      if (error.message?.includes('not found')) {
         res.status(404).json({ message: "Invalid classroom code" });
-      } else if (error.message.includes('already enrolled')) {
+      } else if (error.message?.includes('already enrolled')) {
         res.status(409).json({ message: "Already enrolled in this classroom" });
       } else {
         res.status(500).json({ message: "Failed to join classroom" });
