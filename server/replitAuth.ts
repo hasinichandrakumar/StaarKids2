@@ -87,8 +87,6 @@ export async function setupAuth(app: Express) {
 
   // Google OAuth is now handled separately in googleAuth.ts
 
-  // Temporarily disable Replit auth to isolate Google OAuth issue
-  /*
   for (const domain of process.env
     .REPLIT_DOMAINS!.split(",")) {
     const strategy = new Strategy(
@@ -102,7 +100,6 @@ export async function setupAuth(app: Express) {
     );
     passport.use(strategy);
   }
-  */
 
   passport.serializeUser((user: Express.User, cb) => cb(null, user));
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));

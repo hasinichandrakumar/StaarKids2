@@ -7,10 +7,14 @@ import { insertPracticeAttemptSchema, insertExamAttemptSchema, updateUserSchema 
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  console.log("Registering routes...");
+  
   // Setup Google OAuth first to avoid route conflicts
+  console.log("Setting up Google OAuth routes...");
   setupGoogleAuth(app);
   
   // Auth middleware (Replit auth)
+  console.log("Setting up Replit auth...");
   await setupAuth(app);
 
   // Auth routes
