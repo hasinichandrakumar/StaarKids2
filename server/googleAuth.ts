@@ -8,6 +8,9 @@ export function setupGoogleAuth(app: Express) {
   
   // Direct Google OAuth implementation without passport
   app.get("/api/auth/google", (req, res) => {
+    console.log("Direct Google OAuth route hit");
+    console.log("Client ID being used:", clientId);
+    
     const scopes = ["profile", "email"];
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
       `response_type=code&` +
@@ -15,7 +18,7 @@ export function setupGoogleAuth(app: Express) {
       `redirect_uri=${encodeURIComponent(redirectUri)}&` +
       `scope=${encodeURIComponent(scopes.join(" "))}`;
     
-    console.log("Redirecting to Google OAuth:", authUrl);
+    console.log("Generated OAuth URL:", authUrl);
     res.redirect(authUrl);
   });
 
