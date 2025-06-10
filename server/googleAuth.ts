@@ -101,8 +101,17 @@ export function setupGoogleAuth(app: Express) {
         lastName: profile.family_name,
       };
 
-      console.log("User successfully authenticated:", profile.email);
-      res.redirect("/");
+      // Save session explicitly before redirecting
+      req.session.save((err) => {
+        if (err) {
+          console.error("Session save error:", err);
+          return res.redirect("/?error=session_save_failed");
+        }
+        console.log("User successfully authenticated and session saved:", profile.email);
+        console.log("Session ID:", req.sessionID);
+        console.log("Session data:", req.session);
+        res.redirect("/");
+      });
       
     } catch (error) {
       console.error("OAuth callback error:", error);

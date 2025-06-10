@@ -136,8 +136,15 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
   const user = req.user as any;
   const session = req.session as any;
 
+  console.log("=== AUTHENTICATION CHECK ===");
+  console.log("Session ID:", req.sessionID);
+  console.log("Session exists:", !!session);
+  console.log("Session userId:", session?.userId);
+  console.log("Passport user:", !!req.user);
+
   // Check for direct Google OAuth session first
   if (session && session.userId) {
+    console.log("Authenticated via Google OAuth session");
     return next();
   }
 
