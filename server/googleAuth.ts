@@ -34,6 +34,11 @@ export function setupGoogleAuth(app: Express) {
   });
 
   app.get("/api/auth/google/callback", async (req, res) => {
+    console.log("=== GOOGLE OAUTH CALLBACK REACHED ===");
+    console.log("Query params:", req.query);
+    console.log("Session ID:", req.sessionID);
+    console.log("Session before auth:", req.session);
+    
     const { code, error } = req.query;
     
     if (error) {
