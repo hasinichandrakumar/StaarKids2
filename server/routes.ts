@@ -9,13 +9,13 @@ import { z } from "zod";
 export async function registerRoutes(app: Express): Promise<Server> {
   console.log("Registering routes...");
   
-  // Setup Google OAuth first to avoid route conflicts
-  console.log("Setting up Google OAuth routes...");
-  setupGoogleAuth(app);
-  
-  // Auth middleware (Replit auth)
+  // Auth middleware (Replit auth) - but skip Google OAuth routes
   console.log("Setting up Replit auth...");
   await setupAuth(app);
+  
+  // Setup Google OAuth AFTER to override any conflicts
+  console.log("Setting up Google OAuth routes...");
+  setupGoogleAuth(app);
 
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {

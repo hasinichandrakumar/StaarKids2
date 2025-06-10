@@ -7,25 +7,19 @@ export function setupGoogleAuth(app: Express) {
   const redirectUri = "https://staarkids.org/api/auth/google/callback";
   
   console.log("Setting up Google OAuth with clean implementation");
+  console.log("Current environment secrets check:");
+  console.log("- CLIENT_ID_STAARKIDS exists:", !!process.env.GOOGLE_CLIENT_ID_STAARKIDS);
+  console.log("- CLIENT_SECRET_STAARKIDS exists:", !!process.env.GOOGLE_CLIENT_SECRET_STAARKIDS);
   
-  // Force override any existing routes by using all() to catch all methods
-  app.all("/api/auth/google", (req, res) => {
-    console.log("=== FORCED GOOGLE OAUTH ROUTE ACCESSED ===");
-    console.log("Method:", req.method);
-    console.log("Client ID length:", clientId.length);
+  // Use a different route path to completely avoid conflicts
+  app.get("/api/oauth/google", (req, res) => {
+    console.log("=== ALTERNATIVE GOOGLE OAUTH ROUTE ACCESSED ===");
     console.log("Client ID:", `"${clientId}"`);
     
-    if (req.method !== 'GET') {
-      return res.status(405).json({ error: 'Method not allowed' });
-    }
-    
-    // Manually construct URL without URLSearchParams to avoid encoding issues
     const baseUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
     const authUrl = `${baseUrl}?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=profile%20email&access_type=offline&prompt=consent`;
     
-    console.log("Manual OAuth URL:", authUrl);
-    console.log("Client ID in URL:", authUrl.includes(clientId));
-    
+    console.log("Clean OAuth URL:", authUrl);
     res.redirect(authUrl);
   });
 
