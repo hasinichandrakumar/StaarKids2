@@ -1,5 +1,6 @@
 import * as client from "openid-client";
 import { Strategy, type VerifyFunction } from "openid-client/passport";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 
 import passport from "passport";
 import session from "express-session";
@@ -84,6 +85,35 @@ export async function setupAuth(app: Express) {
     verified(null, user);
   };
 
+  // Google OAuth Strategy
+  passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID!,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    callbackURL: "/api/auth/google/callback"
+  },
+  async (accessToken, refreshToken, profile, done) => {
+    try {
+      await storage.upsertUser({
+        id: profile.id,
+        email: profile.emails?.[0]?.value || "",
+        firstName: profile.name?.givenName || "",
+        lastName: profile.name?.familyName || "",
+        profileImageUrl: profile.photos?.[0]?.value || "",
+      });
+      
+      const user = {
+        id: profile.id,
+        email: profile.emails?.[0]?.value,
+        firstName: profile.name?.givenName,
+        lastName: profile.name?.familyName,
+      };
+      
+      return done(null, user);
+    } catch (error) {
+      return done(error as Error, false);
+    }
+  }));
+
   for (const domain of process.env
     .REPLIT_DOMAINS!.split(",")) {
     const strategy = new Strategy(
@@ -100,6 +130,19 @@ export async function setupAuth(app: Express) {
 
   passport.serializeUser((user: Express.User, cb) => cb(null, user));
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
+
+  // Google OAuth routes
+  app.get("/api/auth/google", 
+    passport.authenticate("google", { scope: ["profile", "email"] })
+  );
+
+  app.get("/api/auth/google/callback", 
+    passport.authenticate("google", { failureRedirect: "/" }),
+    (req, res) => {
+      // Successful authentication, redirect to dashboard
+      res.redirect("/");
+    }
+  );
 
   app.get("/api/login", (req, res, next) => {
     passport.authenticate(`replitauth:${req.hostname}`, {

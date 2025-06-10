@@ -10,6 +10,10 @@ export function useAuth() {
     window.location.href = "/api/login";
   };
 
+  const loginWithGoogle = () => {
+    window.location.href = "/api/auth/google";
+  };
+
   return {
     user,
     isLoading,
