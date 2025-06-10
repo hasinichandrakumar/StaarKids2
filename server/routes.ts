@@ -18,7 +18,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   setupGoogleAuth(app);
   
   // Clear any existing route handlers for Google OAuth and force override
-  const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
+  const clientId = process.env.GOOGLE_CLIENT_ID!.trim();
   const redirectUri = "https://staarkids.org/api/auth/google/callback";
   
   // Remove any existing Google OAuth routes

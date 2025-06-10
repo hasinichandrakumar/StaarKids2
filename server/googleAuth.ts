@@ -2,10 +2,9 @@ import type { Express } from "express";
 import { storage } from "./storage";
 
 export function setupGoogleAuth(app: Express) {
-  // Use the correct environment variable and trim any whitespace
-  // The GOOGLE_CLIENT_ID_STAARKIDS contains the secret, we need the actual client ID
-  const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
-  const clientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.trim();
+  // Use the correct Google OAuth environment variables
+  const clientId = process.env.GOOGLE_CLIENT_ID!.trim();
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET!.trim();
   const redirectUri = "https://staarkids.org/api/auth/google/callback";
   
   console.log("Setting up Google OAuth with environment variables");
