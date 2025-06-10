@@ -5,7 +5,7 @@ export function setupGoogleAuth(app: Express) {
   // Use the client ID that matches the Google Cloud Console configuration
   const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.trim();
-  const redirectUri = "https://staarkids.org/api/oauth/google/callback";
+  const redirectUri = "https://staarkids.org:3001/oauth/google/callback";
   
   console.log("Setting up Google OAuth with environment variables");
   console.log("Client ID:", clientId);
