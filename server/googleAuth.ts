@@ -58,96 +58,96 @@ export function setupGoogleAuth(app: Express) {
     res.redirect(authUrl);
   });
 
-  // Add a direct middleware handler that captures the callback before other routes
-  app.use("/api/google/callback", async (req, res, next) => {
-    console.log("=== GOOGLE OAUTH CALLBACK MIDDLEWARE REACHED ===");
-    console.log("Method:", req.method);
-    console.log("URL:", req.url);
-    console.log("Path:", req.path);
-    console.log("Query params:", req.query);
-    console.log("Session ID:", req.sessionID);
-    console.log("Session before auth:", req.session);
-    
-    if (req.method !== 'GET') {
-      return next();
-    }
-    
-    const { code, error } = req.query;
-    
-    if (error) {
-      console.error("OAuth error:", error);
-      return res.redirect("/?error=oauth_error");
-    }
-    
-    if (!code) {
-      console.error("No authorization code received");
-      return res.redirect("/?error=no_code");
-    }
-
-    try {
-      // Exchange code for tokens
-      const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({
-          client_id: clientId,
-          client_secret: clientSecret,
-          code: code as string,
-          grant_type: "authorization_code",
-          redirect_uri: redirectUri,
-        }),
-      });
-
-      const tokens = await tokenResponse.json();
-      
-      if (!tokenResponse.ok) {
-        console.error("Token exchange failed:", tokens);
-        return res.redirect("/?error=token_exchange_failed");
-      }
-
-      // Get user profile
-      const profileResponse = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
-        headers: {
-          Authorization: `Bearer ${tokens.access_token}`,
-        },
-      });
-
-      const profile = await profileResponse.json();
-      
-      if (!profileResponse.ok) {
-        console.error("Profile fetch failed:", profile);
-        return res.redirect("/?error=profile_fetch_failed");
-      }
-
-      // Store user in database
-      await storage.upsertUser({
-        id: profile.id,
-        email: profile.email || "",
-        firstName: profile.given_name || "",
-        lastName: profile.family_name || "",
-        profileImageUrl: profile.picture || "",
-      });
-
-      // Create session (simplified - store user ID in session)
-      (req.session as any).userId = profile.id;
-      (req.session as any).user = {
-        id: profile.id,
-        email: profile.email,
-        firstName: profile.given_name,
-        lastName: profile.family_name,
-      };
-
-      // Save session explicitly before redirecting
-      req.session.save((err) => {
-        if (err) {
-          console.error("Session save error:", err);
-          return res.redirect("/?error=session_save_failed");
-        }
-        console.log("User successfully authenticated and session saved:", profile.email);
-        console.log("Session ID:", req.sessionID);
-        console.log("Session data:", req.session);
+  // Remove conflicting callback handler - handled in routes.ts
+//   // app.use("/api/google/callback", async (req, res, next) => {
+//     console.log("=== GOOGLE OAUTH CALLBACK MIDDLEWARE REACHED ===");
+//     console.log("Method:", req.method);
+//     console.log("URL:", req.url);
+//     console.log("Path:", req.path);
+//     console.log("Query params:", req.query);
+//     console.log("Session ID:", req.sessionID);
+//     console.log("Session before auth:", req.session);
+//     
+//     if (req.method !== 'GET') {
+//       return next();
+//     }
+//     
+//     const { code, error } = req.query;
+//     
+//     if (error) {
+//       console.error("OAuth error:", error);
+//       return res.redirect("/?error=oauth_error");
+//     }
+//     
+//     if (!code) {
+//       console.error("No authorization code received");
+//       return res.redirect("/?error=no_code");
+//     }
+// 
+//     try {
+//       // Exchange code for tokens
+//       const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/x-www-form-urlencoded",
+//         },
+//         body: new URLSearchParams({
+//           client_id: clientId,
+//           client_secret: clientSecret,
+//           code: code as string,
+//           grant_type: "authorization_code",
+//           redirect_uri: redirectUri,
+//         }),
+//       });
+// 
+//       const tokens = await tokenResponse.json();
+//       
+//       if (!tokenResponse.ok) {
+//         console.error("Token exchange failed:", tokens);
+//         return res.redirect("/?error=token_exchange_failed");
+//       }
+// 
+//       // Get user profile
+//       const profileResponse = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
+//         headers: {
+//           Authorization: `Bearer ${tokens.access_token}`,
+//         },
+//       });
+// 
+//       const profile = await profileResponse.json();
+//       
+//       if (!profileResponse.ok) {
+//         console.error("Profile fetch failed:", profile);
+//         return res.redirect("/?error=profile_fetch_failed");
+//       }
+// 
+//       // Store user in database
+//       await storage.upsertUser({
+//         id: profile.id,
+//         email: profile.email || "",
+//         firstName: profile.given_name || "",
+//         lastName: profile.family_name || "",
+//         profileImageUrl: profile.picture || "",
+//       });
+// 
+//       // Create session (simplified - store user ID in session)
+//       (req.session as any).userId = profile.id;
+//       (req.session as any).user = {
+//         id: profile.id,
+//         email: profile.email,
+//         firstName: profile.given_name,
+//         lastName: profile.family_name,
+//       };
+// 
+//       // Save session explicitly before redirecting
+//       req.session.save((err) => {
+//         if (err) {
+//           console.error("Session save error:", err);
+//           return res.redirect("/?error=session_save_failed");
+//         }
+//         console.log("User successfully authenticated and session saved:", profile.email);
+//         console.log("Session ID:", req.sessionID);
+//         console.log("Session data:", req.session);
         res.redirect("/");
       });
       
