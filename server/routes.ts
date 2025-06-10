@@ -885,7 +885,7 @@ Respond as Nova would, being helpful and encouraging while staying in character.
     try {
       const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
       const clientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.trim();
-      const redirectUri = "https://staarkids.org/oauth-callback.html";
+      const redirectUri = "https://staarkids.org/?callback=google";
 
       console.log("Starting token exchange with Google...");
       

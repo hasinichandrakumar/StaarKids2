@@ -15,6 +15,43 @@ export default function Landing() {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
 
   useEffect(() => {
+    // Handle Google OAuth callback
+    const urlParams = new URLSearchParams(window.location.search);
+    const callback = urlParams.get('callback');
+    const code = urlParams.get('code');
+    const error = urlParams.get('error');
+    
+    if (callback === 'google' && code) {
+      console.log('Processing Google OAuth callback...');
+      
+      // Send code to backend for processing
+      fetch('/oauth-process', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ code }),
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('OAuth processing result:', data);
+        if (data.success) {
+          // Reload the page to trigger authentication check
+          window.location.href = '/';
+        } else {
+          console.error('OAuth processing failed:', data.error);
+          // Show error but stay on landing page
+        }
+      })
+      .catch(error => {
+        console.error('OAuth processing error:', error);
+        // Show error but stay on landing page
+      });
+    } else if (callback === 'google' && error) {
+      console.error('OAuth error:', error);
+      // Show error but stay on landing page
+    }
+
     // Animate student count
     const timer = setTimeout(() => {
       let count = 0;

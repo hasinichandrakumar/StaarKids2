@@ -7,64 +7,83 @@ import { URL } from "url";
 
 const app = express();
 
-// Static HTML page that handles OAuth callback 
-app.get("/oauth-callback.html", (req, res) => {
-  res.setHeader('Content-Type', 'text/html');
-  res.send(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>OAuth Callback - StaarKids</title>
-      <meta charset="utf-8">
-    </head>
-    <body>
-      <div style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
-        <h2>Processing login...</h2>
-        <p>Please wait while we complete your sign-in.</p>
-      </div>
-      <script>
-        console.log('OAuth callback page loaded');
-        const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
-        const error = urlParams.get('error');
-        
-        console.log('Code present:', !!code);
-        console.log('Error:', error);
-        
-        if (error) {
-          console.error('OAuth error:', error);
-          window.location.href = '/?error=oauth_error';
-        } else if (code) {
-          console.log('Processing OAuth code...');
-          // Send code to our backend for processing
-          fetch('/api/oauth/process', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ code: code })
-          })
-          .then(response => response.json())
-          .then(data => {
-            console.log('OAuth processing result:', data);
-            if (data.success) {
-              window.location.href = '/?auth=success&email=' + encodeURIComponent(data.email);
-            } else {
-              window.location.href = '/?error=' + encodeURIComponent(data.error || 'processing_failed');
-            }
-          })
-          .catch(error => {
-            console.error('OAuth processing error:', error);
-            window.location.href = '/?error=processing_failed';
-          });
-        } else {
-          console.error('No code or error in callback');
-          window.location.href = '/?error=no_code';
-        }
-      </script>
-    </body>
-    </html>
-  `);
+// Express middleware for handling OAuth processing before Vite
+app.use('/api', express.json());
+
+// OAuth processing endpoint - placed at top level to bypass Vite
+app.post('/oauth-process', express.json(), async (req, res) => {
+  console.log("=== DIRECT OAUTH PROCESSING ===");
+  const { code } = req.body;
+  
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  
+  if (!code) {
+    console.error("No authorization code provided");
+    return res.json({ success: false, error: "no_code" });
+  }
+
+  try {
+    const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.trim();
+    const redirectUri = "https://staarkids.org/?callback=google";
+
+    console.log("Starting token exchange with Google...");
+    
+    const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
+        code: code,
+        grant_type: "authorization_code",
+        redirect_uri: redirectUri,
+      }),
+    });
+
+    const tokens = await tokenResponse.json();
+    console.log("Token response status:", tokenResponse.status);
+    
+    if (!tokenResponse.ok) {
+      console.error("Token exchange failed:", tokens);
+      return res.json({ success: false, error: "token_exchange_failed" });
+    }
+
+    console.log("Getting user info from Google...");
+    const userResponse = await fetch(
+      "https://www.googleapis.com/oauth2/v2/userinfo",
+      {
+        headers: {
+          Authorization: `Bearer ${tokens.access_token}`,
+        },
+      }
+    );
+
+    const googleUser = await userResponse.json();
+    console.log("Google user info received for:", googleUser.email);
+    
+    if (!userResponse.ok) {
+      console.error("Failed to get user info:", googleUser);
+      return res.json({ success: false, error: "user_info_failed" });
+    }
+
+    console.log("OAuth flow completed successfully!");
+    
+    res.json({ 
+      success: true, 
+      email: googleUser.email,
+      name: googleUser.name || '',
+      userId: googleUser.id
+    });
+    
+  } catch (error) {
+    console.error("OAuth processing error:", error);
+    res.json({ success: false, error: "processing_failed" });
+  }
 });
 
 // CORS middleware
