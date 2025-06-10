@@ -4,7 +4,100 @@ import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 
-// CRITICAL: Register OAuth callback FIRST, before any middleware - removing api prefix to bypass Vite
+// CRITICAL: Intercept OAuth callback at the raw HTTP level before any Express routing
+app.use((req, res, next) => {
+  if (req.url?.startsWith('/webhook/oauth-callback')) {
+    console.log("=== RAW HTTP OAUTH CALLBACK INTERCEPTED ===");
+    console.log("Full URL:", req.url);
+    console.log("Method:", req.method);
+    
+    // Parse query parameters manually
+    const urlParts = req.url.split('?');
+    const queryString = urlParts[1] || '';
+    const params = new URLSearchParams(queryString);
+    const code = params.get('code');
+    const error = params.get('error');
+    
+    console.log("Parsed code:", !!code);
+    console.log("Parsed error:", error);
+    
+    if (error) {
+      console.error("OAuth error:", error);
+      return res.redirect("/?error=oauth_error");
+    }
+    
+    if (!code) {
+      console.error("No authorization code received");
+      return res.redirect("/?error=no_code");
+    }
+
+    // Process OAuth callback immediately
+    (async () => {
+      try {
+        const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
+        const clientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.trim();
+        const redirectUri = "https://staarkids.org/oauth-callback";
+
+        console.log("Starting token exchange...");
+        
+        // Exchange code for tokens
+        const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            client_id: clientId,
+            client_secret: clientSecret,
+            code: code,
+            grant_type: "authorization_code",
+            redirect_uri: redirectUri,
+          }),
+        });
+
+        const tokens = await tokenResponse.json();
+        console.log("Token response status:", tokenResponse.status);
+        
+        if (!tokenResponse.ok) {
+          console.error("Token exchange failed:", tokens);
+          return res.redirect("/?error=token_exchange_failed");
+        }
+
+        // Get user info
+        const userResponse = await fetch(
+          "https://www.googleapis.com/oauth2/v2/userinfo",
+          {
+            headers: {
+              Authorization: `Bearer ${tokens.access_token}`,
+            },
+          }
+        );
+
+        const googleUser = await userResponse.json();
+        console.log("Google user info received for:", googleUser.email);
+        
+        if (!userResponse.ok) {
+          console.error("Failed to get user info:", googleUser);
+          return res.redirect("/?error=user_info_failed");
+        }
+
+        // For now, redirect with success and user email
+        console.log("OAuth flow completed successfully!");
+        res.redirect("/?auth=success&user=" + encodeURIComponent(googleUser.email));
+        
+      } catch (error) {
+        console.error("OAuth callback error:", error);
+        res.redirect("/?error=callback_error");
+      }
+    })();
+    
+    return; // Don't call next() - we're handling this request
+  }
+  
+  next(); // Continue with normal request processing
+});
+
+// Register OAuth callback FIRST, before any middleware - removing api prefix to bypass Vite
 app.get("/oauth-callback", async (req, res) => {
   console.log("=== ABSOLUTE PRIORITY OAUTH CALLBACK REACHED ===");
   console.log("Query params:", req.query);
