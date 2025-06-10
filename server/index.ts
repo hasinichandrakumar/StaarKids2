@@ -4,8 +4,8 @@ import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 
-// CRITICAL: Register OAuth callback FIRST, before any middleware - using api prefix to bypass Vite
-app.get("/api/oauth-callback", async (req, res) => {
+// CRITICAL: Register OAuth callback FIRST, before any middleware - removing api prefix to bypass Vite
+app.get("/oauth-callback", async (req, res) => {
   console.log("=== ABSOLUTE PRIORITY OAUTH CALLBACK REACHED ===");
   console.log("Query params:", req.query);
   
@@ -24,7 +24,7 @@ app.get("/api/oauth-callback", async (req, res) => {
   try {
     const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.trim();
-    const redirectUri = "https://staarkids.org/api/oauth-callback";
+    const redirectUri = "https://staarkids.org/oauth-callback";
 
     // Exchange code for tokens
     const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
@@ -103,7 +103,7 @@ app.get("/api/oauth-callback", (req, res) => {
       try {
         const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
         const clientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.trim();
-        const redirectUri = "https://staarkids.org/api/oauth-callback";
+        const redirectUri = "https://staarkids.org/oauth-callback";
 
         console.log("Starting token exchange...");
         
