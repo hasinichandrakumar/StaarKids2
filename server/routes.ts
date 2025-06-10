@@ -9,25 +9,95 @@ import { z } from "zod";
 export async function registerRoutes(app: Express): Promise<Server> {
   console.log("Registering routes...");
   
-  // Add comprehensive middleware to intercept ALL requests to google callback
-  app.use((req, res, next) => {
-    console.log(`Request: ${req.method} ${req.path}`);
+  // CRITICAL: Add OAuth callback route FIRST, before any other middleware
+  // This must be the very first route to avoid Vite catch-all interference
+  app.get("/oauth/google/callback", async (req, res) => {
+    console.log("=== OAUTH GOOGLE CALLBACK REACHED ===");
+    console.log("Query params:", req.query);
     
-    if (req.path === "/api/google/callback" && req.method === "GET") {
-      console.log("=== INTERCEPTING GOOGLE OAUTH CALLBACK ===");
-      console.log("Query params:", req.query);
-      return handleGoogleCallback(req, res);
+    const { code, error } = req.query;
+    
+    if (error) {
+      console.error("OAuth error:", error);
+      return res.redirect("/?error=oauth_error");
     }
     
-    if (req.path.includes("google") && req.path.includes("callback")) {
-      console.log("=== CATCHING SIMILAR CALLBACK ROUTES ===");
-      console.log("Full URL:", req.url);
-      console.log("Path:", req.path);
-      console.log("Query params:", req.query);
-      return handleGoogleCallback(req, res);
+    if (!code) {
+      console.error("No authorization code received");
+      return res.redirect("/?error=no_code");
     }
-    
-    next();
+
+    try {
+      const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
+      const clientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.trim();
+      const redirectUri = "https://staarkids.org/oauth/google/callback";
+
+      // Exchange code for tokens
+      const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          client_id: clientId,
+          client_secret: clientSecret,
+          code: code as string,
+          grant_type: "authorization_code",
+          redirect_uri: redirectUri,
+        }),
+      });
+
+      const tokens = await tokenResponse.json();
+      console.log("Token response status:", tokenResponse.status);
+      
+      if (!tokenResponse.ok) {
+        console.error("Token exchange failed:", tokens);
+        return res.redirect("/?error=token_exchange_failed");
+      }
+
+      // Get user info
+      const userResponse = await fetch(
+        "https://www.googleapis.com/oauth2/v2/userinfo",
+        {
+          headers: {
+            Authorization: `Bearer ${tokens.access_token}`,
+          },
+        }
+      );
+
+      const googleUser = await userResponse.json();
+      console.log("Google user info:", googleUser);
+      
+      if (!userResponse.ok) {
+        console.error("Failed to get user info:", googleUser);
+        return res.redirect("/?error=user_info_failed");
+      }
+
+      // Create or update user in database
+      const { storage } = await import("./storage");
+      const user = await storage.upsertUser({
+        id: googleUser.id,
+        email: googleUser.email,
+        firstName: googleUser.given_name || "",
+        lastName: googleUser.family_name || "",
+        profileImageUrl: googleUser.picture || "",
+      });
+
+      // Set session
+      (req.session as any).userId = user.id;
+      console.log("Session updated with user ID:", user.id);
+      
+      res.redirect("/");
+    } catch (error) {
+      console.error("OAuth callback error:", error);
+      res.redirect("/?error=callback_error");
+    }
+  });
+
+  // Add test route to verify routing works
+  app.get("/test-route", (req, res) => {
+    console.log("=== TEST ROUTE REACHED ===");
+    res.json({ message: "Test route working", path: req.path });
   });
 
   async function handleGoogleCallback(req: any, res: any) {
@@ -122,7 +192,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add our clean Google OAuth route with a completely different path
   app.get("/api/google-auth", (req, res) => {
     const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
-    const redirectUri = "https://staarkids.org/api/google/callback";
+    const redirectUri = "https://staarkids.org/oauth/google/callback";
     
     console.log("=== WORKING GOOGLE OAUTH ROUTE ===");
     console.log("Client ID:", `"${clientId}"`);
@@ -137,7 +207,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Also add to the conflicting route as backup
   app.get("/api/auth/google", (req, res) => {
     const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
-    const redirectUri = "https://staarkids.org/api/google/callback";
+    const redirectUri = "https://staarkids.org/oauth/google/callback";
     
     console.log("=== BACKUP GOOGLE OAUTH ROUTE ===");
     console.log("Client ID:", `"${clientId}"`);
