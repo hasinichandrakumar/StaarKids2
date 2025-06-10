@@ -14,6 +14,24 @@ export default function Landing() {
   const [animatedCount, setAnimatedCount] = useState(0);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
 
+  const processGoogleOAuth = async (code: string) => {
+    try {
+      console.log("Processing OAuth code with server...");
+      
+      // Store the code temporarily and redirect to trigger server processing
+      localStorage.setItem('oauthCode', code);
+      
+      // Clean URL first
+      window.history.replaceState({}, document.title, '/');
+      
+      // Redirect to special auth endpoint that forces server processing
+      window.location.href = `/auth-process?code=${encodeURIComponent(code)}`;
+      
+    } catch (error) {
+      console.error("OAuth processing error:", error);
+    }
+  };
+
   useEffect(() => {
     // Handle Google OAuth callback
     const urlParams = new URLSearchParams(window.location.search);
@@ -24,29 +42,8 @@ export default function Landing() {
     if (callback === 'google' && code) {
       console.log('Processing Google OAuth callback...');
       
-      // Send code to backend for processing
-      fetch('/oauth-process', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ code }),
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log('OAuth processing result:', data);
-        if (data.success) {
-          // Reload the page to trigger authentication check
-          window.location.href = '/';
-        } else {
-          console.error('OAuth processing failed:', data.error);
-          // Show error but stay on landing page
-        }
-      })
-      .catch(error => {
-        console.error('OAuth processing error:', error);
-        // Show error but stay on landing page
-      });
+      // Process OAuth code client-side due to Vite server interference
+      processGoogleOAuth(code);
     } else if (callback === 'google' && error) {
       console.error('OAuth error:', error);
       // Show error but stay on landing page

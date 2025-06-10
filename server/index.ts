@@ -10,18 +10,18 @@ const app = express();
 // Express middleware for handling OAuth processing before Vite
 app.use('/api', express.json());
 
-// OAuth processing endpoint - placed at top level to bypass Vite
-app.post('/oauth-process', express.json(), async (req, res) => {
+// Special auth processing endpoint that bypasses Vite
+app.get('/auth-process', async (req, res) => {
   console.log("=== DIRECT OAUTH PROCESSING ===");
-  const { code } = req.body;
+  const { code } = req.query;
   
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   
-  if (!code) {
+  if (!code || typeof code !== 'string') {
     console.error("No authorization code provided");
-    return res.json({ success: false, error: "no_code" });
+    return res.redirect('/?error=no_code');
   }
 
   try {
@@ -71,14 +71,25 @@ app.post('/oauth-process', express.json(), async (req, res) => {
       return res.json({ success: false, error: "user_info_failed" });
     }
 
+    // Store user in database
+    const { storage } = require('./storage');
+    const user = await storage.upsertUser({
+      id: googleUser.id,
+      email: googleUser.email,
+      firstName: googleUser.given_name || googleUser.name?.split(' ')[0] || '',
+      lastName: googleUser.family_name || googleUser.name?.split(' ').slice(1).join(' ') || '',
+      profileImageUrl: googleUser.picture,
+    });
+
+    // Create session
+    const session = req.session as any;
+    session.userId = user.id;
+    session.googleUser = googleUser;
+    
     console.log("OAuth flow completed successfully!");
     
-    res.json({ 
-      success: true, 
-      email: googleUser.email,
-      name: googleUser.name || '',
-      userId: googleUser.id
-    });
+    // Redirect to dashboard
+    res.redirect('/');
     
   } catch (error) {
     console.error("OAuth processing error:", error);
