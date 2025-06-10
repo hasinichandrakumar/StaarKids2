@@ -9,21 +9,7 @@ import { z } from "zod";
 export async function registerRoutes(app: Express): Promise<Server> {
   console.log("Registering routes...");
   
-  // Force Google OAuth route override with middleware BEFORE any other routes
-  const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
-  const redirectUri = "https://staarkids.org/api/auth/google/callback";
-  
-  // Create a completely new OAuth endpoint to bypass conflicts
-  app.get("/auth/google/login", (req, res) => {
-    console.log("=== NEW GOOGLE OAUTH ENDPOINT ===");
-    console.log("Client ID:", `"${clientId}"`);
-    
-    const baseUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
-    const authUrl = `${baseUrl}?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=profile%20email&access_type=offline&prompt=consent`;
-    
-    console.log("New OAuth URL:", authUrl);
-    res.redirect(authUrl);
-  });
+  // Remove conflicting OAuth routes - let googleAuth.ts handle them
   
   // Auth middleware (Replit auth)
   console.log("Setting up Replit auth...");
