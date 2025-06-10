@@ -142,6 +142,32 @@ export const organizations = pgTable("organizations", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Classroom codes for teachers to create and students to join
+export const classroomCodes = pgTable("classroom_codes", {
+  id: serial("id").primaryKey(),
+  code: varchar("code", { length: 8 }).notNull().unique(), // 8-character code
+  teacherId: varchar("teacher_id").notNull().references(() => users.id),
+  organizationId: varchar("organization_id").references(() => organizations.id),
+  className: varchar("class_name").notNull(),
+  grade: integer("grade").notNull(),
+  subject: varchar("subject"), // "math", "reading", or "both"
+  isActive: boolean("is_active").default(true),
+  maxStudents: integer("max_students").default(30),
+  createdAt: timestamp("created_at").defaultNow(),
+  expiresAt: timestamp("expires_at"), // Optional expiration date
+});
+
+// Students enrolled in classrooms
+export const classroomEnrollments = pgTable("classroom_enrollments", {
+  id: serial("id").primaryKey(),
+  studentId: varchar("student_id").notNull().references(() => users.id),
+  classroomId: integer("classroom_id").notNull().references(() => classroomCodes.id),
+  enrolledAt: timestamp("enrolled_at").defaultNow(),
+  isActive: boolean("is_active").default(true),
+}, (table) => ({
+  uniqueEnrollment: index("unique_student_classroom").on(table.studentId, table.classroomId),
+}));
+
 // Student-parent relationships
 export const studentParentRelations = pgTable("student_parent_relations", {
   id: serial("id").primaryKey(),
@@ -312,6 +338,16 @@ export const insertOrganizationSchema = createInsertSchema(organizations).omit({
   updatedAt: true,
 });
 
+export const insertClassroomCodeSchema = createInsertSchema(classroomCodes).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertClassroomEnrollmentSchema = createInsertSchema(classroomEnrollments).omit({
+  id: true,
+  enrolledAt: true,
+});
+
 export const insertStudentParentRelationSchema = createInsertSchema(studentParentRelations).omit({
   id: true,
   createdAt: true,
@@ -351,6 +387,10 @@ export type InsertStarPowerHistory = z.infer<typeof insertStarPowerHistorySchema
 export type UpdateUser = z.infer<typeof updateUserSchema>;
 export type Organization = typeof organizations.$inferSelect;
 export type InsertOrganization = z.infer<typeof insertOrganizationSchema>;
+export type ClassroomCode = typeof classroomCodes.$inferSelect;
+export type InsertClassroomCode = z.infer<typeof insertClassroomCodeSchema>;
+export type ClassroomEnrollment = typeof classroomEnrollments.$inferSelect;
+export type InsertClassroomEnrollment = z.infer<typeof insertClassroomEnrollmentSchema>;
 export type StudentParentRelation = typeof studentParentRelations.$inferSelect;
 export type InsertStudentParentRelation = z.infer<typeof insertStudentParentRelationSchema>;
 export type OrganizationStudentRelation = typeof organizationStudentRelations.$inferSelect;

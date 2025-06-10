@@ -116,6 +116,23 @@ export interface IStorage {
   getStudentsByOrganization(organizationId: string): Promise<User[]>;
   getParentsByStudent(studentId: string): Promise<User[]>;
   updateUserRole(userId: string, role: string, additionalData?: any): Promise<User>;
+  
+  // Classroom code operations
+  createClassroomCode(classroom: InsertClassroomCode): Promise<ClassroomCode>;
+  getClassroomByCode(code: string): Promise<ClassroomCode | undefined>;
+  getClassroomsByTeacher(teacherId: string): Promise<ClassroomCode[]>;
+  joinClassroom(studentId: string, classroomCode: string): Promise<ClassroomEnrollment>;
+  getStudentClassrooms(studentId: string): Promise<ClassroomCode[]>;
+  generateClassroomCode(): string;
+  
+  // Parent-child linking operations
+  linkChildToParent(childEmail: string, parentId: string): Promise<StudentParentRelation>;
+  getChildrenByParent(parentId: string): Promise<User[]>;
+  getParentDashboardData(parentId: string): Promise<{
+    children: User[];
+    overallStats: any;
+    recentActivity: any[];
+  }>;
 }
 
 export class DatabaseStorage implements IStorage {
