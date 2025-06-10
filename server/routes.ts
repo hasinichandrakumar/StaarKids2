@@ -9,6 +9,12 @@ import { z } from "zod";
 export async function registerRoutes(app: Express): Promise<Server> {
   console.log("Registering routes...");
   
+  // Test endpoint to verify API routes are working
+  app.get("/api/test", (req, res) => {
+    console.log("=== API TEST ENDPOINT REACHED ===");
+    res.json({ message: "API routes are working", timestamp: new Date().toISOString() });
+  });
+  
   // CRITICAL: Add OAuth callback route using API prefix to bypass Vite
   app.get("/api/oauth/google/callback", async (req, res) => {
     console.log("=== OAUTH GOOGLE CALLBACK REACHED ===");

@@ -1,8 +1,86 @@
 import express, { type Request, Response, NextFunction } from "express";
+import { createServer, type IncomingMessage, type ServerResponse } from "http";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { URL } from "url";
 
 const app = express();
+
+// CRITICAL: Handle OAuth callback BEFORE any other middleware including Vite
+app.get("/api/oauth/google/callback", async (req, res) => {
+  console.log("=== PRIORITY OAUTH CALLBACK HANDLER ===");
+  console.log("Query params:", req.query);
+  
+  const { code, error } = req.query;
+  
+  if (error) {
+    console.error("OAuth error:", error);
+    return res.redirect("/?error=oauth_error");
+  }
+  
+  if (!code) {
+    console.error("No authorization code received");
+    return res.redirect("/?error=no_code");
+  }
+
+  try {
+    const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.trim();
+    const redirectUri = "https://staarkids.org/api/oauth/google/callback";
+
+    console.log("Starting token exchange with Google...");
+    
+    // Exchange code for tokens
+    const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
+        code: code as string,
+        grant_type: "authorization_code",
+        redirect_uri: redirectUri,
+      }),
+    });
+
+    const tokens = await tokenResponse.json();
+    console.log("Token response status:", tokenResponse.status);
+    
+    if (!tokenResponse.ok) {
+      console.error("Token exchange failed:", tokens);
+      return res.redirect("/?error=token_exchange_failed");
+    }
+
+    console.log("Getting user info from Google...");
+    // Get user info
+    const userResponse = await fetch(
+      "https://www.googleapis.com/oauth2/v2/userinfo",
+      {
+        headers: {
+          Authorization: `Bearer ${tokens.access_token}`,
+        },
+      }
+    );
+
+    const googleUser = await userResponse.json();
+    console.log("Google user info received for:", googleUser.email);
+    
+    if (!userResponse.ok) {
+      console.error("Failed to get user info:", googleUser);
+      return res.redirect("/?error=user_info_failed");
+    }
+
+    // For now, redirect with success and user email to verify OAuth is working
+    console.log("OAuth flow completed successfully!");
+    res.redirect("/?auth=success&email=" + encodeURIComponent(googleUser.email));
+    
+  } catch (error) {
+    console.error("OAuth callback error:", error);
+    res.redirect("/?error=callback_error");
+  }
+});
 
 // CORS middleware
 app.use((req, res, next) => {
