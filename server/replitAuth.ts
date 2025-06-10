@@ -86,10 +86,8 @@ export async function setupAuth(app: Express) {
   };
 
   // Google OAuth Strategy - use StaarKids specific credentials
-  console.log("Setting up Google OAuth with client ID:", process.env.GOOGLE_CLIENT_ID_STAARKIDS?.substring(0, 20) + "...");
-  console.log("Callback URL:", "https://staarkids.org/api/auth/google/callback");
   
-  passport.use(new GoogleStrategy({
+  const googleStrategy = new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID_STAARKIDS!,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!,
     callbackURL: "https://staarkids.org/api/auth/google/callback"
@@ -115,7 +113,10 @@ export async function setupAuth(app: Express) {
     } catch (error) {
       return done(error as Error, false);
     }
-  }));
+  });
+
+  console.log("Registering Google OAuth strategy with name 'google'");
+  passport.use('google', googleStrategy);
 
   for (const domain of process.env
     .REPLIT_DOMAINS!.split(",")) {
@@ -135,9 +136,10 @@ export async function setupAuth(app: Express) {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   // Google OAuth routes
-  app.get("/api/auth/google", 
-    passport.authenticate("google", { scope: ["profile", "email"] })
-  );
+  app.get("/api/auth/google", (req, res, next) => {
+    console.log("Google OAuth route accessed");
+    passport.authenticate("google", { scope: ["profile", "email"] })(req, res, next);
+  });
 
   app.get("/api/auth/google/callback", 
     passport.authenticate("google", { failureRedirect: "/" }),
