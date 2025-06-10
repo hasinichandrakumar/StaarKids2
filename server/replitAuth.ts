@@ -115,7 +115,6 @@ export async function setupAuth(app: Express) {
     }
   });
 
-  console.log("Registering Google OAuth strategy with name 'google'");
   passport.use('google', googleStrategy);
 
   for (const domain of process.env
@@ -136,10 +135,9 @@ export async function setupAuth(app: Express) {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   // Google OAuth routes
-  app.get("/api/auth/google", (req, res, next) => {
-    console.log("Google OAuth route accessed");
-    passport.authenticate("google", { scope: ["profile", "email"] })(req, res, next);
-  });
+  app.get("/api/auth/google", 
+    passport.authenticate("google", { scope: ["profile", "email"] })
+  );
 
   app.get("/api/auth/google/callback", 
     passport.authenticate("google", { failureRedirect: "/" }),
