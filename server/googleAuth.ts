@@ -1,68 +1,98 @@
-import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-import passport from "passport";
 import type { Express } from "express";
 import { storage } from "./storage";
 
 export function setupGoogleAuth(app: Express) {
-  // Clean Google OAuth configuration
-  const googleStrategy = new GoogleStrategy(
-    {
-      clientID: "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.replace(/\s+/g, ''),
-      callbackURL: "/api/auth/google/callback"
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      try {
-        await storage.upsertUser({
-          id: profile.id,
-          email: profile.emails?.[0]?.value || "",
-          firstName: profile.name?.givenName || "",
-          lastName: profile.name?.familyName || "",
-          profileImageUrl: profile.photos?.[0]?.value || "",
-        });
-        
-        const user = {
-          id: profile.id,
-          email: profile.emails?.[0]?.value,
-          firstName: profile.name?.givenName,
-          lastName: profile.name?.familyName,
-        };
-        
-        return done(null, user);
-      } catch (error) {
-        return done(error as Error, false);
-      }
+  const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.replace(/\s+/g, '');
+  const redirectUri = "https://staarkids.org/api/auth/google/callback";
+  
+  // Direct Google OAuth implementation without passport
+  app.get("/api/auth/google", (req, res) => {
+    const scopes = ["profile", "email"];
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
+      `response_type=code&` +
+      `client_id=${encodeURIComponent(clientId)}&` +
+      `redirect_uri=${encodeURIComponent(redirectUri)}&` +
+      `scope=${encodeURIComponent(scopes.join(" "))}`;
+    
+    console.log("Redirecting to Google OAuth:", authUrl);
+    res.redirect(authUrl);
+  });
+
+  app.get("/api/auth/google/callback", async (req, res) => {
+    const { code, error } = req.query;
+    
+    if (error) {
+      console.error("OAuth error:", error);
+      return res.redirect("/?error=oauth_error");
     }
-  );
+    
+    if (!code) {
+      console.error("No authorization code received");
+      return res.redirect("/?error=no_code");
+    }
 
-  passport.use('google', googleStrategy);
-
-  // Google OAuth routes
-  app.get("/api/auth/google", 
-    passport.authenticate("google", { scope: ["profile", "email"] })
-  );
-
-  app.get("/api/auth/google/callback", (req, res, next) => {
-    passport.authenticate("google", { 
-      failureRedirect: "/" 
-    }, (err, user, info) => {
-      if (err) {
-        console.error("OAuth error:", err);
-        return res.redirect("/?error=oauth_error");
-      }
-      if (!user) {
-        console.log("No user returned from OAuth");
-        return res.redirect("/?error=auth_failed");
-      }
-      
-      req.logIn(user, (err) => {
-        if (err) {
-          console.error("Login error:", err);
-          return res.redirect("/?error=login_failed");
-        }
-        console.log("User successfully logged in:", user);
-        res.redirect("/");
+    try {
+      // Exchange code for tokens
+      const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          client_id: clientId,
+          client_secret: clientSecret,
+          code: code as string,
+          grant_type: "authorization_code",
+          redirect_uri: redirectUri,
+        }),
       });
-    })(req, res, next);
+
+      const tokens = await tokenResponse.json();
+      
+      if (!tokenResponse.ok) {
+        console.error("Token exchange failed:", tokens);
+        return res.redirect("/?error=token_exchange_failed");
+      }
+
+      // Get user profile
+      const profileResponse = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
+        headers: {
+          Authorization: `Bearer ${tokens.access_token}`,
+        },
+      });
+
+      const profile = await profileResponse.json();
+      
+      if (!profileResponse.ok) {
+        console.error("Profile fetch failed:", profile);
+        return res.redirect("/?error=profile_fetch_failed");
+      }
+
+      // Store user in database
+      await storage.upsertUser({
+        id: profile.id,
+        email: profile.email || "",
+        firstName: profile.given_name || "",
+        lastName: profile.family_name || "",
+        profileImageUrl: profile.picture || "",
+      });
+
+      // Create session (simplified - store user ID in session)
+      (req.session as any).userId = profile.id;
+      (req.session as any).user = {
+        id: profile.id,
+        email: profile.email,
+        firstName: profile.given_name,
+        lastName: profile.family_name,
+      };
+
+      console.log("User successfully authenticated:", profile.email);
+      res.redirect("/");
+      
+    } catch (error) {
+      console.error("OAuth callback error:", error);
+      res.redirect("/?error=callback_error");
+    }
   });
 }

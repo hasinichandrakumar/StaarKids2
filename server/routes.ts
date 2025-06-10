@@ -2,18 +2,35 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupGoogleAuth } from "./googleAuth";
 import { insertPracticeAttemptSchema, insertExamAttemptSchema, updateUserSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
+  
+  // Setup Google OAuth separately
+  setupGoogleAuth(app);
 
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      // Handle both Google OAuth and Replit auth users
-      const userId = req.user.claims?.sub || req.user.id;
+      // Handle different authentication methods
+      let userId: string;
+      
+      // Direct Google OAuth session
+      if (req.session?.userId) {
+        userId = req.session.userId;
+      }
+      // Passport-based auth (Replit or Google)
+      else if (req.user) {
+        userId = req.user.claims?.sub || req.user.id;
+      }
+      else {
+        return res.status(401).json({ message: "No user found" });
+      }
+      
       const user = await storage.getUser(userId);
       res.json(user);
     } catch (error) {

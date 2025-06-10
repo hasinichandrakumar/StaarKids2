@@ -85,47 +85,7 @@ export async function setupAuth(app: Express) {
     verified(null, user);
   };
 
-  // Google OAuth Strategy - use StaarKids specific credentials
-  
-  // Use the correct Google OAuth credentials
-  const googleClientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
-  const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.replace(/\s+/g, '');
-  
-  console.log("Configuring Google OAuth with Client ID:", googleClientId);
-  
-  const googleStrategy = new GoogleStrategy({
-    clientID: googleClientId,
-    clientSecret: googleClientSecret,
-    callbackURL: "/api/auth/google/callback"
-  },
-  async (accessToken, refreshToken, profile, done) => {
-    console.log("Google OAuth strategy callback executed");
-    console.log("Profile received:", profile);
-    try {
-      await storage.upsertUser({
-        id: profile.id,
-        email: profile.emails?.[0]?.value || "",
-        firstName: profile.name?.givenName || "",
-        lastName: profile.name?.familyName || "",
-        profileImageUrl: profile.photos?.[0]?.value || "",
-      });
-      
-      const user = {
-        id: profile.id,
-        email: profile.emails?.[0]?.value,
-        firstName: profile.name?.givenName,
-        lastName: profile.name?.familyName,
-      };
-      
-      console.log("User created/updated successfully:", user);
-      return done(null, user);
-    } catch (error) {
-      console.error("Error in Google OAuth strategy:", error);
-      return done(error as Error, false);
-    }
-  });
-
-  passport.use('google', googleStrategy);
+  // Google OAuth is now handled separately in googleAuth.ts
 
   // Temporarily disable Replit auth to isolate Google OAuth issue
   /*
@@ -147,36 +107,7 @@ export async function setupAuth(app: Express) {
   passport.serializeUser((user: Express.User, cb) => cb(null, user));
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
-  // Google OAuth routes
-  app.get("/api/auth/google", 
-    passport.authenticate("google", { scope: ["profile", "email"] })
-  );
-
-  app.get("/api/auth/google/callback", (req, res, next) => {
-    console.log("Google OAuth callback received");
-    passport.authenticate("google", { 
-      failureRedirect: "/" 
-    }, (err, user, info) => {
-      console.log("OAuth callback result:", { err, user, info });
-      if (err) {
-        console.error("OAuth error:", err);
-        return res.redirect("/?error=oauth_error");
-      }
-      if (!user) {
-        console.log("No user returned from OAuth");
-        return res.redirect("/?error=auth_failed");
-      }
-      
-      req.logIn(user, (err) => {
-        if (err) {
-          console.error("Login error:", err);
-          return res.redirect("/?error=login_failed");
-        }
-        console.log("User successfully logged in:", user);
-        res.redirect("/");
-      });
-    })(req, res, next);
-  });
+  // Google OAuth routes are now handled in googleAuth.ts
 
   app.get("/api/login", (req, res, next) => {
     passport.authenticate(`replitauth:${req.hostname}`, {
@@ -206,14 +137,20 @@ export async function setupAuth(app: Express) {
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   const user = req.user as any;
+  const session = req.session as any;
 
+  // Check for direct Google OAuth session first
+  if (session && session.userId) {
+    return next();
+  }
+
+  // Check for passport-based authentication
   if (!req.isAuthenticated() || !user) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
   // Handle Google OAuth users (they don't have expires_at or claims)
   if (user.id && !user.claims && !user.expires_at) {
-    console.log("Google OAuth user authenticated:", user.id);
     return next();
   }
 
