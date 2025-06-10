@@ -5,15 +5,15 @@ export function setupGoogleAuth(app: Express) {
   // Use the client ID that matches the Google Cloud Console configuration
   const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.trim();
-  const redirectUri = "https://staarkids.org/api/auth/google/callback";
+  const redirectUri = "https://staarkids.org/auth/google/callback";
   
   console.log("Setting up Google OAuth with environment variables");
   console.log("Client ID from env (trimmed):", `"${clientId}"`);
   console.log("Client ID length:", clientId.length);
   
-  // Override the conflicting /api/auth/google route directly
-  app.get("/api/auth/google", (req, res) => {
-    console.log("=== GOOGLE OAUTH ROUTE ACCESSED (FIXED) ===");
+  // Non-conflicting Google OAuth route
+  app.get("/auth/google/login", (req, res) => {
+    console.log("=== GOOGLE OAUTH ROUTE ACCESSED (NON-CONFLICTING) ===");
     
     const baseUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
     const authUrl = `${baseUrl}?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=profile%20email&access_type=offline&prompt=consent`;
@@ -33,7 +33,7 @@ export function setupGoogleAuth(app: Express) {
     res.redirect(authUrl);
   });
 
-  app.get("/api/auth/google/callback", async (req, res) => {
+  app.get("/auth/google/callback", async (req, res) => {
     console.log("=== GOOGLE OAUTH CALLBACK REACHED ===");
     console.log("Query params:", req.query);
     console.log("Session ID:", req.sessionID);
