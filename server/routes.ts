@@ -12,7 +12,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      // Handle both Google OAuth and Replit auth users
+      const userId = req.user.claims?.sub || req.user.id;
       const user = await storage.getUser(userId);
       res.json(user);
     } catch (error) {
@@ -23,7 +24,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch('/api/user/profile', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      // Handle both Google OAuth and Replit auth users
+      const userId = req.user.claims?.sub || req.user.id;
       const updates = updateUserSchema.parse(req.body);
       
       const updatedUser = await storage.updateUserProfile(userId, updates);
