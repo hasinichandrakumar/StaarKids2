@@ -11,7 +11,7 @@ export function useAuth() {
   };
 
   const loginWithGoogle = () => {
-    window.location.href = "/api/oauth/google";
+    window.location.href = "/api/auth/google";
   };
 
   return {

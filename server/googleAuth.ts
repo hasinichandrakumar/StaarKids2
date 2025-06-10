@@ -11,9 +11,20 @@ export function setupGoogleAuth(app: Express) {
   console.log("Client ID from env (trimmed):", `"${clientId}"`);
   console.log("Client ID length:", clientId.length);
   
-  // Use a clean route path
+  // Override the conflicting /api/auth/google route directly
+  app.get("/api/auth/google", (req, res) => {
+    console.log("=== GOOGLE OAUTH ROUTE ACCESSED (FIXED) ===");
+    
+    const baseUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
+    const authUrl = `${baseUrl}?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=profile%20email&access_type=offline&prompt=consent`;
+    
+    console.log("OAuth URL:", authUrl);
+    res.redirect(authUrl);
+  });
+
+  // Also provide the alternative route
   app.get("/api/oauth/google", (req, res) => {
-    console.log("=== GOOGLE OAUTH ROUTE ACCESSED ===");
+    console.log("=== ALTERNATIVE GOOGLE OAUTH ROUTE ACCESSED ===");
     
     const baseUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
     const authUrl = `${baseUrl}?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=profile%20email&access_type=offline&prompt=consent`;
