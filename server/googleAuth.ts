@@ -5,25 +5,31 @@ export function setupGoogleAuth(app: Express) {
   // Use the client ID that matches the Google Cloud Console configuration
   const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.trim();
-  const redirectUri = "https://staarkids.org/google-auth-complete";
+  const redirectUri = "https://staarkids.org/api/auth/google/callback";
   
   console.log("Setting up Google OAuth with environment variables");
   console.log("Client ID:", clientId);
   console.log("Redirect URI:", redirectUri);
   
-  // Remove any existing routes that might conflict
-  if (app._router && app._router.stack) {
-    const originalStackLength = app._router.stack.length;
-    app._router.stack = app._router.stack.filter((layer: any) => {
-      if (layer.route && layer.route.path === '/api/auth/google/callback') {
-        console.log("Removed conflicting route:", layer.route.path);
-        return false;
-      }
-      return true;
-    });
-    const removedCount = originalStackLength - app._router.stack.length;
-    console.log(`Removed ${removedCount} conflicting Google OAuth routes`);
-  }
+  // Force override any existing Google OAuth routes by manipulating the router stack
+  const forceOverrideRoute = (path: string, method: string = 'get') => {
+    if (app._router && app._router.stack) {
+      // Remove all existing handlers for this path
+      app._router.stack = app._router.stack.filter((layer: any) => {
+        const isTargetRoute = layer.route && 
+                             layer.route.path === path && 
+                             layer.route.methods[method];
+        if (isTargetRoute) {
+          console.log(`Forcefully removed conflicting ${method.toUpperCase()} route: ${path}`);
+          return false;
+        }
+        return true;
+      });
+    }
+  };
+  
+  // Remove conflicting routes before adding our handlers
+  forceOverrideRoute('/api/auth/google/callback', 'get');
   
   // Google OAuth login route
   app.get("/auth/google/login", (req, res) => {
@@ -47,7 +53,7 @@ export function setupGoogleAuth(app: Express) {
     res.redirect(authUrl);
   });
 
-  app.get("/google-auth-complete", async (req, res) => {
+  app.get("/api/auth/google/callback", async (req, res) => {
     console.log("=== GOOGLE OAUTH CALLBACK REACHED ===");
     console.log("Query params:", req.query);
     console.log("Session ID:", req.sessionID);
