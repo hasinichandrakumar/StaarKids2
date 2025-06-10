@@ -15,16 +15,21 @@ export function setupGoogleAuth(app: Express) {
   const forceOverrideRoute = (path: string, method: string = 'get') => {
     if (app._router && app._router.stack) {
       // Remove all existing handlers for this path
+      const originalLength = app._router.stack.length;
       app._router.stack = app._router.stack.filter((layer: any) => {
         const isTargetRoute = layer.route && 
                              layer.route.path === path && 
                              layer.route.methods[method];
-        if (isTargetRoute) {
-          console.log(`Forcefully removed conflicting ${method.toUpperCase()} route: ${path}`);
+        const isGenericCallback = layer.route && 
+                                 layer.route.path === '/api/callback' && 
+                                 layer.route.methods[method];
+        if (isTargetRoute || isGenericCallback) {
+          console.log(`Forcefully removed conflicting ${method.toUpperCase()} route: ${layer.route.path}`);
           return false;
         }
         return true;
       });
+      console.log(`Route cleanup: ${originalLength} -> ${app._router.stack.length} routes`);
     }
   };
   
@@ -53,14 +58,19 @@ export function setupGoogleAuth(app: Express) {
     res.redirect(authUrl);
   });
 
-  app.get("/api/google/callback", async (req, res) => {
-    console.log("=== GOOGLE OAUTH CALLBACK REACHED ===");
+  // Add a direct middleware handler that captures the callback before other routes
+  app.use("/api/google/callback", async (req, res, next) => {
+    console.log("=== GOOGLE OAUTH CALLBACK MIDDLEWARE REACHED ===");
     console.log("Method:", req.method);
     console.log("URL:", req.url);
     console.log("Path:", req.path);
     console.log("Query params:", req.query);
     console.log("Session ID:", req.sessionID);
     console.log("Session before auth:", req.session);
+    
+    if (req.method !== 'GET') {
+      return next();
+    }
     
     const { code, error } = req.query;
     
