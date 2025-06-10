@@ -6,19 +6,25 @@ export function setupGoogleAuth(app: Express) {
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.replace(/\s+/g, '');
   const redirectUri = "https://staarkids.org/api/auth/google/callback";
   
-  // Direct Google OAuth implementation without passport
+  console.log("Setting up Google OAuth with clean implementation");
+  
+  // Override any existing Google OAuth routes
   app.get("/api/auth/google", (req, res) => {
-    console.log("Direct Google OAuth route hit");
-    console.log("Client ID being used:", clientId);
+    console.log("=== CLEAN GOOGLE OAUTH ROUTE ACCESSED ===");
+    console.log("Client ID:", clientId);
     
-    const scopes = ["profile", "email"];
-    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
-      `response_type=code&` +
-      `client_id=${encodeURIComponent(clientId)}&` +
-      `redirect_uri=${encodeURIComponent(redirectUri)}&` +
-      `scope=${encodeURIComponent(scopes.join(" "))}`;
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      scope: 'profile email',
+      access_type: 'offline',
+      prompt: 'consent'
+    });
     
-    console.log("Generated OAuth URL:", authUrl);
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+    console.log("Clean OAuth URL:", authUrl);
+    
     res.redirect(authUrl);
   });
 
