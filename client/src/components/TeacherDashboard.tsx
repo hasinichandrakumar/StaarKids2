@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Users, BarChart3, TrendingUp, Building2, Star, BookOpen, Calculator, Search, Filter } from "lucide-react";
+import { Users, BarChart3, TrendingUp, Building2, Star, BookOpen, Calculator, Search, Filter, LogOut } from "lucide-react";
 
 interface TeacherDashboardProps {
   user: any;
@@ -73,14 +73,33 @@ export default function TeacherDashboard({ user }: TeacherDashboardProps) {
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-yellow-50 p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-yellow-600 bg-clip-text text-transparent mb-2">
-            Teacher Dashboard
-          </h1>
-          <div className="flex items-center space-x-2 text-gray-600">
-            <Building2 className="w-4 h-4" />
-            <span>{organization?.name || 'Your Organization'}</span>
-            <Badge variant="outline">{organization?.type || 'School'}</Badge>
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-yellow-600 bg-clip-text text-transparent mb-2">
+              Teacher Dashboard
+            </h1>
+            <div className="flex items-center space-x-2 text-gray-600">
+              <Building2 className="w-4 h-4" />
+              <span>{organization?.name || 'Your Organization'}</span>
+              <Badge variant="outline">{organization?.type || 'School'}</Badge>
+            </div>
+          </div>
+          
+          {/* User Info and Logout */}
+          <div className="flex items-center space-x-4">
+            <div className="text-right">
+              <p className="text-sm font-medium text-gray-900">{user?.firstName} {user?.lastName}</p>
+              <p className="text-xs text-gray-500">{user?.email}</p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => window.location.href = '/api/logout'}
+              className="text-gray-600 hover:text-red-600 hover:border-red-300"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
           </div>
         </div>
 
