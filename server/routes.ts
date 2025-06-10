@@ -9,17 +9,29 @@ import { z } from "zod";
 export async function registerRoutes(app: Express): Promise<Server> {
   console.log("Registering routes...");
   
-  // Auth middleware (Replit auth) - but skip Google OAuth routes
+  // Force Google OAuth route override with middleware BEFORE any other routes
+  const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
+  const redirectUri = "https://staarkids.org/api/auth/google/callback";
+  
+  // Create a completely new OAuth endpoint to bypass conflicts
+  app.get("/auth/google/login", (req, res) => {
+    console.log("=== NEW GOOGLE OAUTH ENDPOINT ===");
+    console.log("Client ID:", `"${clientId}"`);
+    
+    const baseUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
+    const authUrl = `${baseUrl}?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=profile%20email&access_type=offline&prompt=consent`;
+    
+    console.log("New OAuth URL:", authUrl);
+    res.redirect(authUrl);
+  });
+  
+  // Auth middleware (Replit auth)
   console.log("Setting up Replit auth...");
   await setupAuth(app);
   
-  // Setup Google OAuth AFTER to override any conflicts
+  // Setup Google OAuth (may be overridden by middleware)
   console.log("Setting up Google OAuth routes...");
   setupGoogleAuth(app);
-  
-  // Clear any existing route handlers for Google OAuth and force override
-  const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
-  const redirectUri = "https://staarkids.org/api/auth/google/callback";
   
   // Remove any existing Google OAuth routes by clearing all routes and re-adding them
   if (app._router && app._router.stack) {
