@@ -199,12 +199,13 @@ export async function setupAuth(app: Express) {
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   const user = req.user as any;
 
-  if (!req.isAuthenticated()) {
+  if (!req.isAuthenticated() || !user) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  // Handle Google OAuth users (they don't have expires_at)
-  if (user && user.id && !user.expires_at) {
+  // Handle Google OAuth users (they don't have expires_at or claims)
+  if (user.id && !user.claims && !user.expires_at) {
+    console.log("Google OAuth user authenticated:", user.id);
     return next();
   }
 
