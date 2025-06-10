@@ -23,7 +23,59 @@ interface SettingsModalProps {
 export default function SettingsModal({ user, selectedGrade, onGradeChange, onClose }: SettingsModalProps) {
   const [tempGrade, setTempGrade] = useState(selectedGrade);
   const [isChangingRole, setIsChangingRole] = useState(false);
+  const [classroomCode, setClassroomCode] = useState("");
+  const [parentEmail, setParentEmail] = useState("");
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Fetch student's classrooms
+  const { data: studentClassrooms } = useQuery({
+    queryKey: ['/api/classroom/student'],
+    enabled: user?.role === 'student'
+  });
+
+  // Join classroom mutation
+  const joinClassroomMutation = useMutation({
+    mutationFn: async (code: string) => {
+      return apiRequest("POST", "/api/classroom/join", { classroomCode: code });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Successfully joined classroom!",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/classroom/student'] });
+      setClassroomCode("");
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to join classroom",
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Link to parent mutation
+  const linkToParentMutation = useMutation({
+    mutationFn: async (email: string) => {
+      return apiRequest("POST", "/api/parent/link-child", { childEmail: email });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success", 
+        description: "Parent has been notified and can now view your progress!",
+      });
+      setParentEmail("");
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send parent link",
+        variant: "destructive"
+      });
+    }
+  });
 
   const handleSave = () => {
     onGradeChange(tempGrade);
@@ -48,6 +100,30 @@ export default function SettingsModal({ user, selectedGrade, onGradeChange, onCl
     } finally {
       setIsChangingRole(false);
     }
+  };
+
+  const handleJoinClassroom = () => {
+    if (!classroomCode.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a classroom code",
+        variant: "destructive"
+      });
+      return;
+    }
+    joinClassroomMutation.mutate(classroomCode.trim());
+  };
+
+  const handleLinkParent = () => {
+    if (!parentEmail.trim()) {
+      toast({
+        title: "Error", 
+        description: "Please enter your parent's email",
+        variant: "destructive"
+      });
+      return;
+    }
+    linkToParentMutation.mutate(parentEmail.trim());
   };
 
   return (
