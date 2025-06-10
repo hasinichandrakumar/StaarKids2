@@ -442,11 +442,16 @@ export default function Landing() {
             </Button>
             <Button
               variant="outline"
-              className="border-2 border-white text-white hover:bg-white hover:text-orange-600 px-8 py-4 text-lg font-semibold rounded-2xl transition-all duration-200"
-              onClick={() => {
+              className="border-2 border-white text-white hover:bg-white hover:text-orange-600 px-8 py-4 text-lg font-semibold rounded-2xl transition-colors duration-200"
+              onClick={(e) => {
+                e.preventDefault();
                 const featuresSection = document.getElementById('features');
                 if (featuresSection) {
-                  featuresSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  featuresSection.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start',
+                    inline: 'nearest'
+                  });
                 }
               }}
             >
