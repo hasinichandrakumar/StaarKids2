@@ -78,29 +78,28 @@ app.get("/api/oauth-callback", async (req, res) => {
   }
 });
 
-// Add raw middleware to capture OAuth callback before body parsing
-app.use("/api/oauth-callback", (req, res, next) => {
+// Add raw middleware to capture OAuth callback using exact path matching
+app.get("/api/oauth-callback", (req, res) => {
   console.log("=== RAW OAUTH CALLBACK MIDDLEWARE TRIGGERED ===");
   console.log("Method:", req.method);
   console.log("URL:", req.url);
   console.log("Query:", req.query);
   
-  if (req.method === "GET") {
-    // Handle the OAuth callback directly here
-    const { code, error } = req.query;
-    
-    if (error) {
-      console.error("OAuth error:", error);
-      return res.redirect("/?error=oauth_error");
-    }
-    
-    if (!code) {
-      console.error("No authorization code received");
-      return res.redirect("/?error=no_code");
-    }
+  // Handle the OAuth callback directly here
+  const { code, error } = req.query;
+  
+  if (error) {
+    console.error("OAuth error:", error);
+    return res.redirect("/?error=oauth_error");
+  }
+  
+  if (!code) {
+    console.error("No authorization code received");
+    return res.redirect("/?error=no_code");
+  }
 
-    // Process OAuth callback
-    (async () => {
+  // Process OAuth callback
+  (async () => {
       try {
         const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
         const clientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.trim();
@@ -158,11 +157,6 @@ app.use("/api/oauth-callback", (req, res, next) => {
         res.redirect("/?error=callback_error");
       }
     })();
-    
-    return; // Don't call next()
-  }
-  
-  next();
 });
 
 app.use(express.json());
