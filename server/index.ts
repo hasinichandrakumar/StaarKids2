@@ -36,7 +36,7 @@ app.use((req, res, next) => {
       try {
         const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
         const clientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.trim();
-        const redirectUri = "https://staarkids.org/oauth-callback";
+        const redirectUri = "https://staarkids.org/webhook/oauth-callback";
 
         console.log("Starting token exchange...");
         
@@ -117,7 +117,7 @@ app.get("/oauth-callback", async (req, res) => {
   try {
     const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.trim();
-    const redirectUri = "https://staarkids.org/oauth-callback";
+    const redirectUri = "https://staarkids.org/webhook/oauth-callback";
 
     // Exchange code for tokens
     const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
@@ -196,7 +196,7 @@ app.get("/api/oauth-callback", (req, res) => {
       try {
         const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
         const clientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.trim();
-        const redirectUri = "https://staarkids.org/oauth-callback";
+        const redirectUri = "https://staarkids.org/webhook/oauth-callback";
 
         console.log("Starting token exchange...");
         
