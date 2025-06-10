@@ -29,83 +29,88 @@ export default function Landing() {
           setAnimatedCount(Math.floor(count));
         }
       }, 20);
-    }, 500);
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, []);
 
+  // Testimonial rotation
   useEffect(() => {
-    // Rotate testimonials
     const interval = setInterval(() => {
       setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
-    }, 4000);
+    }, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleLogin = () => {
+    window.location.href = "/api/login";
+  };
+
+  const stats = [
+    { value: "15,000+", label: "Students Served" },
+    { value: "95%", label: "Test Score Improvement" },
+    { value: "2013-2024", label: "Authentic STAAR Questions" }
+  ];
 
   const features = [
     {
       icon: Calculator,
       title: "Math Mastery",
-      description: "Complete TEKS-aligned math practice with instant feedback",
-      color: "#FF5B00",
-      bgColor: "#FF5B0010"
+      description: "Practice authentic STAAR Math questions from grades 3-5 with step-by-step solutions and TEKS alignment.",
+      color: "#FF5B00"
     },
     {
       icon: BookOpen,
       title: "Reading Excellence",
-      description: "Improve comprehension with authentic STAAR passages",
-      color: "#FCC201",
-      bgColor: "#FCC20110"
-    },
-    {
-      icon: Trophy,
-      title: "Mock Exams",
-      description: "Full-length practice tests with detailed analytics",
-      color: "#FF5B00",
-      bgColor: "#FF5B0010"
+      description: "Master reading comprehension with real STAAR passages and questions designed to build critical thinking skills.",
+      color: "#FCC201"
     },
     {
       icon: Target,
+      title: "Mock Exams",
+      description: "Take full-length practice tests that mirror the actual STAAR format and timing for complete preparation.",
+      color: "#FF5B00"
+    },
+    {
+      icon: TrendingUp,
       title: "Progress Tracking",
-      description: "Monitor improvement across all TEKS standards",
-      color: "#FCC201",
-      bgColor: "#FCC20110"
+      description: "Monitor improvement with detailed analytics, performance insights, and personalized learning recommendations.",
+      color: "#DAA520"
+    },
+    {
+      icon: Trophy,
+      title: "StarPower Rewards",
+      description: "Earn points and achievements as you master concepts, making learning engaging and motivational.",
+      color: "#FF5B00"
+    },
+    {
+      icon: Brain,
+      title: "AI-Powered Learning",
+      description: "Get personalized question recommendations and adaptive learning paths powered by advanced AI technology.",
+      color: "#FCC201"
     }
   ];
 
   const testimonials = [
     {
-      text: "My daughter improved her math scores by 40% in just 2 months!",
-      author: "Sarah Johnson",
-      role: "Parent",
-      grade: "Grade 4 Student"
+      quote: "My daughter's math scores improved by 2 grade levels in just 3 months!",
+      author: "Sarah M., Parent",
+      role: "Parent of 4th grader"
     },
     {
-      text: "The daily challenges keep my students motivated and engaged.",
-      author: "Mr. Rodriguez",
-      role: "Teacher",
-      grade: "Elementary School"
+      quote: "The practice tests helped my students feel confident and prepared for the real STAAR test.",
+      author: "Ms. Rodriguez",
+      role: "3rd Grade Teacher"
     },
     {
-      text: "I love earning StarPower points - it makes studying fun!",
-      author: "Alex Chen",
-      role: "Student",
-      grade: "Grade 5"
+      quote: "I love earning StarPower points while learning. It makes studying fun!",
+      author: "Alex, Age 10",
+      role: "5th Grade Student"
     }
   ];
 
-  const stats = [
-    { value: "98%", label: "Student Improvement Rate" },
-    { value: "50K+", label: "Practice Questions" },
-    { value: "15+", label: "TEKS Standards Covered" }
-  ];
-
-  const handleLogin = () => {
-    login();
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-orange-50 to-yellow-50">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         {/* Animated background elements */}
@@ -151,29 +156,10 @@ export default function Landing() {
               and AI-powered personalized learning.
             </p>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col gap-4 justify-center mb-12">
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
-                  onClick={loginWithGoogle}
-                  className="bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 px-8 py-4 text-lg font-semibold rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200"
-                >
-                  <FaGoogle className="w-5 h-5 mr-2 text-red-500" />
-                  Sign in with Google
-                </Button>
-                <Button
-                  onClick={handleLogin}
-                  className="text-white px-8 py-4 text-lg font-semibold rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200 hover:opacity-90"
-                  style={{
-                    background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)'
-                  }}
-                >
-                  <Play className="w-5 h-5 mr-2" />
-                  Start Learning Free
-                </Button>
-              </div>
-              <p className="text-sm text-gray-500">Free account • No credit card required</p>
+            {/* Authentication Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
               <Button
+                onClick={handleLogin}
                 variant="outline"
                 className="border-2 px-8 py-4 text-lg font-semibold rounded-2xl hover:bg-opacity-10"
                 style={{ 
@@ -181,20 +167,62 @@ export default function Landing() {
                   color: '#FF5B00',
                   backgroundColor: 'transparent'
                 }}
-                onClick={() => {
-                  const featuresSection = document.getElementById('features');
-                  if (featuresSection) {
-                    featuresSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                  }
+              >
+                Sign In
+              </Button>
+              <Button
+                onClick={handleLogin}
+                className="text-white px-8 py-4 text-lg font-semibold rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200 hover:opacity-90"
+                style={{
+                  background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)'
                 }}
               >
-                Explore Features
-                <ArrowRight className="w-5 h-5 ml-2" />
+                <Play className="w-5 h-5 mr-2" />
+                Sign Up Free
               </Button>
             </div>
 
+            {/* Sign Up Options */}
+            <div className="text-center mb-8">
+              <p className="text-gray-600 mb-4">Choose your role to get started:</p>
+              <div className="flex flex-wrap gap-3 justify-center">
+                <Badge className="bg-orange-100 text-orange-700 px-4 py-2 text-sm font-medium">
+                  <BookOpen className="w-4 h-4 mr-2" />
+                  Student
+                </Badge>
+                <Badge className="bg-green-100 text-green-700 px-4 py-2 text-sm font-medium">
+                  <Users className="w-4 h-4 mr-2" />
+                  Parent
+                </Badge>
+                <Badge className="bg-purple-100 text-purple-700 px-4 py-2 text-sm font-medium">
+                  <Award className="w-4 h-4 mr-2" />
+                  Teacher
+                </Badge>
+              </div>
+              <p className="text-sm text-gray-500 mt-4">Free account • No credit card required</p>
+            </div>
+
+            <Button
+              variant="outline"
+              className="border-2 px-8 py-4 text-lg font-semibold rounded-2xl hover:bg-opacity-10"
+              style={{ 
+                borderColor: '#FF5B00', 
+                color: '#FF5B00',
+                backgroundColor: 'transparent'
+              }}
+              onClick={() => {
+                const featuresSection = document.getElementById('features');
+                if (featuresSection) {
+                  featuresSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+              }}
+            >
+              Explore Features
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+
             {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 mt-16">
               {stats.map((stat, index) => (
                 <div key={index} className="text-center">
                   <div className="text-4xl font-bold mb-2" style={{ color: '#FF5B00' }}>
@@ -216,33 +244,25 @@ export default function Landing() {
               Everything You Need to <span style={{ color: '#FF5B00' }}>Excel</span>
             </h3>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Our comprehensive platform provides authentic STAAR preparation with gamified learning that keeps students engaged and motivated.
+              Comprehensive STAAR test preparation with authentic questions, adaptive learning, and gamified progress tracking.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* Feature Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
             {features.map((feature, index) => {
               const Icon = feature.icon;
-              const isReadingFeature = feature.title === "Reading Excellence";
-              const isMathFeature = feature.title === "Math Mastery";
-              const isMockExams = feature.title === "Mock Exams";
-              const isProgressTracking = feature.title === "Progress Tracking";
+              const isMathFeature = feature.title.toLowerCase().includes('math');
+              const isReadingFeature = feature.title.toLowerCase().includes('reading');
+              const isMockExams = feature.title.toLowerCase().includes('mock');
+              const isProgressTracking = feature.title.toLowerCase().includes('progress');
               
               return (
-                <Card key={index} className={`group relative overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-0 ${
-                  isReadingFeature || isProgressTracking
-                    ? 'bg-gradient-to-br from-yellow-50 to-amber-50'
-                    : (isMathFeature || isMockExams)
-                      ? 'bg-gradient-to-br from-orange-50 to-yellow-50'
-                      : `bg-gradient-to-br ${feature.bgColor}`
-                }`}>
-                  <div className={`absolute inset-0 opacity-5 group-hover:opacity-10 transition-opacity duration-300`} style={{
-                    backgroundColor: feature.color
-                  }}></div>
-                  <CardContent className="relative p-8 text-center">
-                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 text-white`} style={{
+                <Card key={index} className="hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-0 shadow-lg">
+                  <CardContent className="p-8 text-center">
+                    <div className="w-16 h-16 mx-auto mb-6 rounded-2xl flex items-center justify-center shadow-lg" style={{
                       background: isReadingFeature
-                        ? `linear-gradient(135deg, ${feature.color}, #B8860B)` 
+                        ? 'linear-gradient(135deg, #FCC201 0%, #FF5B00 100%)'
                         : isProgressTracking
                           ? `linear-gradient(135deg, #DAA520, ${feature.color})`
                         : (isMathFeature || isMockExams)
@@ -264,453 +284,206 @@ export default function Landing() {
             {/* Math Mastery Detail */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div className="order-2 lg:order-1">
-                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-yellow-500 rounded-2xl flex items-center justify-center mb-6">
-                  <Calculator className="w-8 h-8 text-white" />
-                </div>
-                <h4 className="text-3xl font-bold text-gray-900 mb-6">Master Math with Confidence</h4>
-                <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-                  Our math practice covers all TEKS standards with authentic STAAR-style questions. Students work through Number & Operations, 
-                  Algebraic Reasoning, Geometry & Measurement, and Data Analysis with step-by-step explanations.
+                <h4 className="text-3xl font-bold text-gray-900 mb-6">
+                  <span style={{ color: '#FF5B00' }}>Math Mastery</span> Made Simple
+                </h4>
+                <p className="text-lg text-gray-600 mb-6">
+                  Practice with authentic STAAR Math questions from 2013-2024, covering all grade levels 3-5. 
+                  Our AI-powered system adapts to your learning pace and identifies areas for improvement.
                 </p>
                 <div className="space-y-4">
-                  <div className="flex items-start space-x-3">
-                    <CheckCircle2 className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
-                    <div>
-                      <h5 className="font-semibold text-gray-900">Adaptive Difficulty</h5>
-                      <p className="text-gray-600">Questions adjust to your skill level for optimal learning</p>
-                    </div>
+                  <div className="flex items-center">
+                    <CheckCircle2 className="w-6 h-6 mr-3" style={{ color: '#FF5B00' }} />
+                    <span className="text-gray-700">Number & Operations mastery</span>
                   </div>
-                  <div className="flex items-start space-x-3">
-                    <CheckCircle2 className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
-                    <div>
-                      <h5 className="font-semibold text-gray-900">Visual Learning Tools</h5>
-                      <p className="text-gray-600">Interactive diagrams and manipulatives for better understanding</p>
-                    </div>
+                  <div className="flex items-center">
+                    <CheckCircle2 className="w-6 h-6 mr-3" style={{ color: '#FF5B00' }} />
+                    <span className="text-gray-700">Algebraic reasoning practice</span>
                   </div>
-                  <div className="flex items-start space-x-3">
-                    <CheckCircle2 className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
-                    <div>
-                      <h5 className="font-semibold text-gray-900">Real-time Feedback</h5>
-                      <p className="text-gray-600">Instant explanations help students learn from mistakes</p>
-                    </div>
+                  <div className="flex items-center">
+                    <CheckCircle2 className="w-6 h-6 mr-3" style={{ color: '#FF5B00' }} />
+                    <span className="text-gray-700">Geometry & measurement skills</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle2 className="w-6 h-6 mr-3" style={{ color: '#FF5B00' }} />
+                    <span className="text-gray-700">Data analysis & personal financial literacy</span>
                   </div>
                 </div>
               </div>
               <div className="order-1 lg:order-2">
-                <Card className="p-8 bg-gradient-to-br from-orange-50 to-yellow-50 border-orange-200">
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-600">Grade 4 Math Progress</span>
-                      <span className="text-sm text-orange-600 font-semibold">87% Complete</span>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-700">Number & Operations</span>
-                        <div className="w-24 bg-gray-200 rounded-full h-2">
-                          <div className="bg-gradient-to-r from-orange-500 to-yellow-500 h-2 rounded-full" style={{width: '92%'}}></div>
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-700">Algebraic Reasoning</span>
-                        <div className="w-24 bg-gray-200 rounded-full h-2">
-                          <div className="bg-gradient-to-r from-orange-500 to-yellow-500 h-2 rounded-full" style={{width: '78%'}}></div>
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-700">Geometry & Measurement</span>
-                        <div className="w-24 bg-gray-200 rounded-full h-2">
-                          <div className="bg-gradient-to-r from-orange-500 to-yellow-500 h-2 rounded-full" style={{width: '85%'}}></div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg border border-orange-200">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <Star className="w-5 h-5 text-yellow-400 fill-current" />
-                        <span className="font-semibold text-gray-900">Today's Achievement</span>
-                      </div>
-                      <p className="text-sm text-gray-600">Mastered multiplication with 2-digit numbers! +50 StarPower</p>
-                    </div>
-                  </div>
-                </Card>
+                <div className="bg-gradient-to-br from-orange-100 to-yellow-100 rounded-3xl p-8 shadow-xl">
+                  <InteractiveDemo />
+                </div>
               </div>
             </div>
 
             {/* Reading Excellence Detail */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-              <div className="order-1">
-                <Card className="p-8 bg-gradient-to-br from-yellow-50 to-amber-50 border-yellow-200">
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-600">Reading Comprehension</span>
-                      <span className="text-sm text-yellow-600 font-semibold">Grade 5 Level</span>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg border border-yellow-200">
-                      <h5 className="font-semibold text-gray-900 mb-2">Current Passage: "The Life of Butterflies"</h5>
-                      <p className="text-sm text-gray-600 mb-3">
-                        "Butterflies undergo complete metamorphosis, which means they go through four distinct stages..."
-                      </p>
-                      <div className="flex items-center space-x-2">
-                        <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200">Literary Nonfiction</Badge>
-                        <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-200">Main Idea</Badge>
-                      </div>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-700">Reading Speed</span>
-                        <span className="font-semibold text-yellow-600">145 WPM</span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-700">Comprehension</span>
-                        <span className="font-semibold text-yellow-600">89%</span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-700">Vocabulary Growth</span>
-                        <span className="font-semibold text-yellow-600">+23 words</span>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              </div>
-              <div className="order-2">
-                <div className="w-16 h-16 bg-gradient-to-br from-yellow-500 to-amber-500 rounded-2xl flex items-center justify-center mb-6">
-                  <BookOpen className="w-8 h-8 text-white" />
+              <div className="bg-gradient-to-br from-yellow-100 to-orange-100 rounded-3xl p-8 shadow-xl">
+                <div className="text-center">
+                  <BookOpen className="w-24 h-24 mx-auto mb-6" style={{ color: '#FCC201' }} />
+                  <h5 className="text-2xl font-bold text-gray-900 mb-4">Reading Comprehension</h5>
+                  <p className="text-gray-600">
+                    Interactive passages with authentic STAAR questions to build critical reading skills
+                  </p>
                 </div>
-                <h4 className="text-3xl font-bold text-gray-900 mb-6">Build Reading Excellence</h4>
-                <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-                  Develop strong reading skills with authentic STAAR passages covering Literary Fiction, Literary Nonfiction, 
-                  Informational Text, and Poetry. Our AI analyzes reading patterns to provide personalized recommendations.
+              </div>
+              <div>
+                <h4 className="text-3xl font-bold text-gray-900 mb-6">
+                  <span style={{ color: '#FCC201' }}>Reading Excellence</span> Through Practice
+                </h4>
+                <p className="text-lg text-gray-600 mb-6">
+                  Develop strong reading comprehension skills with authentic STAAR Reading passages and questions. 
+                  Our platform provides immediate feedback and targeted practice for improvement.
                 </p>
                 <div className="space-y-4">
-                  <div className="flex items-start space-x-3">
-                    <CheckCircle2 className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
-                    <div>
-                      <h5 className="font-semibold text-gray-900">Diverse Text Types</h5>
-                      <p className="text-gray-600">Fiction, nonfiction, poetry, and informational texts from real STAAR tests</p>
-                    </div>
+                  <div className="flex items-center">
+                    <CheckCircle2 className="w-6 h-6 mr-3" style={{ color: '#FCC201' }} />
+                    <span className="text-gray-700">Literary text analysis</span>
                   </div>
-                  <div className="flex items-start space-x-3">
-                    <CheckCircle2 className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
-                    <div>
-                      <h5 className="font-semibold text-gray-900">Vocabulary Builder</h5>
-                      <p className="text-gray-600">Context-based vocabulary learning with grade-appropriate words</p>
-                    </div>
+                  <div className="flex items-center">
+                    <CheckCircle2 className="w-6 h-6 mr-3" style={{ color: '#FCC201' }} />
+                    <span className="text-gray-700">Informational text comprehension</span>
                   </div>
-                  <div className="flex items-start space-x-3">
-                    <CheckCircle2 className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
-                    <div>
-                      <h5 className="font-semibold text-gray-900">Reading Strategies</h5>
-                      <p className="text-gray-600">Learn annotation, summarization, and critical thinking skills</p>
-                    </div>
+                  <div className="flex items-center">
+                    <CheckCircle2 className="w-6 h-6 mr-3" style={{ color: '#FCC201' }} />
+                    <span className="text-gray-700">Vocabulary development</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle2 className="w-6 h-6 mr-3" style={{ color: '#FCC201' }} />
+                    <span className="text-gray-700">Critical thinking skills</span>
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* Mock Exams & Progress Tracking Combined */}
-            <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-3xl p-12">
-              <div className="text-center mb-12">
-                <h4 className="text-3xl font-bold text-gray-900 mb-4">Complete Test Preparation Experience</h4>
-                <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                  Practice with full-length mock exams that mirror the actual STAAR test experience, then track your progress with detailed analytics.
-                </p>
-              </div>
-              
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                {/* Mock Exams */}
-                <Card className="p-8 bg-white shadow-lg">
-                  <div className="flex items-center space-x-4 mb-6">
-                    <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-yellow-500 rounded-xl flex items-center justify-center">
-                      <Trophy className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h5 className="text-xl font-bold text-gray-900">Full Mock Exams</h5>
-                      <p className="text-gray-600">Authentic STAAR test experience</p>
-                    </div>
-                  </div>
-                  <div className="space-y-4">
-                    <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-semibold text-gray-900">Grade 4 Math Mock Exam #3</span>
-                        <Badge className="bg-orange-100 text-orange-800">40 Questions</Badge>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">Time Limit: 4 hours</span>
-                        <span className="text-gray-600">Last Score: 87%</span>
-                      </div>
-                    </div>
-                    <ul className="space-y-2 text-sm text-gray-600">
-                      <li className="flex items-center space-x-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-500" />
-                        <span>Realistic timing and question distribution</span>
-                      </li>
-                      <li className="flex items-center space-x-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-500" />
-                        <span>Immediate detailed score reports</span>
-                      </li>
-                      <li className="flex items-center space-x-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-500" />
-                        <span>Question-by-question analysis</span>
-                      </li>
-                    </ul>
-                  </div>
-                </Card>
-
-                {/* Progress Tracking */}
-                <Card className="p-8 bg-white shadow-lg">
-                  <div className="flex items-center space-x-4 mb-6">
-                    <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-amber-500 rounded-xl flex items-center justify-center">
-                      <Target className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h5 className="text-xl font-bold text-gray-900">Smart Progress Tracking</h5>
-                      <p className="text-gray-600">Data-driven insights and recommendations</p>
-                    </div>
-                  </div>
-                  <div className="space-y-4">
-                    <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                      <div className="grid grid-cols-2 gap-4 text-center">
-                        <div>
-                          <div className="text-2xl font-bold text-yellow-600">94%</div>
-                          <div className="text-sm text-gray-600">Overall Accuracy</div>
-                        </div>
-                        <div>
-                          <div className="text-2xl font-bold text-yellow-600">156</div>
-                          <div className="text-sm text-gray-600">Questions Completed</div>
-                        </div>
-                      </div>
-                    </div>
-                    <ul className="space-y-2 text-sm text-gray-600">
-                      <li className="flex items-center space-x-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-500" />
-                        <span>TEKS standard mastery tracking</span>
-                      </li>
-                      <li className="flex items-center space-x-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-500" />
-                        <span>Weakness identification and remediation</span>
-                      </li>
-                      <li className="flex items-center space-x-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-500" />
-                        <span>Parent and teacher progress reports</span>
-                      </li>
-                    </ul>
-                  </div>
-                </Card>
-              </div>
-            </div>
-
-            {/* AI-Powered Learning */}
-            <div className="text-center">
-              <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-3xl p-12">
-                <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center mx-auto mb-8">
-                  <Brain className="w-10 h-10 text-white" />
-                </div>
-                <h4 className="text-3xl font-bold text-gray-900 mb-6">AI-Powered Personalized Learning</h4>
-                <p className="text-lg text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-                  Our advanced AI analyzes each student's learning patterns, identifies strengths and weaknesses, 
-                  and creates personalized study plans. Nova, your AI learning companion, provides real-time 
-                  explanations and encouragement throughout the journey.
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <Lightbulb className="w-8 h-8 text-white" />
-                    </div>
-                    <h5 className="font-semibold text-gray-900 mb-2">Smart Recommendations</h5>
-                    <p className="text-sm text-gray-600">AI identifies exactly what to study next based on your performance</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <TrendingUp className="w-8 h-8 text-white" />
-                    </div>
-                    <h5 className="font-semibold text-gray-900 mb-2">Adaptive Learning</h5>
-                    <p className="text-sm text-gray-600">Difficulty adjusts automatically to keep you challenged but not overwhelmed</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-yellow-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <Users className="w-8 h-8 text-white" />
-                    </div>
-                    <h5 className="font-semibold text-gray-900 mb-2">Nova AI Assistant</h5>
-                    <p className="text-sm text-gray-600">24/7 AI tutor provides explanations and answers questions instantly</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Interactive Demo Section */}
-      <section className="py-20 bg-gradient-to-br from-blue-50 to-indigo-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h3 className="text-4xl font-bold text-gray-900 mb-4">
-              Try It <span className="text-blue-600">Yourself</span>
-            </h3>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Experience authentic STAAR questions with instant feedback and detailed explanations. 
-              See how our platform makes learning engaging and effective.
-            </p>
-          </div>
-          
-          <InteractiveDemo />
-          
-          <div className="text-center mt-12">
-            <p className="text-gray-600 mb-6">
-              This is just a small sample. Get access to thousands more questions!
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                onClick={loginWithGoogle}
-                className="bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 px-8 py-3 text-lg font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200"
-              >
-                <FaGoogle className="w-5 h-5 mr-2 text-red-500" />
-                Sign in with Google
-              </Button>
-              <Button
-                onClick={handleLogin}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200"
-              >
-                <Play className="w-5 h-5 mr-2" />
-                Start Your Free Account
-              </Button>
             </div>
           </div>
         </div>
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20 bg-gradient-to-r from-orange-50 to-yellow-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h3 className="text-4xl font-bold text-gray-900 mb-4">
-              Loved by <span className="text-orange-600">Students, Parents & Teachers</span>
-            </h3>
-            <div className="flex justify-center items-center space-x-2 mb-8">
-              <Users className="w-6 h-6 text-orange-500" />
-              <span className="text-2xl font-bold text-orange-600">
-                {animatedCount.toLocaleString()}+
-              </span>
-              <span className="text-gray-600">Happy Students</span>
+      <section className="py-20 bg-gradient-to-br from-orange-50 to-yellow-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h3 className="text-4xl font-bold text-gray-900 mb-4">
+            Trusted by <span style={{ color: '#FF5B00' }}>Students</span>, 
+            <span style={{ color: '#FCC201' }}> Parents</span>, and 
+            <span style={{ color: '#FF5B00' }}> Teachers</span>
+          </h3>
+          <p className="text-xl text-gray-600 mb-12">
+            Join thousands of families who have improved their STAAR test performance with StaarKids
+          </p>
+          
+          <div className="relative">
+            <Card className="border-0 shadow-2xl">
+              <CardContent className="p-12">
+                <div className="mb-6">
+                  <p className="text-2xl text-gray-700 font-medium italic">
+                    "{testimonials[currentTestimonial].quote}"
+                  </p>
+                </div>
+                <div>
+                  <p className="font-bold text-gray-900 text-lg">
+                    {testimonials[currentTestimonial].author}
+                  </p>
+                  <p className="text-gray-600">
+                    {testimonials[currentTestimonial].role}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <div className="flex justify-center mt-8 space-x-2">
+              {testimonials.map((_, index) => (
+                <button
+                  key={index}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    index === currentTestimonial 
+                      ? 'w-8' 
+                      : 'opacity-50'
+                  }`}
+                  style={{ 
+                    backgroundColor: index === currentTestimonial ? '#FF5B00' : '#FCC201'
+                  }}
+                  onClick={() => setCurrentTestimonial(index)}
+                />
+              ))}
             </div>
-          </div>
-
-          <div className="relative h-56 mb-8">
-            {testimonials.map((testimonial, index) => (
-              <div
-                key={index}
-                className={`absolute inset-0 transition-all duration-500 ${
-                  index === currentTestimonial 
-                    ? 'opacity-100 transform translate-x-0' 
-                    : 'opacity-0 transform translate-x-full'
-                }`}
-              >
-                <Card className="bg-white shadow-xl border-0 h-full">
-                  <CardContent className="p-8 text-center h-full flex flex-col justify-center">
-                    <div className="flex justify-center mb-6 space-x-1">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-6 h-6 text-yellow-400 fill-current" />
-                      ))}
-                    </div>
-                    <blockquote className="text-xl text-gray-700 mb-8 italic leading-relaxed">
-                      "{testimonial.text}"
-                    </blockquote>
-                    <div className="space-y-1">
-                      <div className="font-bold text-lg text-gray-900">{testimonial.author}</div>
-                      <div className="text-gray-600 font-medium">{testimonial.role}</div>
-                      <div className="text-sm text-orange-600 font-semibold">{testimonial.grade}</div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex justify-center space-x-3">
-            {testimonials.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentTestimonial(index)}
-                className={`w-4 h-4 rounded-full transition-all duration-300 transform hover:scale-110 ${
-                  index === currentTestimonial 
-                    ? 'bg-orange-500 shadow-lg' 
-                    : 'bg-gray-300 hover:bg-gray-400'
-                }`}
-              />
-            ))}
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-orange-500 to-yellow-500 text-white">
+      <section className="py-20 bg-gradient-to-r from-orange-600 to-yellow-500">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h3 className="text-4xl font-bold mb-4">Ready to Start Your STAAR Success Journey?</h3>
-          <p className="text-xl mb-8 opacity-90">
-            Join thousands of students already improving their scores with StaarKids
+          <h3 className="text-4xl font-bold text-white mb-6">
+            Ready to Master the STAAR Test?
+          </h3>
+          <p className="text-xl text-orange-100 mb-8">
+            Join thousands of Texas students achieving test success with StaarKids
           </p>
-          
-          <div className="flex flex-col gap-4 justify-center mb-8">
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                onClick={loginWithGoogle}
-                className="bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 px-8 py-4 text-lg font-semibold rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200"
-              >
-                <FaGoogle className="w-5 h-5 mr-2 text-red-500" />
-                Sign in with Google
-              </Button>
-              <Button
-                onClick={handleLogin}
-                className="bg-white text-orange-600 hover:bg-gray-100 px-8 py-4 text-lg font-semibold rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200"
-              >
-                <Award className="w-5 h-5 mr-2" />
-                Start Learning Free
-              </Button>
-            </div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button
+              onClick={handleLogin}
+              className="bg-white text-orange-600 hover:bg-orange-50 px-8 py-4 text-lg font-semibold rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200"
+            >
+              Start Learning Free
+            </Button>
             <Button
               variant="outline"
-              onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
               className="border-2 border-white text-white hover:bg-white hover:text-orange-600 px-8 py-4 text-lg font-semibold rounded-2xl transition-all duration-200"
+              onClick={() => {
+                const featuresSection = document.getElementById('features');
+                if (featuresSection) {
+                  featuresSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+              }}
             >
-              Explore Features
-              <ArrowRight className="w-5 h-5 ml-2" />
+              Learn More
             </Button>
-          </div>
-          
-          <div className="flex justify-center items-center space-x-6 text-sm opacity-80">
-            <div className="flex items-center">
-              <CheckCircle className="w-4 h-4 mr-2" />
-              Free to Start
-            </div>
-            <div className="flex items-center">
-              <CheckCircle className="w-4 h-4 mr-2" />
-              Authentic STAAR Questions
-            </div>
-            <div className="flex items-center">
-              <CheckCircle className="w-4 h-4 mr-2" />
-              Instant Results
-            </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-8">
+      <footer className="bg-gray-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center space-x-3 mb-4 md:mb-0">
-              <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full flex items-center justify-center">
-                <Star className="w-4 h-4 text-white" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <div className="flex items-center mb-4">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center mr-3" style={{
+                  background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)'
+                }}>
+                  <Star className="w-5 h-5 text-white" />
+                </div>
+                <h4 className="text-xl font-bold">StaarKids</h4>
               </div>
-              <span className="text-xl font-bold">StaarKids</span>
-            </div>
-            <div className="text-center md:text-right">
-              <p className="text-gray-400 text-sm">
-                © 2024 StaarKids. Empowering Texas students to excel in STAAR tests.
-              </p>
-              <p className="text-gray-500 text-xs mt-1">
-                TEKS-aligned • Authentic Questions • AI-Powered Learning
+              <p className="text-gray-400">
+                Empowering Texas students to excel in STAAR Math and Reading tests through innovative, 
+                gamified learning experiences.
               </p>
             </div>
+            <div>
+              <h5 className="text-lg font-semibold mb-4">Features</h5>
+              <ul className="space-y-2 text-gray-400">
+                <li>Math Practice</li>
+                <li>Reading Comprehension</li>
+                <li>Mock Exams</li>
+                <li>Progress Tracking</li>
+                <li>StarPower Rewards</li>
+              </ul>
+            </div>
+            <div>
+              <h5 className="text-lg font-semibold mb-4">Grades Supported</h5>
+              <ul className="space-y-2 text-gray-400">
+                <li>3rd Grade STAAR</li>
+                <li>4th Grade STAAR</li>
+                <li>5th Grade STAAR</li>
+                <li>TEKS Aligned Content</li>
+                <li>Authentic Test Questions</li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; 2024 StaarKids. All rights reserved. Helping Texas students succeed.</p>
           </div>
         </div>
       </footer>
