@@ -85,10 +85,13 @@ export async function setupAuth(app: Express) {
     verified(null, user);
   };
 
-  // Google OAuth Strategy - always use the production domain
+  // Google OAuth Strategy - use StaarKids specific credentials
+  console.log("Setting up Google OAuth with client ID:", process.env.GOOGLE_CLIENT_ID_STAARKIDS?.substring(0, 20) + "...");
+  console.log("Callback URL:", "https://staarkids.org/api/auth/google/callback");
+  
   passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID!,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    clientID: process.env.GOOGLE_CLIENT_ID_STAARKIDS!,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!,
     callbackURL: "https://staarkids.org/api/auth/google/callback"
   },
   async (accessToken, refreshToken, profile, done) => {
