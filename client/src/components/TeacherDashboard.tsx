@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,7 +7,21 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Users, BarChart3, TrendingUp, Building2, Star, BookOpen, Calculator, Search, Filter, LogOut } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { Users, BarChart3, TrendingUp, Building2, Star, BookOpen, Calculator, Search, Filter, LogOut, Plus, Copy, UserPlus } from "lucide-react";
+
+const createClassroomSchema = z.object({
+  className: z.string().min(1, "Class name is required"),
+  grade: z.number().min(3).max(5),
+  subject: z.enum(["math", "reading", "both"]).optional(),
+  maxStudents: z.number().min(1).max(50).optional(),
+});
 
 interface TeacherDashboardProps {
   user: any;
@@ -16,6 +30,19 @@ interface TeacherDashboardProps {
 export default function TeacherDashboard({ user }: TeacherDashboardProps) {
   const [selectedGrade, setSelectedGrade] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  const createClassroomForm = useForm<z.infer<typeof createClassroomSchema>>({
+    resolver: zodResolver(createClassroomSchema),
+    defaultValues: {
+      className: "",
+      grade: 3,
+      subject: "both",
+      maxStudents: 30,
+    },
+  });
 
   const { data: organization } = useQuery({
     queryKey: ['/api/organization', user?.organizationId],
@@ -26,6 +53,37 @@ export default function TeacherDashboard({ user }: TeacherDashboardProps) {
     queryKey: ['/api/organization/students'],
     enabled: user?.role === 'teacher' && !!user?.organizationId
   });
+
+  const { data: classrooms, isLoading: classroomsLoading } = useQuery({
+    queryKey: ['/api/teacher/classrooms'],
+    enabled: user?.role === 'teacher'
+  });
+
+  const createClassroomMutation = useMutation({
+    mutationFn: async (data: z.infer<typeof createClassroomSchema>) => {
+      return apiRequest('/api/teacher/classrooms', 'POST', data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/teacher/classrooms'] });
+      setIsCreateDialogOpen(false);
+      createClassroomForm.reset();
+      toast({
+        title: "Classroom Created",
+        description: "Your new classroom has been created successfully!",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create classroom",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleCreateClassroom = (data: z.infer<typeof createClassroomSchema>) => {
+    createClassroomMutation.mutate(data);
+  };
 
   const filteredStudents = students?.filter((student: any) => {
     const matchesSearch = !searchTerm || 
@@ -104,8 +162,9 @@ export default function TeacherDashboard({ user }: TeacherDashboardProps) {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Class Overview</TabsTrigger>
+            <TabsTrigger value="classrooms">Classrooms</TabsTrigger>
             <TabsTrigger value="students">Student Management</TabsTrigger>
             <TabsTrigger value="analytics">Performance Analytics</TabsTrigger>
             <TabsTrigger value="organization">Organization</TabsTrigger>
@@ -196,6 +255,203 @@ export default function TeacherDashboard({ user }: TeacherDashboardProps) {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="classrooms" className="space-y-6">
+            {/* Classroom Header */}
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-800">Your Classrooms</h2>
+              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-gradient-to-r from-orange-600 to-yellow-600 hover:from-orange-700 hover:to-yellow-700">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Classroom
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Create New Classroom</DialogTitle>
+                  </DialogHeader>
+                  <Form {...createClassroomForm}>
+                    <form onSubmit={createClassroomForm.handleSubmit(handleCreateClassroom)} className="space-y-4">
+                      <FormField
+                        control={createClassroomForm.control}
+                        name="className"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Class Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="e.g., Mrs. Smith's 3rd Grade" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={createClassroomForm.control}
+                        name="grade"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Grade Level</FormLabel>
+                            <Select onValueChange={(value) => field.onChange(parseInt(value))} defaultValue={field.value.toString()}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select grade" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="3">3rd Grade</SelectItem>
+                                <SelectItem value="4">4th Grade</SelectItem>
+                                <SelectItem value="5">5th Grade</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={createClassroomForm.control}
+                        name="subject"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Subject Focus (Optional)</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select subject" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="both">Math & Reading</SelectItem>
+                                <SelectItem value="math">Math Only</SelectItem>
+                                <SelectItem value="reading">Reading Only</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={createClassroomForm.control}
+                        name="maxStudents"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Maximum Students (Optional)</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                placeholder="30"
+                                {...field}
+                                onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <div className="flex justify-end space-x-2 pt-4">
+                        <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                          Cancel
+                        </Button>
+                        <Button type="submit" disabled={createClassroomMutation.isPending}>
+                          {createClassroomMutation.isPending ? "Creating..." : "Create Classroom"}
+                        </Button>
+                      </div>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            {/* Classrooms Grid */}
+            {classroomsLoading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mx-auto"></div>
+                <p className="mt-4 text-gray-600">Loading your classrooms...</p>
+              </div>
+            ) : classrooms && classrooms.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {classrooms.map((classroom: any) => (
+                  <Card key={classroom.id} className="hover:shadow-lg transition-shadow">
+                    <CardHeader className="pb-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className="text-lg">{classroom.className}</CardTitle>
+                          <div className="flex items-center space-x-2 mt-1">
+                            <Badge variant="outline">Grade {classroom.grade}</Badge>
+                            {classroom.subject && classroom.subject !== 'both' && (
+                              <Badge variant="secondary" className="capitalize">
+                                {classroom.subject}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                        <Badge className="bg-green-100 text-green-800">
+                          {classroom.isActive ? 'Active' : 'Inactive'}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Classroom Code:</span>
+                          <div className="flex items-center space-x-2">
+                            <code className="bg-gray-100 px-2 py-1 rounded text-sm font-mono">
+                              {classroom.code}
+                            </code>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                navigator.clipboard.writeText(classroom.code);
+                                toast({
+                                  title: "Copied!",
+                                  description: "Classroom code copied to clipboard",
+                                });
+                              }}
+                            >
+                              <Copy className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Students:</span>
+                          <div className="flex items-center space-x-1">
+                            <UserPlus className="w-4 h-4 text-gray-400" />
+                            <span className="text-sm font-medium">
+                              {classroom._count?.enrollments || 0}
+                              {classroom.maxStudents && ` / ${classroom.maxStudents}`}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="pt-2">
+                          <Button variant="outline" size="sm" className="w-full">
+                            Manage Students
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="text-center py-12">
+                  <Building2 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">No Classrooms Yet</h3>
+                  <p className="text-gray-600 mb-6">
+                    Create your first classroom to start managing students and tracking their progress.
+                  </p>
+                  <Button
+                    onClick={() => setIsCreateDialogOpen(true)}
+                    className="bg-gradient-to-r from-orange-600 to-yellow-600 hover:from-orange-700 hover:to-yellow-700"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create First Classroom
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="students" className="space-y-6">
