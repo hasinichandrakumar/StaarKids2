@@ -8,17 +8,18 @@ export function setupGoogleAuth(app: Express) {
   const redirectUri = "https://staarkids.org/api/auth/google/callback";
   
   console.log("Setting up Google OAuth with environment variables");
-  console.log("Client ID from env (trimmed):", `"${clientId}"`);
-  console.log("Client ID length:", clientId.length);
+  console.log("Client ID:", clientId);
+  console.log("Redirect URI:", redirectUri);
+  console.log("Exact redirect URI being used:", encodeURIComponent(redirectUri));
   
-  // Non-conflicting Google OAuth route
+  // Google OAuth login route
   app.get("/auth/google/login", (req, res) => {
-    console.log("=== GOOGLE OAUTH ROUTE ACCESSED (NON-CONFLICTING) ===");
+    console.log("=== GOOGLE OAUTH LOGIN ROUTE ===");
     
-    const baseUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
-    const authUrl = `${baseUrl}?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=profile%20email&access_type=offline&prompt=consent`;
+    const scope = encodeURIComponent("https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email");
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&access_type=offline&prompt=consent`;
     
-    console.log("OAuth URL:", authUrl);
+    console.log("Auth URL:", authUrl);
     res.redirect(authUrl);
   });
 
