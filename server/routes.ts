@@ -18,7 +18,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   setupGoogleAuth(app);
   
   // Clear any existing route handlers for Google OAuth and force override
-  const clientId = process.env.GOOGLE_CLIENT_ID_STAARKIDS!.trim();
+  const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
   const redirectUri = "https://staarkids.org/api/auth/google/callback";
   
   // Remove any existing Google OAuth routes
@@ -32,15 +32,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   }
   
-  // Add our clean Google OAuth route
-  app.get("/api/auth/google", (req, res) => {
-    console.log("=== CLEAN GOOGLE OAUTH ROUTE (FINAL) ===");
+  // Add our clean Google OAuth route with a completely different path
+  app.get("/api/google-auth", (req, res) => {
+    console.log("=== WORKING GOOGLE OAUTH ROUTE ===");
     console.log("Client ID:", `"${clientId}"`);
     
     const baseUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
     const authUrl = `${baseUrl}?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=profile%20email&access_type=offline&prompt=consent`;
     
-    console.log("Clean OAuth URL:", authUrl);
+    console.log("Working OAuth URL:", authUrl);
+    res.redirect(authUrl);
+  });
+  
+  // Also add to the conflicting route as backup
+  app.get("/api/auth/google", (req, res) => {
+    console.log("=== BACKUP GOOGLE OAUTH ROUTE ===");
+    console.log("Client ID:", `"${clientId}"`);
+    
+    const baseUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
+    const authUrl = `${baseUrl}?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=profile%20email&access_type=offline&prompt=consent`;
+    
+    console.log("Backup OAuth URL:", authUrl);
     res.redirect(authUrl);
   });
 
