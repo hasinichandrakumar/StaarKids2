@@ -454,6 +454,167 @@ Respond as Nova would, being helpful and encouraging while staying in character.
     }
   });
 
+  // Classroom code management routes
+  app.post('/api/classroom/create', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (user?.role !== 'teacher') {
+        return res.status(403).json({ message: "Only teachers can create classroom codes" });
+      }
+
+      const { className, grade, subject } = req.body;
+      
+      if (!className || !grade) {
+        return res.status(400).json({ message: "Classroom name and grade are required" });
+      }
+
+      const classroom = await storage.createClassroomCode({
+        teacherId: userId,
+        organizationId: user.organizationId,
+        className,
+        grade: parseInt(grade),
+        subject: subject || 'both',
+        isActive: true
+      });
+
+      res.json(classroom);
+    } catch (error) {
+      console.error("Error creating classroom code:", error);
+      res.status(500).json({ message: "Failed to create classroom code" });
+    }
+  });
+
+  app.get('/api/classroom/teacher', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (user?.role !== 'teacher') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const classrooms = await storage.getClassroomsByTeacher(userId);
+      res.json(classrooms);
+    } catch (error) {
+      console.error("Error fetching teacher classrooms:", error);
+      res.status(500).json({ message: "Failed to fetch classrooms" });
+    }
+  });
+
+  app.post('/api/classroom/join', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (user?.role !== 'student') {
+        return res.status(403).json({ message: "Only students can join classrooms" });
+      }
+
+      const { classroomCode } = req.body;
+      
+      if (!classroomCode) {
+        return res.status(400).json({ message: "Classroom code is required" });
+      }
+
+      const enrollment = await storage.joinClassroom(userId, classroomCode.toUpperCase());
+      res.json(enrollment);
+    } catch (error) {
+      console.error("Error joining classroom:", error);
+      if (error.message.includes('not found')) {
+        res.status(404).json({ message: "Invalid classroom code" });
+      } else if (error.message.includes('already enrolled')) {
+        res.status(409).json({ message: "Already enrolled in this classroom" });
+      } else {
+        res.status(500).json({ message: "Failed to join classroom" });
+      }
+    }
+  });
+
+  app.get('/api/classroom/student', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (user?.role !== 'student') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const classrooms = await storage.getStudentClassrooms(userId);
+      res.json(classrooms);
+    } catch (error) {
+      console.error("Error fetching student classrooms:", error);
+      res.status(500).json({ message: "Failed to fetch classrooms" });
+    }
+  });
+
+  // Parent-child linking routes
+  app.post('/api/parent/link-child', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (user?.role !== 'parent') {
+        return res.status(403).json({ message: "Only parents can link children" });
+      }
+
+      const { childEmail } = req.body;
+      
+      if (!childEmail) {
+        return res.status(400).json({ message: "Child's email is required" });
+      }
+
+      const relation = await storage.linkChildToParent(childEmail, userId);
+      res.json(relation);
+    } catch (error) {
+      console.error("Error linking child to parent:", error);
+      if (error.message.includes('not found')) {
+        res.status(404).json({ message: "Child account not found with this email" });
+      } else if (error.message.includes('not a student')) {
+        res.status(400).json({ message: "Account is not a student account" });
+      } else if (error.message.includes('already linked')) {
+        res.status(409).json({ message: "Child is already linked to this parent account" });
+      } else {
+        res.status(500).json({ message: "Failed to link child" });
+      }
+    }
+  });
+
+  app.get('/api/parent/children', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (user?.role !== 'parent') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const children = await storage.getChildrenByParent(userId);
+      res.json(children);
+    } catch (error) {
+      console.error("Error fetching children:", error);
+      res.status(500).json({ message: "Failed to fetch children" });
+    }
+  });
+
+  app.get('/api/parent/dashboard', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (user?.role !== 'parent') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const dashboardData = await storage.getParentDashboardData(userId);
+      res.json(dashboardData);
+    } catch (error) {
+      console.error("Error fetching parent dashboard data:", error);
+      res.status(500).json({ message: "Failed to fetch dashboard data" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -31,6 +31,12 @@ import {
   type InsertStudentParentRelation,
   type OrganizationStudentRelation,
   type InsertOrganizationStudentRelation,
+  classroomCodes,
+  type ClassroomCode,
+  type InsertClassroomCode,
+  classroomEnrollments,
+  type ClassroomEnrollment,
+  type InsertClassroomEnrollment,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, avg, count, sql } from "drizzle-orm";
@@ -735,6 +741,198 @@ export class DatabaseStorage implements IStorage {
     }
 
     return updatedUser;
+  }
+
+  // Classroom code operations
+  generateClassroomCode(): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 8; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
+
+  async createClassroomCode(classroom: InsertClassroomCode): Promise<ClassroomCode> {
+    let code = this.generateClassroomCode();
+    let attempts = 0;
+    while (attempts < 10) {
+      const existing = await this.getClassroomByCode(code);
+      if (!existing) break;
+      code = this.generateClassroomCode();
+      attempts++;
+    }
+
+    const [classroomCode] = await db
+      .insert(classroomCodes)
+      .values({
+        ...classroom,
+        code
+      })
+      .returning();
+    return classroomCode;
+  }
+
+  async getClassroomByCode(code: string): Promise<ClassroomCode | undefined> {
+    const [classroom] = await db
+      .select()
+      .from(classroomCodes)
+      .where(and(
+        eq(classroomCodes.code, code),
+        eq(classroomCodes.isActive, true)
+      ));
+    return classroom;
+  }
+
+  async getClassroomsByTeacher(teacherId: string): Promise<ClassroomCode[]> {
+    const classrooms = await db
+      .select()
+      .from(classroomCodes)
+      .where(and(
+        eq(classroomCodes.teacherId, teacherId),
+        eq(classroomCodes.isActive, true)
+      ))
+      .orderBy(desc(classroomCodes.createdAt));
+    return classrooms;
+  }
+
+  async joinClassroom(studentId: string, classroomCode: string): Promise<ClassroomEnrollment> {
+    const classroom = await this.getClassroomByCode(classroomCode);
+    if (!classroom) {
+      throw new Error('Classroom code not found');
+    }
+
+    const [existing] = await db
+      .select()
+      .from(classroomEnrollments)
+      .where(and(
+        eq(classroomEnrollments.studentId, studentId),
+        eq(classroomEnrollments.classroomId, classroom.id),
+        eq(classroomEnrollments.isActive, true)
+      ));
+
+    if (existing) {
+      throw new Error('Already enrolled in this classroom');
+    }
+
+    const [enrollment] = await db
+      .insert(classroomEnrollments)
+      .values({
+        studentId,
+        classroomId: classroom.id,
+        isActive: true
+      })
+      .returning();
+    return enrollment;
+  }
+
+  async getStudentClassrooms(studentId: string): Promise<ClassroomCode[]> {
+    const classrooms = await db
+      .select()
+      .from(classroomCodes)
+      .innerJoin(classroomEnrollments, eq(classroomCodes.id, classroomEnrollments.classroomId))
+      .where(and(
+        eq(classroomEnrollments.studentId, studentId),
+        eq(classroomEnrollments.isActive, true),
+        eq(classroomCodes.isActive, true)
+      ))
+      .orderBy(desc(classroomEnrollments.enrolledAt));
+    return classrooms.map(result => result.classroom_codes);
+  }
+
+  async linkChildToParent(childEmail: string, parentId: string): Promise<StudentParentRelation> {
+    const [child] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, childEmail));
+
+    if (!child) {
+      throw new Error('Child account not found with this email');
+    }
+
+    if (child.role !== 'student') {
+      throw new Error('Account is not a student account');
+    }
+
+    const [existing] = await db
+      .select()
+      .from(studentParentRelations)
+      .where(and(
+        eq(studentParentRelations.studentId, child.id),
+        eq(studentParentRelations.parentId, parentId),
+        eq(studentParentRelations.isActive, true)
+      ));
+
+    if (existing) {
+      throw new Error('Child is already linked to this parent account');
+    }
+
+    const [relation] = await db
+      .insert(studentParentRelations)
+      .values({
+        studentId: child.id,
+        parentId,
+        relationshipType: "parent",
+        isActive: true
+      })
+      .returning();
+    return relation;
+  }
+
+  async getChildrenByParent(parentId: string): Promise<User[]> {
+    return this.getStudentsByParent(parentId);
+  }
+
+  async getParentDashboardData(parentId: string): Promise<{
+    children: User[];
+    overallStats: any;
+    recentActivity: any[];
+  }> {
+    const children = await this.getChildrenByParent(parentId);
+    
+    const childIds = children.map(child => child.id);
+    if (childIds.length === 0) {
+      return {
+        children: [],
+        overallStats: { totalAttempts: 0, correctAttempts: 0, averageScore: 0 },
+        recentActivity: []
+      };
+    }
+
+    const overallStats = await db
+      .select({
+        totalAttempts: count(),
+        correctAttempts: sql<number>`SUM(CASE WHEN ${practiceAttempts.isCorrect} = true THEN 1 ELSE 0 END)`,
+      })
+      .from(practiceAttempts)
+      .where(sql`${practiceAttempts.userId} IN (${childIds.map(() => '?').join(',')})`, ...childIds);
+
+    const recentActivity = await db
+      .select({
+        userId: practiceAttempts.userId,
+        questionId: practiceAttempts.questionId,
+        isCorrect: practiceAttempts.isCorrect,
+        createdAt: practiceAttempts.createdAt,
+        subject: questions.subject,
+        grade: questions.grade
+      })
+      .from(practiceAttempts)
+      .innerJoin(questions, eq(practiceAttempts.questionId, questions.id))
+      .where(sql`${practiceAttempts.userId} IN (${childIds.map(() => '?').join(',')})`, ...childIds)
+      .orderBy(desc(practiceAttempts.createdAt))
+      .limit(20);
+
+    const stats = overallStats[0] || { totalAttempts: 0, correctAttempts: 0 };
+    const averageScore = stats.totalAttempts > 0 ? (stats.correctAttempts / stats.totalAttempts) * 100 : 0;
+
+    return {
+      children,
+      overallStats: {
+        ...stats,
+        averageScore
+      },
+      recentActivity
+    };
   }
 }
 
