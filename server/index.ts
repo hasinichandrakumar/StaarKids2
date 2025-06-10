@@ -78,6 +78,93 @@ app.get("/api/oauth-callback", async (req, res) => {
   }
 });
 
+// Add raw middleware to capture OAuth callback before body parsing
+app.use("/api/oauth-callback", (req, res, next) => {
+  console.log("=== RAW OAUTH CALLBACK MIDDLEWARE TRIGGERED ===");
+  console.log("Method:", req.method);
+  console.log("URL:", req.url);
+  console.log("Query:", req.query);
+  
+  if (req.method === "GET") {
+    // Handle the OAuth callback directly here
+    const { code, error } = req.query;
+    
+    if (error) {
+      console.error("OAuth error:", error);
+      return res.redirect("/?error=oauth_error");
+    }
+    
+    if (!code) {
+      console.error("No authorization code received");
+      return res.redirect("/?error=no_code");
+    }
+
+    // Process OAuth callback
+    (async () => {
+      try {
+        const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
+        const clientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.trim();
+        const redirectUri = "https://staarkids.org/api/oauth-callback";
+
+        console.log("Starting token exchange...");
+        
+        // Exchange code for tokens
+        const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            client_id: clientId,
+            client_secret: clientSecret,
+            code: code as string,
+            grant_type: "authorization_code",
+            redirect_uri: redirectUri,
+          }),
+        });
+
+        const tokens = await tokenResponse.json();
+        console.log("Token response status:", tokenResponse.status);
+        
+        if (!tokenResponse.ok) {
+          console.error("Token exchange failed:", tokens);
+          return res.redirect("/?error=token_exchange_failed");
+        }
+
+        // Get user info
+        const userResponse = await fetch(
+          "https://www.googleapis.com/oauth2/v2/userinfo",
+          {
+            headers: {
+              Authorization: `Bearer ${tokens.access_token}`,
+            },
+          }
+        );
+
+        const googleUser = await userResponse.json();
+        console.log("Google user info received for:", googleUser.email);
+        
+        if (!userResponse.ok) {
+          console.error("Failed to get user info:", googleUser);
+          return res.redirect("/?error=user_info_failed");
+        }
+
+        // For now, redirect with success and user email
+        console.log("OAuth flow completed successfully!");
+        res.redirect("/?auth=success&user=" + encodeURIComponent(googleUser.email));
+        
+      } catch (error) {
+        console.error("OAuth callback error:", error);
+        res.redirect("/?error=callback_error");
+      }
+    })();
+    
+    return; // Don't call next()
+  }
+  
+  next();
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
