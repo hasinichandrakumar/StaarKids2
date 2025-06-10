@@ -87,9 +87,15 @@ export async function setupAuth(app: Express) {
 
   // Google OAuth Strategy - use StaarKids specific credentials
   
+  // Use the correct Google OAuth credentials - hardcode the known working values
+  const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.replace(/\s+/g, '');
+  
+  console.log("Using Google Client ID:", clientId);
+  
   const googleStrategy = new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID_STAARKIDS!,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!,
+    clientID: clientId,
+    clientSecret: clientSecret,
     callbackURL: "/api/auth/google/callback"
   },
   async (accessToken, refreshToken, profile, done) => {
