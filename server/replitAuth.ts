@@ -90,9 +90,11 @@ export async function setupAuth(app: Express) {
   const googleStrategy = new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID_STAARKIDS!,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!,
-    callbackURL: "https://staarkids.org/api/auth/google/callback"
+    callbackURL: "/api/auth/google/callback"
   },
   async (accessToken, refreshToken, profile, done) => {
+    console.log("Google OAuth strategy callback executed");
+    console.log("Profile received:", profile);
     try {
       await storage.upsertUser({
         id: profile.id,
@@ -109,8 +111,10 @@ export async function setupAuth(app: Express) {
         lastName: profile.name?.familyName,
       };
       
+      console.log("User created/updated successfully:", user);
       return done(null, user);
     } catch (error) {
+      console.error("Error in Google OAuth strategy:", error);
       return done(error as Error, false);
     }
   });
@@ -135,17 +139,36 @@ export async function setupAuth(app: Express) {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   // Google OAuth routes
-  app.get("/api/auth/google", 
-    passport.authenticate("google", { scope: ["profile", "email"] })
-  );
+  app.get("/api/auth/google", (req, res, next) => {
+    console.log("Starting Google OAuth flow");
+    passport.authenticate("google", { scope: ["profile", "email"] })(req, res, next);
+  });
 
-  app.get("/api/auth/google/callback", 
-    passport.authenticate("google", { failureRedirect: "/" }),
-    (req, res) => {
-      // Successful authentication, redirect to dashboard
-      res.redirect("/");
-    }
-  );
+  app.get("/api/auth/google/callback", (req, res, next) => {
+    console.log("Google OAuth callback received");
+    passport.authenticate("google", { 
+      failureRedirect: "/" 
+    }, (err, user, info) => {
+      console.log("OAuth callback result:", { err, user, info });
+      if (err) {
+        console.error("OAuth error:", err);
+        return res.redirect("/?error=oauth_error");
+      }
+      if (!user) {
+        console.log("No user returned from OAuth");
+        return res.redirect("/?error=auth_failed");
+      }
+      
+      req.logIn(user, (err) => {
+        if (err) {
+          console.error("Login error:", err);
+          return res.redirect("/?error=login_failed");
+        }
+        console.log("User successfully logged in:", user);
+        res.redirect("/");
+      });
+    })(req, res, next);
+  });
 
   app.get("/api/login", (req, res, next) => {
     passport.authenticate(`replitauth:${req.hostname}`, {
