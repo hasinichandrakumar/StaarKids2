@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import express, { type Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
@@ -869,6 +869,97 @@ Respond as Nova would, being helpful and encouraging while staying in character.
     } catch (error) {
       console.error("Error fetching parent dashboard data:", error);
       res.status(500).json({ message: "Failed to fetch dashboard data" });
+    }
+  });
+
+  // OAuth processing endpoint
+  app.post("/api/oauth/process", async (req, res) => {
+    console.log("=== PROCESSING OAUTH CODE ===");
+    const { code } = req.body;
+    
+    if (!code) {
+      console.error("No authorization code provided");
+      return res.json({ success: false, error: "no_code" });
+    }
+
+    try {
+      const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
+      const clientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.trim();
+      const redirectUri = "https://staarkids.org/oauth-callback.html";
+
+      console.log("Starting token exchange with Google...");
+      
+      // Exchange code for tokens
+      const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          client_id: clientId,
+          client_secret: clientSecret,
+          code: code,
+          grant_type: "authorization_code",
+          redirect_uri: redirectUri,
+        }),
+      });
+
+      const tokens = await tokenResponse.json();
+      console.log("Token response status:", tokenResponse.status);
+      
+      if (!tokenResponse.ok) {
+        console.error("Token exchange failed:", tokens);
+        return res.json({ success: false, error: "token_exchange_failed" });
+      }
+
+      console.log("Getting user info from Google...");
+      // Get user info
+      const userResponse = await fetch(
+        "https://www.googleapis.com/oauth2/v2/userinfo",
+        {
+          headers: {
+            Authorization: `Bearer ${tokens.access_token}`,
+          },
+        }
+      );
+
+      const googleUser = await userResponse.json();
+      console.log("Google user info received for:", googleUser.email);
+      
+      if (!userResponse.ok) {
+        console.error("Failed to get user info:", googleUser);
+        return res.json({ success: false, error: "user_info_failed" });
+      }
+
+      // Store user in database
+      console.log("Creating/updating user in database...");
+      const user = await storage.upsertUser({
+        id: googleUser.id,
+        email: googleUser.email,
+        firstName: googleUser.given_name || googleUser.name?.split(' ')[0] || '',
+        lastName: googleUser.family_name || googleUser.name?.split(' ').slice(1).join(' ') || '',
+        profileImageUrl: googleUser.picture,
+      });
+      
+      console.log("User stored successfully:", user.email);
+
+      // Create session for the user
+      const session = req.session as any;
+      session.userId = user.id;
+      session.googleUser = googleUser;
+      
+      console.log("OAuth flow completed successfully!");
+      
+      res.json({ 
+        success: true, 
+        email: googleUser.email,
+        name: googleUser.name || '',
+        userId: user.id
+      });
+      
+    } catch (error) {
+      console.error("OAuth processing error:", error);
+      res.json({ success: false, error: "processing_failed" });
     }
   });
 
