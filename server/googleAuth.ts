@@ -29,7 +29,7 @@ export function setupGoogleAuth(app: Express) {
   };
   
   // Remove conflicting routes before adding our handlers
-  forceOverrideRoute('/api/auth/google/callback', 'get');
+  forceOverrideRoute('/api/google/callback', 'get');
   
   // Google OAuth login route
   app.get("/auth/google/login", (req, res) => {
@@ -55,6 +55,9 @@ export function setupGoogleAuth(app: Express) {
 
   app.get("/api/google/callback", async (req, res) => {
     console.log("=== GOOGLE OAUTH CALLBACK REACHED ===");
+    console.log("Method:", req.method);
+    console.log("URL:", req.url);
+    console.log("Path:", req.path);
     console.log("Query params:", req.query);
     console.log("Session ID:", req.sessionID);
     console.log("Session before auth:", req.session);

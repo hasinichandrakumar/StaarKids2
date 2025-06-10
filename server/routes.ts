@@ -9,24 +9,13 @@ import { z } from "zod";
 export async function registerRoutes(app: Express): Promise<Server> {
   console.log("Registering routes...");
   
-  // Setup Google OAuth BEFORE Replit auth to avoid conflicts
-  console.log("Setting up Google OAuth routes...");
-  setupGoogleAuth(app);
-  
   // Auth middleware (Replit auth)
   console.log("Setting up Replit auth...");
   await setupAuth(app);
   
-  // Remove any existing Google OAuth routes by clearing all routes and re-adding them
-  if (app._router && app._router.stack) {
-    // Store non-Google OAuth routes
-    const keepRoutes = app._router.stack.filter((layer: any) => {
-      return !(layer.route && layer.route.path === '/api/auth/google');
-    });
-    
-    console.log(`Removed ${app._router.stack.length - keepRoutes.length} conflicting Google OAuth routes`);
-    app._router.stack = keepRoutes;
-  }
+  // Setup Google OAuth AFTER Replit auth and force override conflicts
+  console.log("Setting up Google OAuth routes after Replit auth...");
+  setupGoogleAuth(app);
   
   // Add our clean Google OAuth route with a completely different path
   app.get("/api/google-auth", (req, res) => {
