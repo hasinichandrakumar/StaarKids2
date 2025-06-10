@@ -2,24 +2,23 @@ import type { Express } from "express";
 import { storage } from "./storage";
 
 export function setupGoogleAuth(app: Express) {
-  const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
-  const clientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.replace(/\s+/g, '');
+  // Use the correct environment variable and trim any whitespace
+  const clientId = process.env.GOOGLE_CLIENT_ID_STAARKIDS!.trim();
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.trim();
   const redirectUri = "https://staarkids.org/api/auth/google/callback";
   
-  console.log("Setting up Google OAuth with clean implementation");
-  console.log("Current environment secrets check:");
-  console.log("- CLIENT_ID_STAARKIDS exists:", !!process.env.GOOGLE_CLIENT_ID_STAARKIDS);
-  console.log("- CLIENT_SECRET_STAARKIDS exists:", !!process.env.GOOGLE_CLIENT_SECRET_STAARKIDS);
+  console.log("Setting up Google OAuth with environment variables");
+  console.log("Client ID from env (trimmed):", `"${clientId}"`);
+  console.log("Client ID length:", clientId.length);
   
-  // Use a different route path to completely avoid conflicts
+  // Use a clean route path
   app.get("/api/oauth/google", (req, res) => {
-    console.log("=== ALTERNATIVE GOOGLE OAUTH ROUTE ACCESSED ===");
-    console.log("Client ID:", `"${clientId}"`);
+    console.log("=== GOOGLE OAUTH ROUTE ACCESSED ===");
     
     const baseUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
     const authUrl = `${baseUrl}?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=profile%20email&access_type=offline&prompt=consent`;
     
-    console.log("Clean OAuth URL:", authUrl);
+    console.log("OAuth URL:", authUrl);
     res.redirect(authUrl);
   });
 
