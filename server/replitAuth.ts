@@ -87,15 +87,15 @@ export async function setupAuth(app: Express) {
 
   // Google OAuth Strategy - use StaarKids specific credentials
   
-  // Use the correct Google OAuth credentials - hardcode the known working values
-  const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
-  const clientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.replace(/\s+/g, '');
+  // Use the correct Google OAuth credentials
+  const googleClientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
+  const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.replace(/\s+/g, '');
   
-  console.log("Using Google Client ID:", clientId);
+  console.log("Configuring Google OAuth with Client ID:", googleClientId);
   
   const googleStrategy = new GoogleStrategy({
-    clientID: clientId,
-    clientSecret: clientSecret,
+    clientID: googleClientId,
+    clientSecret: googleClientSecret,
     callbackURL: "/api/auth/google/callback"
   },
   async (accessToken, refreshToken, profile, done) => {
@@ -127,6 +127,8 @@ export async function setupAuth(app: Express) {
 
   passport.use('google', googleStrategy);
 
+  // Temporarily disable Replit auth to isolate Google OAuth issue
+  /*
   for (const domain of process.env
     .REPLIT_DOMAINS!.split(",")) {
     const strategy = new Strategy(
@@ -140,15 +142,15 @@ export async function setupAuth(app: Express) {
     );
     passport.use(strategy);
   }
+  */
 
   passport.serializeUser((user: Express.User, cb) => cb(null, user));
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   // Google OAuth routes
-  app.get("/api/auth/google", (req, res, next) => {
-    console.log("Starting Google OAuth flow");
-    passport.authenticate("google", { scope: ["profile", "email"] })(req, res, next);
-  });
+  app.get("/api/auth/google", 
+    passport.authenticate("google", { scope: ["profile", "email"] })
+  );
 
   app.get("/api/auth/google/callback", (req, res, next) => {
     console.log("Google OAuth callback received");
