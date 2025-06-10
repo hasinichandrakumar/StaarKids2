@@ -19,5 +19,6 @@ export function useAuth() {
     isLoading,
     isAuthenticated: !!user,
     login,
+    loginWithGoogle,
   };
 }

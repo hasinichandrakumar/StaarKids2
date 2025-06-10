@@ -6,9 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { Star, BookOpen, Calculator, Trophy, Target, Zap, ArrowRight, CheckCircle, CheckCircle2, Users, Award, Play, Brain, Lightbulb, TrendingUp } from "lucide-react";
 import { useLocation } from "wouter";
 import InteractiveDemo from "@/components/InteractiveDemo";
+import { FaGoogle } from "react-icons/fa";
 
 export default function Landing() {
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   const [_, setLocation] = useLocation();
   const [animatedCount, setAnimatedCount] = useState(0);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
@@ -151,17 +152,27 @@ export default function Landing() {
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Button
-                onClick={handleLogin}
-                className="text-white px-8 py-4 text-lg font-semibold rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200 hover:opacity-90"
-                style={{
-                  background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)'
-                }}
-              >
-                <Play className="w-5 h-5 mr-2" />
-                Start Learning Free
-              </Button>
+            <div className="flex flex-col gap-4 justify-center mb-12">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button
+                  onClick={loginWithGoogle}
+                  className="bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 px-8 py-4 text-lg font-semibold rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200"
+                >
+                  <FaGoogle className="w-5 h-5 mr-2 text-red-500" />
+                  Sign in with Google
+                </Button>
+                <Button
+                  onClick={handleLogin}
+                  className="text-white px-8 py-4 text-lg font-semibold rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200 hover:opacity-90"
+                  style={{
+                    background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)'
+                  }}
+                >
+                  <Play className="w-5 h-5 mr-2" />
+                  Start Learning Free
+                </Button>
+              </div>
+              <p className="text-sm text-gray-500">Free account • No credit card required</p>
               <Button
                 variant="outline"
                 className="border-2 px-8 py-4 text-lg font-semibold rounded-2xl hover:bg-opacity-10"
@@ -547,13 +558,22 @@ export default function Landing() {
             <p className="text-gray-600 mb-6">
               This is just a small sample. Get access to thousands more questions!
             </p>
-            <Button
-              onClick={handleLogin}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200"
-            >
-              <Play className="w-5 h-5 mr-2" />
-              Start Your Free Account
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button
+                onClick={loginWithGoogle}
+                className="bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 px-8 py-3 text-lg font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200"
+              >
+                <FaGoogle className="w-5 h-5 mr-2 text-red-500" />
+                Sign in with Google
+              </Button>
+              <Button
+                onClick={handleLogin}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200"
+              >
+                <Play className="w-5 h-5 mr-2" />
+                Start Your Free Account
+              </Button>
+            </div>
           </div>
         </div>
       </section>
@@ -629,14 +649,23 @@ export default function Landing() {
             Join thousands of students already improving their scores with StaarKids
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <Button
-              onClick={handleLogin}
-              className="bg-white text-orange-600 hover:bg-gray-100 px-8 py-4 text-lg font-semibold rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200"
-            >
-              <Award className="w-5 h-5 mr-2" />
-              Start Learning Free
-            </Button>
+          <div className="flex flex-col gap-4 justify-center mb-8">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button
+                onClick={loginWithGoogle}
+                className="bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 px-8 py-4 text-lg font-semibold rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200"
+              >
+                <FaGoogle className="w-5 h-5 mr-2 text-red-500" />
+                Sign in with Google
+              </Button>
+              <Button
+                onClick={handleLogin}
+                className="bg-white text-orange-600 hover:bg-gray-100 px-8 py-4 text-lg font-semibold rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-200"
+              >
+                <Award className="w-5 h-5 mr-2" />
+                Start Learning Free
+              </Button>
+            </div>
             <Button
               variant="outline"
               onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
