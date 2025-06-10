@@ -13,6 +13,15 @@ export default {
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        // Brand colors
+        orange: {
+          600: "#FF5B00", // Bright orange
+          700: "#E64D00", // Darker orange for hovers
+        },
+        yellow: {
+          500: "#FCC201", // Golden yellow
+          600: "#E6B001", // Darker yellow for hovers
+        },
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",

@@ -85,11 +85,11 @@ export async function setupAuth(app: Express) {
     verified(null, user);
   };
 
-  // Google OAuth Strategy
+  // Google OAuth Strategy - always use the production domain
   passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID!,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    callbackURL: `https://${process.env.REPLIT_DOMAINS?.split(',')[0]}/api/auth/google/callback`
+    callbackURL: "https://staarkids.org/api/auth/google/callback"
   },
   async (accessToken, refreshToken, profile, done) => {
     try {
