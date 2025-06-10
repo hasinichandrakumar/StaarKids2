@@ -18,18 +18,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   setupGoogleAuth(app);
   
   // Clear any existing route handlers for Google OAuth and force override
-  const clientId = process.env.GOOGLE_CLIENT_ID!.trim();
+  const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
   const redirectUri = "https://staarkids.org/api/auth/google/callback";
   
-  // Remove any existing Google OAuth routes
+  // Remove any existing Google OAuth routes by clearing all routes and re-adding them
   if (app._router && app._router.stack) {
-    app._router.stack = app._router.stack.filter((layer: any) => {
-      if (layer.route && layer.route.path === '/api/auth/google') {
-        console.log("Removing conflicting Google OAuth route");
-        return false;
-      }
-      return true;
+    // Store non-Google OAuth routes
+    const keepRoutes = app._router.stack.filter((layer: any) => {
+      return !(layer.route && layer.route.path === '/api/auth/google');
     });
+    
+    console.log(`Removed ${app._router.stack.length - keepRoutes.length} conflicting Google OAuth routes`);
+    app._router.stack = keepRoutes;
   }
   
   // Add our clean Google OAuth route with a completely different path
