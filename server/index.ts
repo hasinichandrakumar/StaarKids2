@@ -2,7 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { createServer, type IncomingMessage, type ServerResponse } from "http";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { startOAuthCallbackServer } from "./oauthCallbackServer";
+
 import { URL } from "url";
 
 const app = express();
@@ -246,9 +246,6 @@ async function handleOAuthCallback(req: IncomingMessage, res: ServerResponse) {
 }
 
 async function main() {
-  // Start dedicated OAuth callback server on port 3001
-  startOAuthCallbackServer();
-  
   const expressServer = await registerRoutes(app);
 
   // Create raw HTTP server that intercepts OAuth callbacks before Express
