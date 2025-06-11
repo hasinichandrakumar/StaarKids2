@@ -113,7 +113,7 @@ function extractQuestionPatterns(pdfContents: any[], subject: string): QuestionP
 
 function generateQuestionFromPattern(
   grade: number,
-  subject: string,
+  subject: "math" | "reading",
   pattern: QuestionPattern,
   options: { category?: string; teksStandard?: string }
 ): InsertQuestion {
@@ -340,8 +340,13 @@ function generateGradeAppropriateQuestions(
 }
 
 function getRandomTeksStandard(grade: number, subject: "math" | "reading"): string {
-  const standards = AUTHENTIC_TEKS_STANDARDS[grade as keyof typeof AUTHENTIC_TEKS_STANDARDS]?.[subject] || [];
-  return standards[Math.floor(Math.random() * standards.length)] || `${grade}.1A`;
+  const gradeStandards = AUTHENTIC_TEKS_STANDARDS[grade as keyof typeof AUTHENTIC_TEKS_STANDARDS];
+  if (!gradeStandards) return `${grade}.1A`;
+  
+  const subjectStandards = gradeStandards[subject];
+  if (!subjectStandards || !Array.isArray(subjectStandards)) return `${grade}.1A`;
+  
+  return subjectStandards[Math.floor(Math.random() * subjectStandards.length)] || `${grade}.1A`;
 }
 
 function getDefaultCategory(subject: "math" | "reading"): string {

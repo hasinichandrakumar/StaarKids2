@@ -241,12 +241,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid grade or subject" });
       }
 
-      const { generateUnlimitedQuestions } = await import("./unlimitedQuestionGenerator");
+      const { generatePatternBasedQuestions } = await import("./patternBasedGenerator");
       
-      const questions = await generateUnlimitedQuestions(grade, subject, Math.min(count, 20), {
+      const questions = await generatePatternBasedQuestions(grade, subject, Math.min(count, 20), {
         category,
-        teksStandard,
-        includeVisual
+        teksStandard
       });
 
       res.json({ questions, generated: questions.length });
@@ -265,10 +264,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid grade or subject" });
       }
 
-      const { generateMixedPracticeSet } = await import("./unlimitedQuestionGenerator");
+      const { generatePatternBasedQuestions } = await import("./patternBasedGenerator");
+      const { getHomepageAuthenticQuestions } = await import("./populateAuthenticQuestions");
       
-      const result = await generateMixedPracticeSet(grade, subject, count);
-      res.json(result);
+      // Mix authentic questions with pattern-based generated ones
+      const authenticQuestions = getHomepageAuthenticQuestions()
+        .filter(q => q.grade === grade && q.subject === subject)
+        .slice(0, Math.floor(count / 2));
+
+      const generatedQuestions = await generatePatternBasedQuestions(
+        grade,
+        subject,
+        Math.ceil(count / 2)
+      );
+
+      const allQuestions = [...authenticQuestions, ...generatedQuestions].slice(0, count);
+      
+      // Shuffle the questions
+      for (let i = allQuestions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [allQuestions[i], allQuestions[j]] = [allQuestions[j], allQuestions[i]];
+      }
+
+      res.json({
+        questions: allQuestions,
+        metadata: {
+          total: allQuestions.length,
+          authentic: authenticQuestions.length,
+          generated: generatedQuestions.length,
+          grade,
+          subject
+        }
+      });
     } catch (error) {
       console.error("Error generating practice set:", error);
       res.status(500).json({ message: "Failed to generate practice set" });
