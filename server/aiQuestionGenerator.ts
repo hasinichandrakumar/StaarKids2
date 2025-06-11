@@ -326,9 +326,10 @@ function formatAnswerChoices(choices: string[]): string[] {
 }
 
 function getRandomTeksStandard(grade: number, subject: "math" | "reading", category?: string): string {
-  const standards = AUTHENTIC_TEKS_STANDARDS[grade]?.[subject] || [];
+  const gradeStandards = AUTHENTIC_TEKS_STANDARDS[grade as keyof typeof AUTHENTIC_TEKS_STANDARDS];
+  const standards = gradeStandards?.[subject] || [];
   if (category && standards.length > 0) {
-    const categoryStandards = standards.filter(std => std.includes(category.slice(0, 3)));
+    const categoryStandards = standards.filter((std: any) => std.includes(category.slice(0, 3)));
     if (categoryStandards.length > 0) {
       return categoryStandards[Math.floor(Math.random() * categoryStandards.length)];
     }

@@ -62,6 +62,9 @@ export const questions = pgTable("questions", {
   difficulty: varchar("difficulty").default("medium"), // easy, medium, hard
   category: varchar("category"), // Question category for organization
   year: integer("year"), // STAAR test year
+  isFromRealSTAAR: boolean("is_from_real_staar").default(false),
+  hasImage: boolean("has_image").default(false),
+  imageDescription: text("image_description"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

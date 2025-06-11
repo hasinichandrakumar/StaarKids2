@@ -117,23 +117,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { grade, subject, category, limit = "10" } = req.query;
       const { db } = await import("./db");
       const { questions } = await import("@shared/schema");
-      const { eq } = await import("drizzle-orm");
+      const { eq, and } = await import("drizzle-orm");
       
-      let query = db.select().from(questions);
+      const conditions = [];
       
       if (grade) {
-        query = query.where(eq(questions.grade, parseInt(grade as string)));
+        conditions.push(eq(questions.grade, parseInt(grade as string)));
       }
       
       if (subject) {
-        query = query.where(eq(questions.subject, subject as string));
+        conditions.push(eq(questions.subject, subject as string));
       }
       
       if (category) {
-        query = query.where(eq(questions.category, category as string));
+        conditions.push(eq(questions.category, category as string));
       }
       
-      const result = await query.limit(parseInt(limit as string));
+      const result = await (() => {
+        let query = db.select().from(questions);
+        
+        if (conditions.length > 0) {
+          query = query.where(conditions.length === 1 ? conditions[0] : and(...conditions));
+        }
+        
+        return query.limit(parseInt(limit as string));
+      })();
       res.json(result);
       
     } catch (error) {
@@ -1005,11 +1013,12 @@ Respond as Nova would, being helpful and encouraging while staying in character.
       res.json(relation);
     } catch (error) {
       console.error("Error linking child to parent:", error);
-      if (error.message.includes('not found')) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      if (errorMessage.includes('not found')) {
         res.status(404).json({ message: "Child account not found with this email" });
-      } else if (error.message.includes('not a student')) {
+      } else if (errorMessage.includes('not a student')) {
         res.status(400).json({ message: "Account is not a student account" });
-      } else if (error.message.includes('already linked')) {
+      } else if (errorMessage.includes('already linked')) {
         res.status(409).json({ message: "Child is already linked to this parent account" });
       } else {
         res.status(500).json({ message: "Failed to link child" });
