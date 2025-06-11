@@ -81,7 +81,7 @@ export default function StarPowerDashboard() {
         <CardContent>
           <div className="flex items-center space-x-2">
             <Star className="w-6 h-6 text-orange-500 fill-current" />
-            <span className="text-2xl font-bold text-orange-800">{stats.allTimeStarPower.toLocaleString()}</span>
+            <span className="text-2xl font-bold text-orange-800">{(stats.allTimeStarPower || 0).toLocaleString()}</span>
           </div>
           <p className="text-xs text-orange-600 mt-1">Total starpower earned</p>
         </CardContent>
