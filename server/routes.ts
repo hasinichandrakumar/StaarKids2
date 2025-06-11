@@ -241,13 +241,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid grade or subject" });
       }
 
-      const { generateAuthenticSTAARQuestion } = await import("./aiQuestionGenerator");
+      const { generateQuestionFromPDFContent } = await import("./pdfBasedQuestionGenerator");
       
-      const questions = await generateAuthenticSTAARQuestion(grade, subject, {
-        teksStandard,
+      const questions = await generateQuestionFromPDFContent(grade, subject, {
+        count: Math.min(count, 20), // Allow up to 20 questions per request
         category,
-        includeVisual,
-        count: Math.min(count, 20) // Allow up to 20 questions per request
+        teksStandard,
+        includeVisual
       });
 
       res.json({ questions, generated: questions.length });
@@ -266,31 +266,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid grade or subject" });
       }
 
-      const { generateQuestionWithOpenAI, getRandomTeksStandard, getTeksCategories } = await import("./questionGenerator");
+      const { generateDiverseQuestionSet } = await import("./pdfBasedQuestionGenerator");
       const { getHomepageAuthenticQuestions } = await import("./populateAuthenticQuestions");
       
-      // Mix authentic questions with AI-generated ones
+      // Mix authentic questions with PDF-based AI-generated ones
       const authenticQuestions = getHomepageAuthenticQuestions()
         .filter(q => q.grade === grade && q.subject === subject)
         .slice(0, Math.floor(count / 2));
 
-      const aiQuestions = [];
-      const categories = getTeksCategories(grade, subject);
-      
-      for (let i = 0; i < Math.ceil(count / 2); i++) {
-        const randomCategory = categories[Math.floor(Math.random() * categories.length)];
-        const randomTeks = getRandomTeksStandard(grade, subject, randomCategory);
-        
-        const aiQuestion = await generateQuestionWithOpenAI(
-          grade,
-          subject,
-          randomTeks,
-          randomCategory
-        );
-        aiQuestions.push(aiQuestion);
-      }
+      // Generate questions based on PDF patterns and content
+      const pdfBasedQuestions = await generateDiverseQuestionSet(
+        grade,
+        subject,
+        Math.ceil(count / 2)
+      );
 
-      const allQuestions = [...authenticQuestions, ...aiQuestions].slice(0, count);
+      const allQuestions = [...authenticQuestions, ...pdfBasedQuestions].slice(0, count);
       
       // Shuffle the questions
       for (let i = allQuestions.length - 1; i > 0; i--) {
