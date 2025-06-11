@@ -48,25 +48,22 @@ export default function Dashboard() {
   // Use demo data when in demo mode, otherwise use authenticated user data
   const currentUser = isDemo ? demoUser : user;
   
+  // In demo mode, skip loading state
   if (!isDemo && isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your dashboard...</p>
+          <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading dashboard...</p>
         </div>
       </div>
     );
   }
-
-  if (!isDemo && !user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600">Please log in to access your dashboard.</p>
-        </div>
-      </div>
-    );
+  
+  // If not in demo mode and not authenticated, show loading or redirect
+  if (!isDemo && (!user && !isLoading)) {
+    window.location.href = '/';
+    return null;
   }
 
   // Handle role-based dashboard routing - default to student if no role specified

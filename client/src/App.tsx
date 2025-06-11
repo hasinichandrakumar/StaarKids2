@@ -11,16 +11,20 @@ import NotFound from "@/pages/not-found";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
+  
+  // Check if demo mode is enabled
+  const isDemo = typeof window !== 'undefined' && localStorage.getItem('demoMode') === 'true';
 
   return (
     <Switch>
-      {isLoading || !isAuthenticated ? (
+      <Route path="/dashboard">
+        <Dashboard />
+      </Route>
+      <Route path="/exam/:examId" component={ExamPage} />
+      {(isLoading || (!isAuthenticated && !isDemo)) ? (
         <Route path="/" component={Landing} />
       ) : (
-        <>
-          <Route path="/" component={Dashboard} />
-          <Route path="/exam/:examId" component={ExamPage} />
-        </>
+        <Route path="/" component={Dashboard} />
       )}
       <Route component={NotFound} />
     </Switch>
