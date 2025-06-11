@@ -169,6 +169,17 @@ export default function Landing() {
             {/* Navigation Buttons */}
             <div className="flex items-center space-x-4">
               <Button
+                onClick={() => {
+                  // Set demo mode and go to dashboard directly
+                  localStorage.setItem('demoMode', 'true');
+                  window.location.href = '/dashboard';
+                }}
+                variant="outline"
+                className="text-orange-600 border-orange-600 hover:bg-orange-50 font-medium"
+              >
+                Try Dashboard
+              </Button>
+              <Button
                 onClick={handleLogin}
                 variant="ghost"
                 className="text-gray-600 hover:text-orange-600"

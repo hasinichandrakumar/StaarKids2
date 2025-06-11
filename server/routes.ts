@@ -115,6 +115,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/questions", async (req, res) => {
     try {
       const { grade, subject, category, limit = "10" } = req.query;
+      const { db } = await import("./db");
+      const { questions } = await import("@shared/schema");
+      const { eq } = await import("drizzle-orm");
       
       let query = db.select().from(questions);
       
