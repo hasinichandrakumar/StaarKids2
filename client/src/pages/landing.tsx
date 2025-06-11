@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, BookOpen, Calculator, Trophy, Target, Zap, ArrowRight, CheckCircle, CheckCircle2, Users, Award, Play, Brain, Lightbulb, TrendingUp } from "lucide-react";
+import { Star, BookOpen, Calculator, Trophy, Target, Zap, ArrowRight, CheckCircle, CheckCircle2, Users, Award, Play, Brain, Lightbulb, TrendingUp, Eye } from "lucide-react";
 import { useLocation } from "wouter";
 import InteractiveDemo from "@/components/InteractiveDemo";
 import { FaGoogle } from "react-icons/fa";
@@ -352,14 +352,32 @@ export default function Landing() {
               
               <div className="text-center mt-8">
                 <p className="text-gray-600 mb-4">Want to practice with thousands more questions?</p>
-                <Button
-                  className="px-8 py-3 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200"
-                  style={{ background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)' }}
-                  onClick={handleLogin}
-                >
-                  Start Practicing Free
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                  <Button
+                    className="px-8 py-3 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200"
+                    style={{ background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)' }}
+                    onClick={handleLogin}
+                  >
+                    Start Practicing Free
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="px-8 py-3 font-semibold rounded-2xl border-2 hover:bg-gray-50 transition-all duration-200"
+                    style={{ 
+                      borderColor: '#FF5B00', 
+                      color: '#FF5B00'
+                    }}
+                    onClick={() => {
+                      // Set demo mode in localStorage and redirect
+                      localStorage.setItem('demoMode', 'true');
+                      window.location.href = '/dashboard';
+                    }}
+                  >
+                    Try Demo
+                    <Eye className="w-5 h-5 ml-2" />
+                  </Button>
+                </div>
               </div>
             </div>
 

@@ -18,8 +18,21 @@ import RoleSelector from "@/components/RoleSelector";
 import ParentDashboard from "@/components/ParentDashboard";
 import TeacherDashboard from "@/components/TeacherDashboard";
 
-export default function Dashboard() {
+export default function Dashboard({ isDemo = false }: { isDemo?: boolean }) {
   const { user, isLoading } = useAuth();
+  
+  // Demo user data when in demo mode
+  const demoUser = {
+    id: "demo-user",
+    email: "demo@staarkids.org",
+    firstName: "Demo",
+    lastName: "Student",
+    profileImageUrl: null,
+    starPower: 1250,
+    role: "student",
+    grade: 4,
+    rank: "Explorer"
+  };
   const [selectedGrade, setSelectedGrade] = useState(4);
   const [activeTab, setActiveTab] = useState("practice");
   const [showAvatarModal, setShowAvatarModal] = useState(false);
@@ -29,7 +42,10 @@ export default function Dashboard() {
   const [practiceSubject, setPracticeSubject] = useState<"math" | "reading">("math");
   const [practiceCategory, setPracticeCategory] = useState<string | undefined>(undefined);
 
-  if (isLoading) {
+  // Use demo data when in demo mode, otherwise use authenticated user data
+  const currentUser = isDemo ? demoUser : user;
+  
+  if (!isDemo && isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -40,7 +56,7 @@ export default function Dashboard() {
     );
   }
 
-  if (!user) {
+  if (!isDemo && !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -51,7 +67,7 @@ export default function Dashboard() {
   }
 
   // Handle role-based dashboard routing - default to student if no role specified
-  const userRole = user && typeof user === 'object' && 'role' in user ? (user as any).role : 'student';
+  const userRole = currentUser && typeof currentUser === 'object' && 'role' in currentUser ? (currentUser as any).role : 'student';
   
   if (!userRole || userRole === 'new') {
     return (
