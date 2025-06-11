@@ -232,6 +232,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // AI Question Generation API
+  app.post("/api/questions/generate", async (req, res) => {
+    try {
+      const { grade, subject, count = 1, category, teksStandard, includeVisual = false } = req.body;
+      
+      if (![3, 4, 5].includes(grade) || !["math", "reading"].includes(subject)) {
+        return res.status(400).json({ message: "Invalid grade or subject" });
+      }
+
+      const { generateAuthenticSTAARQuestion } = await import("./aiQuestionGenerator");
+      
+      const questions = await generateAuthenticSTAARQuestion(grade, subject, {
+        teksStandard,
+        category,
+        includeVisual,
+        count: Math.min(count, 20) // Allow up to 20 questions per request
+      });
+
+      res.json({ questions, generated: questions.length });
+    } catch (error) {
+      console.error("Error generating questions:", error);
+      res.status(500).json({ message: "Failed to generate questions" });
+    }
+  });
+
+  // Generate practice set with mixed questions
+  app.post("/api/practice/generate", async (req, res) => {
+    try {
+      const { grade, subject, count = 5, difficulty = "mixed" } = req.body;
+      
+      if (![3, 4, 5].includes(grade) || !["math", "reading"].includes(subject)) {
+        return res.status(400).json({ message: "Invalid grade or subject" });
+      }
+
+      const { generateQuestionWithOpenAI, getRandomTeksStandard, getTeksCategories } = await import("./questionGenerator");
+      const { getHomepageAuthenticQuestions } = await import("./populateAuthenticQuestions");
+      
+      // Mix authentic questions with AI-generated ones
+      const authenticQuestions = getHomepageAuthenticQuestions()
+        .filter(q => q.grade === grade && q.subject === subject)
+        .slice(0, Math.floor(count / 2));
+
+      const aiQuestions = [];
+      const categories = getTeksCategories(grade, subject);
+      
+      for (let i = 0; i < Math.ceil(count / 2); i++) {
+        const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+        const randomTeks = getRandomTeksStandard(grade, subject, randomCategory);
+        
+        const aiQuestion = await generateQuestionWithOpenAI(
+          grade,
+          subject,
+          randomTeks,
+          randomCategory
+        );
+        aiQuestions.push(aiQuestion);
+      }
+
+      const allQuestions = [...authenticQuestions, ...aiQuestions].slice(0, count);
+      
+      // Shuffle the questions
+      for (let i = allQuestions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [allQuestions[i], allQuestions[j]] = [allQuestions[j], allQuestions[i]];
+      }
+
+      res.json({ 
+        questions: allQuestions,
+        metadata: {
+          total: allQuestions.length,
+          authentic: authenticQuestions.length,
+          aiGenerated: aiQuestions.length,
+          grade,
+          subject
+        }
+      });
+    } catch (error) {
+      console.error("Error generating practice set:", error);
+      res.status(500).json({ message: "Failed to generate practice set" });
+    }
+  });
+
   // Add test route to verify routing works
   app.get("/test-route", (req, res) => {
     console.log("=== TEST ROUTE REACHED ===");
