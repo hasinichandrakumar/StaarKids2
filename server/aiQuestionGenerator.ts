@@ -326,15 +326,31 @@ function formatAnswerChoices(choices: string[]): string[] {
 }
 
 function getRandomTeksStandard(grade: number, subject: "math" | "reading", category?: string): string {
-  const gradeStandards = AUTHENTIC_TEKS_STANDARDS[grade as keyof typeof AUTHENTIC_TEKS_STANDARDS];
-  const standards = gradeStandards?.[subject] || [];
-  if (category && standards.length > 0) {
-    const categoryStandards = standards.filter((std: any) => std.includes(category.slice(0, 3)));
-    if (categoryStandards.length > 0) {
-      return categoryStandards[Math.floor(Math.random() * categoryStandards.length)];
+  try {
+    const gradeStandards = AUTHENTIC_TEKS_STANDARDS[grade as keyof typeof AUTHENTIC_TEKS_STANDARDS];
+    if (!gradeStandards) return `${grade}.1A`;
+    
+    const subjectStandards = gradeStandards[subject];
+    if (!subjectStandards) return `${grade}.1A`;
+    
+    // Convert category standards to flat array
+    const allStandards: string[] = [];
+    for (const categoryStandards of Object.values(subjectStandards as any)) {
+      if (Array.isArray(categoryStandards)) {
+        allStandards.push(...categoryStandards.filter(std => typeof std === 'string'));
+      }
     }
+    
+    if (category && allStandards.length > 0) {
+      const categoryStandards = allStandards.filter((std: string) => std.includes(category.slice(0, 3)));
+      if (categoryStandards.length > 0) {
+        return categoryStandards[Math.floor(Math.random() * categoryStandards.length)];
+      }
+    }
+    return allStandards[Math.floor(Math.random() * allStandards.length)] || `${grade}.1A`;
+  } catch (error) {
+    return `${grade}.1A`;
   }
-  return standards[Math.floor(Math.random() * standards.length)] || `${grade}.1A`;
 }
 
 function getDefaultCategory(subject: "math" | "reading"): string {
@@ -398,4 +414,3 @@ function generateFallbackQuestion(grade: number, subject: "math" | "reading", te
   };
 }
 
-export { generateMathVisualQuestion, generateReadingPassageQuestion };
