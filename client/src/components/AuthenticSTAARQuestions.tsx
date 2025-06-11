@@ -21,7 +21,7 @@ interface AuthenticQuestion {
 export default function AuthenticSTAARQuestions() {
   const [selectedAnswers, setSelectedAnswers] = useState<{ [key: number]: string }>({});
 
-  const { data: questions, isLoading } = useQuery({
+  const { data: questions = [], isLoading } = useQuery<AuthenticQuestion[]>({
     queryKey: ["/api/sample-questions"],
   });
 
@@ -59,7 +59,7 @@ export default function AuthenticSTAARQuestions() {
     );
   }
 
-  if (!questions || questions.length === 0) {
+  if (!Array.isArray(questions) || questions.length === 0) {
     return (
       <div className="text-center py-8">
         <p className="text-gray-600">No questions available at the moment.</p>
@@ -163,7 +163,7 @@ export default function AuthenticSTAARQuestions() {
                           : "border-blue-200 hover:bg-blue-100"
                       }`}
                       onClick={() => handleAnswerSelect(question.id, choiceLetter)}
-                      disabled={showResult}
+                      disabled={!!showResult}
                     >
                       <span className={`font-medium mr-3 ${
                         showResult && isThisCorrect ? "text-green-700" :

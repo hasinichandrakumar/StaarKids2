@@ -276,37 +276,6 @@ export default function Landing() {
               </p>
               <AuthenticSTAARQuestions />
             </div>
-              
-              <div className="text-center mt-8">
-                <p className="text-gray-600 mb-4">Want to practice with thousands more questions?</p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                  <Button
-                    className="px-8 py-3 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200"
-                    style={{ background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)' }}
-                    onClick={handleLogin}
-                  >
-                    Start Practicing Free
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="px-8 py-3 font-semibold rounded-2xl border-2 hover:bg-gray-50 transition-all duration-200"
-                    style={{ 
-                      borderColor: '#FF5B00', 
-                      color: '#FF5B00'
-                    }}
-                    onClick={() => {
-                      // Set demo mode in localStorage and redirect
-                      localStorage.setItem('demoMode', 'true');
-                      window.location.href = '/dashboard';
-                    }}
-                  >
-                    Try Demo
-                    <Eye className="w-5 h-5 ml-2" />
-                  </Button>
-                </div>
-              </div>
-            </div>
 
             {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 mt-16">
