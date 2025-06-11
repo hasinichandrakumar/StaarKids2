@@ -18,8 +18,11 @@ import RoleSelector from "@/components/RoleSelector";
 import ParentDashboard from "@/components/ParentDashboard";
 import TeacherDashboard from "@/components/TeacherDashboard";
 
-export default function Dashboard({ isDemo = false }: { isDemo?: boolean }) {
+export default function Dashboard() {
   const { user, isLoading } = useAuth();
+  
+  // Check if demo mode is enabled via localStorage
+  const isDemo = typeof window !== 'undefined' && localStorage.getItem('demoMode') === 'true';
   
   // Demo user data when in demo mode
   const demoUser = {
@@ -70,21 +73,26 @@ export default function Dashboard({ isDemo = false }: { isDemo?: boolean }) {
   const userRole = currentUser && typeof currentUser === 'object' && 'role' in currentUser ? (currentUser as any).role : 'student';
   
   if (!userRole || userRole === 'new') {
-    return (
-      <RoleSelector 
-        onRoleSelected={() => window.location.reload()} 
-        currentUser={user as any} 
-      />
-    );
+    // Skip role selection in demo mode
+    if (isDemo) {
+      // Continue with student dashboard
+    } else {
+      return (
+        <RoleSelector 
+          onRoleSelected={() => window.location.reload()} 
+          currentUser={user as any} 
+        />
+      );
+    }
   }
 
   // Parent dashboard
-  if (userRole === 'parent') {
+  if (userRole === 'parent' && !isDemo) {
     return <ParentDashboard user={user as any} />;
   }
 
   // Teacher dashboard
-  if (userRole === 'teacher') {
+  if (userRole === 'teacher' && !isDemo) {
     return <TeacherDashboard user={user as any} />;
   }
 
@@ -98,15 +106,31 @@ export default function Dashboard({ isDemo = false }: { isDemo?: boolean }) {
 
   return (
     <div className="min-h-screen">
+      {/* Demo mode indicator */}
+      {isDemo && (
+        <div className="bg-gradient-to-r from-orange-400 to-yellow-500 text-white px-4 py-2 text-center text-sm font-semibold">
+          🎯 Demo Mode - Exploring StaarKids Platform
+          <button 
+            className="ml-4 underline hover:no-underline"
+            onClick={() => {
+              localStorage.removeItem('demoMode');
+              window.location.href = '/';
+            }}
+          >
+            Exit Demo
+          </button>
+        </div>
+      )}
+      
       <Header 
-        user={user as any} 
+        user={currentUser as any} 
         onOpenAvatarModal={() => setShowAvatarModal(true)}
         onOpenNovaChat={() => setShowNovaChat(true)}
         onOpenSettings={() => setShowSettingsModal(true)}
       />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <WelcomeSection user={user as any} />
+        <WelcomeSection user={currentUser as any} />
         
         <QuickStatsOverview grade={selectedGrade} />
         
