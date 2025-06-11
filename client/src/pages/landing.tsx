@@ -87,7 +87,7 @@ export default function Landing() {
   const stats = [
     { value: "15,000+", label: "Students Served" },
     { value: "95%", label: "Test Score Improvement" },
-    { value: "2013-2024", label: "Authentic STAAR Questions" }
+    { value: "2013-2025", label: "Authentic STAAR Questions" }
   ];
 
   const features = [
@@ -327,7 +327,7 @@ export default function Landing() {
                       background: isReadingFeature
                         ? 'linear-gradient(135deg, #FCC201 0%, #FF5B00 100%)'
                         : isProgressTracking
-                          ? `linear-gradient(135deg, #DAA520, ${feature.color})`
+                          ? 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)'
                         : (isMathFeature || isMockExams)
                           ? 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)'
                           : 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)'
@@ -351,7 +351,7 @@ export default function Landing() {
                   <span style={{ color: '#FF5B00' }}>Math Mastery</span> Made Simple
                 </h4>
                 <p className="text-lg text-gray-600 mb-6">
-                  Practice with authentic STAAR Math questions from 2013-2024, covering all grade levels 3-5. 
+                  Practice with authentic STAAR Math questions from 2013-2025, covering all grade levels 3-5. 
                   Our AI-powered system adapts to your learning pace and identifies areas for improvement.
                 </p>
                 <div className="space-y-4">
