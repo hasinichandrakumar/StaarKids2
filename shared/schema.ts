@@ -60,6 +60,7 @@ export const questions = pgTable("questions", {
   correctAnswer: varchar("correct_answer").notNull(),
   explanation: text("explanation"),
   difficulty: varchar("difficulty").default("medium"), // easy, medium, hard
+  category: varchar("category"), // Question category for organization
   year: integer("year"), // STAAR test year
   createdAt: timestamp("created_at").defaultNow(),
 });
