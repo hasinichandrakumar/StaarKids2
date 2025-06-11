@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Star, BookOpen, Calculator, Trophy, Target, Zap, ArrowRight, CheckCircle, CheckCircle2, Users, Award, Play, Brain, Lightbulb, TrendingUp, Eye } from "lucide-react";
 import { useLocation } from "wouter";
 import InteractiveDemo from "@/components/InteractiveDemo";
+import AuthenticSTAARQuestions from "@/components/AuthenticSTAARQuestions";
 import { FaGoogle } from "react-icons/fa";
 
 export default function Landing() {
@@ -265,90 +266,16 @@ export default function Landing() {
               <p className="text-sm text-gray-500">Free account • No credit card required</p>
             </div>
 
-            {/* Sample Questions Preview */}
+            {/* Authentic STAAR Questions Preview */}
             <div className="mt-16 mb-16">
               <h3 className="text-2xl font-bold text-center text-gray-900 mb-8">
-                Try Real STAAR Questions
+                Try Authentic STAAR Questions
               </h3>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Math Question 1 */}
-                <div className="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-2xl p-6 border border-orange-100">
-                  <div className="flex items-center mb-4">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center mr-3" style={{ background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)' }}>
-                      <Calculator className="w-4 h-4 text-white" />
-                    </div>
-                    <span className="text-sm font-semibold text-orange-700">Grade 4 Math • TEKS 4.2E</span>
-                  </div>
-                  <p className="text-gray-800 font-medium mb-4">
-                    The model below is shaded to represent 1 4/100. Which decimal does the model represent?
-                  </p>
-                  <div className="space-y-2">
-                    {["1.04", "1.4", "14.0", "1.004"].map((choice, idx) => (
-                      <button 
-                        key={idx}
-                        className="w-full text-left p-3 rounded-lg border border-orange-200 hover:bg-orange-100 transition-colors"
-                        onClick={handleLogin}
-                      >
-                        <span className="font-medium text-orange-700 mr-3">{String.fromCharCode(65 + idx)}.</span>
-                        {choice}
-                      </button>
-                    ))}
-                  </div>
-                  <p className="text-xs text-gray-500 mt-3">Sign in to see the answer and explanation</p>
-                </div>
-
-                {/* Math Question 2 */}
-                <div className="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-2xl p-6 border border-orange-100">
-                  <div className="flex items-center mb-4">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center mr-3" style={{ background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)' }}>
-                      <Calculator className="w-4 h-4 text-white" />
-                    </div>
-                    <span className="text-sm font-semibold text-orange-700">Grade 3 Math • TEKS 3.4E</span>
-                  </div>
-                  <p className="text-gray-800 font-medium mb-4">
-                    Belinda made 5 gallons of fruit punch for a party. There are 8 pints in each gallon of punch. Which expression is in the same fact family as 8 × 5 = 40?
-                  </p>
-                  <div className="space-y-2">
-                    {["5 × 40", "8 + 5", "40 ÷ 8", "40 − 8"].map((choice, idx) => (
-                      <button 
-                        key={idx}
-                        className="w-full text-left p-3 rounded-lg border border-orange-200 hover:bg-orange-100 transition-colors"
-                        onClick={handleLogin}
-                      >
-                        <span className="font-medium text-orange-700 mr-3">{String.fromCharCode(65 + idx)}.</span>
-                        {choice}
-                      </button>
-                    ))}
-                  </div>
-                  <p className="text-xs text-gray-500 mt-3">Sign in to see the answer and explanation</p>
-                </div>
-
-                {/* Reading Question */}
-                <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl p-6 border border-yellow-100">
-                  <div className="flex items-center mb-4">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center mr-3" style={{ background: 'linear-gradient(135deg, #FCC201 0%, #FF5B00 100%)' }}>
-                      <BookOpen className="w-4 h-4 text-white" />
-                    </div>
-                    <span className="text-sm font-semibold text-yellow-700">Grade 5 Reading • TEKS 5.6D</span>
-                  </div>
-                  <p className="text-gray-800 font-medium mb-4">
-                    Based on the selection, what kind of person is Roddy?
-                  </p>
-                  <div className="space-y-2">
-                    {["determined", "impatient", "generous", "careless"].map((choice, idx) => (
-                      <button 
-                        key={idx}
-                        className="w-full text-left p-3 rounded-lg border border-yellow-200 hover:bg-yellow-100 transition-colors"
-                        onClick={handleLogin}
-                      >
-                        <span className="font-medium text-yellow-700 mr-3">{String.fromCharCode(65 + idx)}.</span>
-                        {choice}
-                      </button>
-                    ))}
-                  </div>
-                  <p className="text-xs text-gray-500 mt-3">Sign in to see the answer and explanation</p>
-                </div>
-              </div>
+              <p className="text-center text-gray-600 mb-8">
+                Practice with real questions from official STAAR tests (2013-2019)
+              </p>
+              <AuthenticSTAARQuestions />
+            </div>
               
               <div className="text-center mt-8">
                 <p className="text-gray-600 mb-4">Want to practice with thousands more questions?</p>

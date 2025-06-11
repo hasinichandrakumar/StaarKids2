@@ -99,6 +99,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get authentic STAAR questions for homepage
+  app.get("/api/sample-questions", async (req, res) => {
+    try {
+      const { getHomepageAuthenticQuestions } = await import("./populateAuthenticQuestions");
+      const authenticQuestions = getHomepageAuthenticQuestions();
+      res.json(authenticQuestions);
+    } catch (error) {
+      console.error("Error fetching authentic STAAR questions:", error);
+      res.status(500).json({ message: "Failed to fetch sample questions" });
+    }
+  });
+
+  // Get SVG diagrams for questions with visual elements
+  app.get("/api/question-svg/:questionId", async (req, res) => {
+    try {
+      const { getQuestionSVG } = await import("./svgGenerator");
+      const { getHomepageAuthenticQuestions } = await import("./populateAuthenticQuestions");
+      
+      const questionId = parseInt(req.params.questionId);
+      const questions = getHomepageAuthenticQuestions();
+      const question = questions.find(q => q.id === questionId);
+      
+      if (!question) {
+        return res.status(404).json({ message: "Question not found" });
+      }
+      
+      if (!question.hasImage) {
+        return res.status(404).json({ message: "Question has no visual elements" });
+      }
+      
+      const svg = getQuestionSVG(
+        question.questionText, 
+        question.imageDescription, 
+        question.grade, 
+        question.year
+      );
+      
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.send(svg);
+    } catch (error) {
+      console.error("Error generating question SVG:", error);
+      res.status(500).json({ message: "Failed to generate diagram" });
+    }
+  });
+
   // Add test route to verify routing works
   app.get("/test-route", (req, res) => {
     console.log("=== TEST ROUTE REACHED ===");
