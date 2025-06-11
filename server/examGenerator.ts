@@ -1,4 +1,4 @@
-import { generateQuestionWithPerplexity, getRandomTeksStandard, TEKS_STANDARDS } from './questionGenerator';
+import { generateQuestionWithOpenAI, getRandomTeksStandard, TEKS_STANDARDS } from './questionGenerator';
 import { storage } from './storage';
 import { InsertMockExam } from '../shared/schema';
 
@@ -100,7 +100,7 @@ export async function generateFullMockExam(grade: number, subject: "math" | "rea
       if (questionsGenerated >= questionCount) break;
       
       try {
-        const questionData = await generateQuestionWithPerplexity(grade, subject, teksStandard, category);
+        const questionData = await generateQuestionWithOpenAI(grade, subject, teksStandard, category);
         const savedQuestion = await storage.createQuestion(questionData);
         generatedQuestions.push(savedQuestion);
         questionsGenerated++;
@@ -121,7 +121,7 @@ export async function generateFullMockExam(grade: number, subject: "math" | "rea
   while (questionsGenerated < questionCount) {
     try {
       const randomTeks = getRandomTeksStandard(grade, subject);
-      const questionData = await generateQuestionWithPerplexity(grade, subject, randomTeks);
+      const questionData = await generateQuestionWithOpenAI(grade, subject, randomTeks);
       const savedQuestion = await storage.createQuestion(questionData);
       generatedQuestions.push(savedQuestion);
       questionsGenerated++;
