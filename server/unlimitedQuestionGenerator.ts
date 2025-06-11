@@ -130,8 +130,6 @@ Return only JSON:
       category: questionCategory,
       difficulty: "medium",
       year: new Date().getFullYear(),
-      hasImage: questionData.hasImage || includeVisual || false,
-      imageDescription: questionData.imageDescription || null,
       explanation: questionData.explanation
     };
 
@@ -303,8 +301,7 @@ function generateFallbackQuestions(grade: number, subject: "math" | "reading", c
       category: getDefaultCategory(subject),
       difficulty: "medium",
       year: new Date().getFullYear(),
-      hasImage: false,
-      imageDescription: null,
+
       explanation: "Authentic STAAR-style question"
     });
   }
@@ -312,4 +309,4 @@ function generateFallbackQuestions(grade: number, subject: "math" | "reading", c
   return questions;
 }
 
-export { generateMixedPracticeSet };
+// Main exports already defined above
