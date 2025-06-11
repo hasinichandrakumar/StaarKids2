@@ -187,6 +187,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Demo mode routes - provide sample data without authentication
+  app.get("/api/demo/stats", (req, res) => {
+    res.json({
+      totalQuestions: 245,
+      correctAnswers: 189,
+      accuracy: 77,
+      streak: 5,
+      timeSpent: 3420,
+      recentSessions: 12,
+      mathAccuracy: 75,
+      readingAccuracy: 80,
+      weeklyProgress: [65, 70, 72, 75, 77, 80, 77]
+    });
+  });
+
+  app.get("/api/demo/star-power/stats", (req, res) => {
+    res.json({
+      currentStarPower: 1250,
+      totalEarned: 3420,
+      rank: "Explorer",
+      nextRankThreshold: 1500,
+      dailyGoal: 50,
+      dailyProgress: 35,
+      achievements: ["First Victory", "Math Master", "Reading Champion"],
+      weeklyStats: [45, 60, 55, 70, 65, 75, 35]
+    });
+  });
+
+  app.get("/api/demo/accuracy", (req, res) => {
+    res.json({
+      overall: 77,
+      math: 75,
+      reading: 80,
+      recent: [70, 75, 80, 77, 82, 75, 78],
+      byCategory: {
+        "Number & Operations": 78,
+        "Geometry": 72,
+        "Measurement": 80,
+        "Data Analysis": 75,
+        "Comprehension": 82,
+        "Vocabulary": 76
+      }
+    });
+  });
+
   // Add test route to verify routing works
   app.get("/test-route", (req, res) => {
     console.log("=== TEST ROUTE REACHED ===");
