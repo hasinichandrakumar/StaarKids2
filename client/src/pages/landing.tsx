@@ -237,18 +237,30 @@ export default function Landing() {
             <div className="text-center mb-8">
               <p className="text-lg text-gray-600 mb-6">Available for Students, Parents, and Teachers</p>
               <div className="flex flex-wrap gap-3 justify-center mb-6">
-                <Badge className="bg-orange-100 text-orange-700 px-4 py-2 text-sm font-medium">
+                <Button
+                  variant="ghost" 
+                  className="bg-orange-100 text-orange-700 px-4 py-2 text-sm font-medium hover:bg-orange-200 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md"
+                  onClick={handleLogin}
+                >
                   <BookOpen className="w-4 h-4 mr-2" />
                   Student Practice
-                </Badge>
-                <Badge className="bg-green-100 text-green-700 px-4 py-2 text-sm font-medium">
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="bg-green-100 text-green-700 px-4 py-2 text-sm font-medium hover:bg-green-200 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md"
+                  onClick={handleLogin}
+                >
                   <Users className="w-4 h-4 mr-2" />
                   Parent Monitoring
-                </Badge>
-                <Badge className="bg-purple-100 text-purple-700 px-4 py-2 text-sm font-medium">
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="bg-purple-100 text-purple-700 px-4 py-2 text-sm font-medium hover:bg-purple-200 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md"
+                  onClick={handleLogin}
+                >
                   <Award className="w-4 h-4 mr-2" />
                   Teacher Management
-                </Badge>
+                </Button>
               </div>
               <p className="text-sm text-gray-500">Free account • No credit card required</p>
             </div>
