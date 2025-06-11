@@ -265,24 +265,7 @@ export default function Landing() {
               <p className="text-sm text-gray-500">Free account • No credit card required</p>
             </div>
 
-            <Button
-              variant="outline"
-              className="border-2 px-8 py-4 text-lg font-semibold rounded-2xl hover:bg-opacity-10"
-              style={{ 
-                borderColor: '#FF5B00', 
-                color: '#FF5B00',
-                backgroundColor: 'transparent'
-              }}
-              onClick={() => {
-                const featuresSection = document.getElementById('features');
-                if (featuresSection) {
-                  featuresSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-              }}
-            >
-              Explore Features
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
+
 
             {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 mt-16">
