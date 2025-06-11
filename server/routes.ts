@@ -241,10 +241,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid grade or subject" });
       }
 
-      const { generateQuestionFromPDFContent } = await import("./pdfBasedQuestionGenerator");
+      const { generateUnlimitedQuestions } = await import("./unlimitedQuestionGenerator");
       
-      const questions = await generateQuestionFromPDFContent(grade, subject, {
-        count: Math.min(count, 20), // Allow up to 20 questions per request
+      const questions = await generateUnlimitedQuestions(grade, subject, Math.min(count, 20), {
         category,
         teksStandard,
         includeVisual
@@ -266,39 +265,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid grade or subject" });
       }
 
-      const { generateDiverseQuestionSet } = await import("./pdfBasedQuestionGenerator");
-      const { getHomepageAuthenticQuestions } = await import("./populateAuthenticQuestions");
+      const { generateMixedPracticeSet } = await import("./unlimitedQuestionGenerator");
       
-      // Mix authentic questions with PDF-based AI-generated ones
-      const authenticQuestions = getHomepageAuthenticQuestions()
-        .filter(q => q.grade === grade && q.subject === subject)
-        .slice(0, Math.floor(count / 2));
-
-      // Generate questions based on PDF patterns and content
-      const pdfBasedQuestions = await generateDiverseQuestionSet(
-        grade,
-        subject,
-        Math.ceil(count / 2)
-      );
-
-      const allQuestions = [...authenticQuestions, ...pdfBasedQuestions].slice(0, count);
-      
-      // Shuffle the questions
-      for (let i = allQuestions.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [allQuestions[i], allQuestions[j]] = [allQuestions[j], allQuestions[i]];
-      }
-
-      res.json({ 
-        questions: allQuestions,
-        metadata: {
-          total: allQuestions.length,
-          authentic: authenticQuestions.length,
-          aiGenerated: aiQuestions.length,
-          grade,
-          subject
-        }
-      });
+      const result = await generateMixedPracticeSet(grade, subject, count);
+      res.json(result);
     } catch (error) {
       console.error("Error generating practice set:", error);
       res.status(500).json({ message: "Failed to generate practice set" });

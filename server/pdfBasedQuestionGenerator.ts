@@ -391,4 +391,4 @@ function generateFallbackFromPDF(grade: number, subject: "math" | "reading", cat
   };
 }
 
-export { analyzeQuestionPatterns, generateDiverseQuestionSet };
+// Main exports already defined above
