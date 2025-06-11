@@ -111,6 +111,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get questions from database with filtering
+  app.get("/api/questions", async (req, res) => {
+    try {
+      const { grade, subject, category, limit = "10" } = req.query;
+      
+      let query = db.select().from(questions);
+      
+      if (grade) {
+        query = query.where(eq(questions.grade, parseInt(grade as string)));
+      }
+      
+      if (subject) {
+        query = query.where(eq(questions.subject, subject as string));
+      }
+      
+      if (category) {
+        query = query.where(eq(questions.category, category as string));
+      }
+      
+      const result = await query.limit(parseInt(limit as string));
+      res.json(result);
+      
+    } catch (error) {
+      console.error("Error fetching questions from database:", error);
+      res.status(500).json({ message: "Failed to fetch questions" });
+    }
+  });
+
+  // Get question bank statistics
+  app.get("/api/questions/stats", async (req, res) => {
+    try {
+      const { getQuestionBankStats } = await import("./initializeQuestionBank");
+      const stats = await getQuestionBankStats();
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching question bank stats:", error);
+      res.status(500).json({ message: "Failed to fetch statistics" });
+    }
+  });
+
   // Get SVG diagrams for questions with visual elements
   app.get("/api/question-svg/:questionId", async (req, res) => {
     try {
@@ -231,6 +271,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   }
   
+  // Initialize authentic STAAR question bank
+  const { initializeAuthenticQuestionBank } = await import("./initializeQuestionBank");
+  await initializeAuthenticQuestionBank();
+
   // Auth middleware (Replit auth)
   console.log("Setting up Replit auth...");
   await setupAuth(app);
