@@ -133,13 +133,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         conditions.push(eq(questions.category, category as string));
       }
       
-      let baseQuery = db.select().from(questions);
-      
-      if (conditions.length > 0) {
-        baseQuery = baseQuery.where(conditions.length === 1 ? conditions[0] : and(...conditions));
-      }
-      
-      const result = await baseQuery.limit(parseInt(limit as string));
+      const result = await db.select().from(questions)
+        .where(conditions.length > 0 ? (conditions.length === 1 ? conditions[0] : and(...conditions)) : undefined)
+        .limit(parseInt(limit as string)) as any;
       res.json(result);
       
     } catch (error) {
