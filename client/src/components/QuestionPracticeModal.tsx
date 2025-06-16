@@ -69,7 +69,21 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
 
   const submitAnswerMutation = useMutation({
     mutationFn: async (attemptData: any) => {
-      await apiRequest("POST", "/api/practice/attempt", attemptData);
+      try {
+        // Try authenticated endpoint first
+        await apiRequest("POST", "/api/practice/attempt", attemptData);
+      } catch (error: any) {
+        // If authentication fails, use demo endpoint
+        if (error.status === 401) {
+          await fetch("/api/demo/practice/attempt", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(attemptData)
+          });
+        } else {
+          throw error;
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });

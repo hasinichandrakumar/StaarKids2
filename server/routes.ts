@@ -484,6 +484,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Demo mode practice attempt - no authentication required
+  app.post('/api/demo/practice/attempt', async (req, res) => {
+    try {
+      const { questionId, selectedAnswer, isCorrect, timeSpent, hintsUsed } = req.body;
+      
+      // Return mock response for demo mode
+      res.json({
+        id: Math.floor(Math.random() * 10000),
+        questionId,
+        selectedAnswer,
+        isCorrect,
+        timeSpent: timeSpent || 30,
+        hintsUsed: hintsUsed || 0,
+        createdAt: new Date().toISOString(),
+        message: "Demo practice attempt recorded"
+      });
+    } catch (error) {
+      console.error("Error in demo practice attempt:", error);
+      res.status(500).json({ message: "Failed to record demo practice attempt" });
+    }
+  });
+
   // Practice attempt routes
   app.post('/api/practice/attempt', isAuthenticated, async (req: any, res) => {
     try {
