@@ -260,7 +260,7 @@ export default function ExamPage() {
                   onClick={() => handleAnswerSelect(currentQuestionIndex, choice.id)}
                   className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 ${
                     selectedAnswers[currentQuestionIndex] === choice.id
-                      ? "border-blue-500 bg-blue-50 text-blue-700"
+                      ? "border-orange-300 bg-orange-50 text-orange-800 hover:bg-orange-100"
                       : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
                   }`}
                 >

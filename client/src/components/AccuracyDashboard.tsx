@@ -199,7 +199,7 @@ export default function AccuracyDashboard({ selectedGrade }: AccuracyDashboardPr
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {math.teksStandardStats.length > 0 ? (
+            {math.teksStandardStats && math.teksStandardStats.length > 0 ? (
               <div className="space-y-3">
                 {math.teksStandardStats.slice(0, 5).map((teks, index) => (
                   <div key={index} className="space-y-1">

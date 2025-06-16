@@ -158,9 +158,13 @@ export default function AuthenticSTAARQuestions() {
                             : isThisSelected
                             ? "bg-red-100 border-red-300 text-red-800"
                             : "bg-gray-50 border-gray-200"
+                          : isThisSelected
+                          ? question.subject === "math"
+                            ? "border-orange-300 bg-orange-50 text-orange-800"
+                            : "border-blue-300 bg-blue-50 text-blue-800"
                           : question.subject === "math"
-                          ? "border-orange-200 hover:bg-orange-100"
-                          : "border-blue-200 hover:bg-blue-100"
+                          ? "border-orange-200 hover:bg-orange-50"
+                          : "border-blue-200 hover:bg-blue-50"
                       }`}
                       onClick={() => handleAnswerSelect(question.id, choiceLetter)}
                       disabled={!!showResult}

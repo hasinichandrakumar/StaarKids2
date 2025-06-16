@@ -72,16 +72,24 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
       try {
         // Try authenticated endpoint first
         await apiRequest("POST", "/api/practice/attempt", attemptData);
+        return { success: true, authenticated: true };
       } catch (error: any) {
         // If authentication fails, use demo endpoint
         if (error.status === 401) {
-          await fetch("/api/demo/practice/attempt", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(attemptData)
-          });
+          try {
+            await fetch("/api/demo/practice/attempt", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(attemptData)
+            });
+            return { success: true, authenticated: false };
+          } catch (demoError) {
+            console.log("Demo practice attempt failed:", demoError);
+            return { success: false, error: "Demo practice failed" };
+          }
         } else {
-          throw error;
+          console.log("Practice attempt failed:", error);
+          return { success: false, error: error.message };
         }
       }
     },
@@ -301,8 +309,8 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
                 } else {
                   // Before answer submission - normal selection styling
                   if (selectedAnswer === choice.id) {
-                    buttonStyle = "border-primary bg-primary bg-opacity-10";
-                    textStyle = "text-primary";
+                    buttonStyle = "border-orange-300 bg-orange-50 hover:bg-orange-100";
+                    textStyle = "text-orange-800";
                   } else {
                     buttonStyle = "border-gray-200 hover:border-gray-300 hover:bg-gray-50";
                     textStyle = "text-gray-700";
