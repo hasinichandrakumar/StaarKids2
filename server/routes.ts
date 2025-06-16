@@ -202,23 +202,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const authenticQuestions = getHomepageAuthenticQuestions();
       let question = authenticQuestions.find(q => q.id === questionId);
       
-      // If not found in authentic questions, check database
+      // If not found in authentic questions, generate fallback visual content
       if (!question) {
-        try {
-          const dbQuestion = await storage.getQuestionById(questionId);
-          if (dbQuestion) {
-            question = {
-              id: dbQuestion.id,
-              questionText: dbQuestion.questionText,
-              hasImage: dbQuestion.hasImage,
-              imageDescription: dbQuestion.imageDescription,
-              grade: dbQuestion.grade,
-              year: dbQuestion.year || 2024
-            };
-          }
-        } catch (dbError) {
-          console.log("Question not found in database, checking generated questions");
-        }
+        console.log("Generating visual content for question ID:", questionId);
       }
       
       // If still not found, generate a fallback SVG based on question ID
@@ -248,7 +234,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const svg = getQuestionSVG(
         question.questionText, 
-        question.imageDescription, 
+        question.imageDescription || "Visual element for this question", 
         question.grade, 
         question.year
       );

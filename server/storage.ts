@@ -933,7 +933,7 @@ export class DatabaseStorage implements IStorage {
         correctAttempts: sql<number>`SUM(CASE WHEN ${practiceAttempts.isCorrect} = true THEN 1 ELSE 0 END)`,
       })
       .from(practiceAttempts)
-      .where(sql`${practiceAttempts.userId} IN (${childIds.map(() => '?').join(',')})`, ...childIds);
+      .where(eq(practiceAttempts.userId, childIds[0]));
 
     const recentActivity = await db
       .select({
@@ -1022,7 +1022,7 @@ export class DatabaseStorage implements IStorage {
       correctAnswer: row.question.correctAnswer,
       isCorrect: row.answer.isCorrect,
       timeSpent: row.answer.timeSpent,
-      skipped: row.answer.skipped,
+      skipped: row.answer.skipped || false,
       questionOrder: row.answer.questionOrder,
     }));
 

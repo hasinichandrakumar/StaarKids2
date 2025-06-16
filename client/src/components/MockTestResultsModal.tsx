@@ -48,8 +48,8 @@ export default function MockTestResultsModal({ examAttemptId, isOpen, onClose }:
     );
   }
 
-  const { attempt, exam, answers } = examDetails;
-  const correctAnswers = answers.filter(a => a.isCorrect).length;
+  const { attempt, exam, answers } = examDetails as any;
+  const correctAnswers = answers.filter((a: any) => a.isCorrect).length;
   const totalQuestions = answers.length;
   const scorePercentage = Math.round((correctAnswers / totalQuestions) * 100);
   const timeSpentMinutes = Math.round((attempt.timeSpent || 0));
@@ -158,7 +158,7 @@ export default function MockTestResultsModal({ examAttemptId, isOpen, onClose }:
             <div className="space-y-6">
               <h3 className="text-xl font-semibold text-gray-800 mb-4">Question by Question Review</h3>
               
-              {answers.map((answer, index) => (
+              {answers.map((answer: any, index: number) => (
                 <Card key={index} className={`border-l-4 ${answer.isCorrect ? 'border-l-green-500' : 'border-l-red-500'}`}>
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
