@@ -197,11 +197,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { getHomepageAuthenticQuestions } = await import("./populateAuthenticQuestions");
       
       const questionId = parseInt(req.params.questionId);
-      const questions = getHomepageAuthenticQuestions();
-      const question = questions.find(q => q.id === questionId);
       
+      // First check authentic questions
+      const authenticQuestions = getHomepageAuthenticQuestions();
+      let question = authenticQuestions.find(q => q.id === questionId);
+      
+      // If not found in authentic questions, check database
       if (!question) {
-        return res.status(404).json({ message: "Question not found" });
+        try {
+          const dbQuestion = await storage.getQuestionById(questionId);
+          if (dbQuestion) {
+            question = {
+              id: dbQuestion.id,
+              questionText: dbQuestion.questionText,
+              hasImage: dbQuestion.hasImage,
+              imageDescription: dbQuestion.imageDescription,
+              grade: dbQuestion.grade,
+              year: dbQuestion.year || 2024
+            };
+          }
+        } catch (dbError) {
+          console.log("Question not found in database, checking generated questions");
+        }
+      }
+      
+      // If still not found, generate a fallback SVG based on question ID
+      if (!question) {
+        const fallbackQuestionData = {
+          questionText: "Visual diagram for this question",
+          imageDescription: "Mathematical or reading comprehension visual element",
+          grade: Math.floor((questionId % 3) + 3), // Grade 3-5
+          year: 2024
+        };
+        
+        const svg = getQuestionSVG(
+          fallbackQuestionData.questionText,
+          fallbackQuestionData.imageDescription,
+          fallbackQuestionData.grade,
+          fallbackQuestionData.year
+        );
+        
+        res.setHeader('Content-Type', 'image/svg+xml');
+        res.send(svg);
+        return;
       }
       
       if (!question.hasImage) {
@@ -479,7 +517,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Question routes
+  // Question routes with diverse visual content
   app.get('/api/questions/:grade/:subject', async (req, res) => {
     try {
       const grade = parseInt(req.params.grade);
@@ -489,15 +527,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid grade or subject" });
       }
 
-      // Get all questions for grade and subject
-      let questions = await storage.getQuestionsByGradeAndSubject(grade, subject);
+      // Get stored questions first
+      let storedQuestions = await storage.getQuestionsByGradeAndSubject(grade, subject);
       
-      // Shuffle and limit questions for variety
-      if (questions.length > 0) {
-        questions = questions.sort(() => Math.random() - 0.5).slice(0, 10);
-      }
+      // Generate additional diverse visual questions for variety
+      const { generateDiverseSTAARQuestions } = await import("./diverseQuestionGenerator");
+      const diverseQuestions = await generateDiverseSTAARQuestions(grade, subject as "math" | "reading", 5);
       
-      res.json(questions);
+      // Convert diverse questions to the expected format
+      const formattedDiverseQuestions = diverseQuestions.map((q, index) => ({
+        ...q,
+        id: 10000 + Date.now() + index, // Unique ID for session
+        answerChoices: Array.isArray(q.answerChoices) 
+          ? q.answerChoices.map(choice => ({ id: choice.id, text: choice.text }))
+          : [],
+        createdAt: new Date()
+      }));
+      
+      // Combine stored and diverse questions
+      const allQuestions = [...storedQuestions, ...formattedDiverseQuestions];
+      
+      // Shuffle and limit questions for variety, ensuring mix of visual and text
+      const shuffled = allQuestions.sort(() => Math.random() - 0.5);
+      const selectedQuestions = shuffled.slice(0, 10);
+      
+      res.json(selectedQuestions);
     } catch (error) {
       console.error("Error fetching questions:", error);
       res.status(500).json({ message: "Failed to fetch questions" });

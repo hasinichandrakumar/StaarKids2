@@ -54,6 +54,7 @@ export interface IStorage {
   // Question operations
   getQuestionsByGradeAndSubject(grade: number, subject: string): Promise<Question[]>;
   getQuestionsByTeksStandard(grade: number, subject: string, teksStandard: string): Promise<Question[]>;
+  getQuestionById(id: number): Promise<Question | undefined>;
   createQuestion(question: InsertQuestion): Promise<Question>;
   
   // Practice attempt operations
@@ -212,6 +213,14 @@ export class DatabaseStorage implements IStorage {
         )
       )
       .limit(10);
+  }
+
+  async getQuestionById(id: number): Promise<Question | undefined> {
+    const [question] = await db
+      .select()
+      .from(questions)
+      .where(eq(questions.id, id));
+    return question;
   }
 
   async createQuestion(question: InsertQuestion): Promise<Question> {

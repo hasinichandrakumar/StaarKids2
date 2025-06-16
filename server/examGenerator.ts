@@ -93,7 +93,24 @@ export async function generateFullMockExam(grade: number, subject: "math" | "rea
   let questionsGenerated = 0;
   const generatedQuestions = [];
 
-  // Generate questions distributed across TEKS standards
+  // Generate a mix of AI questions and diverse visual questions
+  const visualQuestionCount = Math.floor(questionCount * 0.4); // 40% visual questions
+  const aiQuestionCount = questionCount - visualQuestionCount;
+  
+  // Generate diverse visual questions first
+  try {
+    const diverseQuestions = await generateDiverseSTAARQuestions(grade, subject, visualQuestionCount);
+    for (const questionData of diverseQuestions) {
+      const savedQuestion = await storage.createQuestion(questionData);
+      generatedQuestions.push(savedQuestion);
+      questionsGenerated++;
+      console.log(`Generated diverse visual question ${questionsGenerated}/${questionCount}`);
+    }
+  } catch (error) {
+    console.error('Error generating diverse visual questions:', error);
+  }
+  
+  // Generate remaining AI questions distributed across TEKS standards
   for (const category of Object.keys(teksCategories)) {
     const categoryStandards = teksCategories[category as keyof typeof teksCategories] as string[];
     
@@ -106,7 +123,7 @@ export async function generateFullMockExam(grade: number, subject: "math" | "rea
         generatedQuestions.push(savedQuestion);
         questionsGenerated++;
         
-        console.log(`Generated question ${questionsGenerated}/${questionCount} for ${teksStandard}`);
+        console.log(`Generated AI question ${questionsGenerated}/${questionCount} for ${teksStandard}`);
         
         // Add a small delay to avoid overwhelming the API
         await new Promise(resolve => setTimeout(resolve, 1000));
