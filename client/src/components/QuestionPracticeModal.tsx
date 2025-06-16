@@ -6,6 +6,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Lightbulb, X, Clock, CheckCircle, XCircle } from "lucide-react";
 import { StarIcon, SparklesIcon } from "@heroicons/react/24/solid";
+import WPMTracker from "./WPMTracker";
 
 interface QuestionPracticeModalProps {
   grade: number;
@@ -22,6 +23,10 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
   const [loadingExplanation, setLoadingExplanation] = useState(false);
   const [answerStatus, setAnswerStatus] = useState<'correct' | 'incorrect' | null>(null);
   const [startTime] = useState(Date.now());
+  const [isReading, setIsReading] = useState(false);
+  const [hasReadPassage, setHasReadPassage] = useState(false);
+  const [readingWPM, setReadingWPM] = useState<number | null>(null);
+  const [readingTimeSpent, setReadingTimeSpent] = useState<number | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -174,11 +179,31 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
     }
   };
 
+  const handleWPMComplete = (wpm: number, timeSpent: number) => {
+    setReadingWPM(wpm);
+    setReadingTimeSpent(timeSpent);
+    setHasReadPassage(true);
+    setIsReading(false);
+    
+    toast({
+      title: "Reading Complete!",
+      description: `You read at ${wpm} WPM. Great job!`,
+    });
+  };
+
+  const handleStartReading = () => {
+    setIsReading(true);
+  };
+
   const handleNextQuestion = () => {
     setSelectedAnswer("");
     setShowExplanation(false);
     setAiExplanation("");
     setAnswerStatus(null);
+    setHasReadPassage(false);
+    setReadingWPM(null);
+    setReadingTimeSpent(null);
+    setIsReading(false);
     
     if (currentQuestionIndex < (questions?.length || 0) - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
@@ -251,6 +276,19 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
               <X className="w-5 h-5" />
             </Button>
           </div>
+
+          {/* WPM Tracker for Reading Questions */}
+          {subject === "reading" && (
+            <div className="mb-6">
+              <WPMTracker
+                grade={grade}
+                passageText={currentQuestion.questionText}
+                isReading={isReading}
+                onReadingComplete={handleWPMComplete}
+                onStartReading={handleStartReading}
+              />
+            </div>
+          )}
 
           {/* Question */}
           <div className="mb-8">
