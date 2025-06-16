@@ -111,6 +111,18 @@ export const examAttempts = pgTable("exam_attempts", {
   completedAt: timestamp("completed_at"),
 });
 
+export const examAttemptAnswers = pgTable("exam_attempt_answers", {
+  id: serial("id").primaryKey(),
+  examAttemptId: integer("exam_attempt_id").notNull().references(() => examAttempts.id),
+  questionId: integer("question_id").notNull().references(() => questions.id),
+  selectedAnswer: varchar("selected_answer"),
+  isCorrect: boolean("is_correct").notNull(),
+  timeSpent: integer("time_spent"), // in seconds
+  skipped: boolean("skipped").default(false),
+  questionOrder: integer("question_order").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const userProgress = pgTable("user_progress", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").notNull().references(() => users.id),
@@ -242,7 +254,7 @@ export const mockExamQuestionsRelations = relations(mockExamQuestions, ({ one })
   }),
 }));
 
-export const examAttemptsRelations = relations(examAttempts, ({ one }) => ({
+export const examAttemptsRelations = relations(examAttempts, ({ one, many }) => ({
   user: one(users, {
     fields: [examAttempts.userId],
     references: [users.id],
@@ -250,6 +262,18 @@ export const examAttemptsRelations = relations(examAttempts, ({ one }) => ({
   exam: one(mockExams, {
     fields: [examAttempts.examId],
     references: [mockExams.id],
+  }),
+  answers: many(examAttemptAnswers),
+}));
+
+export const examAttemptAnswersRelations = relations(examAttemptAnswers, ({ one }) => ({
+  examAttempt: one(examAttempts, {
+    fields: [examAttemptAnswers.examAttemptId],
+    references: [examAttempts.id],
+  }),
+  question: one(questions, {
+    fields: [examAttemptAnswers.questionId],
+    references: [questions.id],
   }),
 }));
 
@@ -327,6 +351,11 @@ export const insertExamAttemptSchema = createInsertSchema(examAttempts).omit({
   completedAt: true,
 });
 
+export const insertExamAttemptAnswerSchema = createInsertSchema(examAttemptAnswers).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertUserProgressSchema = createInsertSchema(userProgress).omit({
   id: true,
   updatedAt: true,
@@ -384,6 +413,8 @@ export type MockExam = typeof mockExams.$inferSelect;
 export type InsertMockExam = z.infer<typeof insertMockExamSchema>;
 export type ExamAttempt = typeof examAttempts.$inferSelect;
 export type InsertExamAttempt = z.infer<typeof insertExamAttemptSchema>;
+export type ExamAttemptAnswer = typeof examAttemptAnswers.$inferSelect;
+export type InsertExamAttemptAnswer = z.infer<typeof insertExamAttemptAnswerSchema>;
 export type UserProgress = typeof userProgress.$inferSelect;
 export type InsertUserProgress = z.infer<typeof insertUserProgressSchema>;
 export type StarPowerHistory = typeof starPowerHistory.$inferSelect;
