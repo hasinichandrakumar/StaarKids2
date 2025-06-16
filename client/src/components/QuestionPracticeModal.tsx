@@ -252,22 +252,53 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
 
             {/* Answer Choices */}
             <div className="space-y-3">
-              {currentQuestion.answerChoices.map((choice: any) => (
-                <button
-                  key={choice.id}
-                  onClick={() => setSelectedAnswer(choice.id)}
-                  className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 ${
-                    selectedAnswer === choice.id
-                      ? "border-primary bg-primary bg-opacity-10 text-primary"
-                      : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                  }`}
-                >
-                  <div className="flex items-center">
-                    <span className="text-lg font-semibold mr-4">{choice.id})</span>
-                    <span className="text-lg">{choice.text}</span>
-                  </div>
-                </button>
-              ))}
+              {currentQuestion.answerChoices.map((choice: any) => {
+                // Determine styling based on answer status
+                let buttonStyle = "";
+                let textStyle = "";
+                
+                if (showExplanation) {
+                  // After answer is submitted, show correct/incorrect feedback
+                  if (choice.id === currentQuestion.correctAnswer) {
+                    // Correct answer - always green
+                    buttonStyle = "border-green-500 bg-green-50 hover:bg-green-100";
+                    textStyle = "text-green-700";
+                  } else if (choice.id === selectedAnswer) {
+                    // Selected wrong answer - red
+                    buttonStyle = "border-red-500 bg-red-50 hover:bg-red-100";
+                    textStyle = "text-red-700";
+                  } else {
+                    // Unselected options - gray
+                    buttonStyle = "border-gray-200 bg-gray-50";
+                    textStyle = "text-gray-500";
+                  }
+                } else {
+                  // Before answer submission - normal selection styling
+                  if (selectedAnswer === choice.id) {
+                    buttonStyle = "border-primary bg-primary bg-opacity-10";
+                    textStyle = "text-primary";
+                  } else {
+                    buttonStyle = "border-gray-200 hover:border-gray-300 hover:bg-gray-50";
+                    textStyle = "text-gray-700";
+                  }
+                }
+
+                return (
+                  <button
+                    key={choice.id}
+                    onClick={() => !showExplanation && setSelectedAnswer(choice.id)}
+                    disabled={showExplanation}
+                    className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 ${buttonStyle} ${
+                      showExplanation ? 'cursor-default' : 'cursor-pointer'
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <span className={`text-lg font-semibold mr-4 ${textStyle}`}>{choice.id})</span>
+                      <span className={`text-lg ${textStyle}`}>{choice.text}</span>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
