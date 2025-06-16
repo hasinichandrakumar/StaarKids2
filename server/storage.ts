@@ -5,6 +5,7 @@ import {
   mockExams,
   mockExamQuestions,
   examAttempts,
+  examAttemptAnswers,
   userProgress,
   starPowerHistory,
   organizations,
@@ -20,6 +21,8 @@ import {
   type InsertMockExam,
   type ExamAttempt,
   type InsertExamAttempt,
+  type ExamAttemptAnswer,
+  type InsertExamAttemptAnswer,
   type UserProgress,
   type InsertUserProgress,
   type StarPowerHistory,
@@ -62,6 +65,22 @@ export interface IStorage {
   createMockExam(exam: InsertMockExam): Promise<MockExam>;
   createExamAttempt(attempt: InsertExamAttempt): Promise<ExamAttempt>;
   getUserExamHistory(userId: string, limit?: number): Promise<ExamAttempt[]>;
+  
+  // Exam attempt answers
+  createExamAttemptAnswer(answer: InsertExamAttemptAnswer): Promise<ExamAttemptAnswer>;
+  getExamAttemptDetails(attemptId: number): Promise<{
+    attempt: ExamAttempt;
+    exam: MockExam;
+    answers: Array<{
+      question: Question;
+      selectedAnswer: string | null;
+      correctAnswer: string;
+      isCorrect: boolean;
+      timeSpent: number | null;
+      skipped: boolean;
+      questionOrder: number;
+    }>;
+  } | null>;
   
   // Progress tracking
   getUserProgress(userId: string, grade: number): Promise<UserProgress[]>;
@@ -932,6 +951,76 @@ export class DatabaseStorage implements IStorage {
         averageScore
       },
       recentActivity
+    };
+  }
+
+  // Exam attempt answers
+  async createExamAttemptAnswer(answer: InsertExamAttemptAnswer): Promise<ExamAttemptAnswer> {
+    const [newAnswer] = await db
+      .insert(examAttemptAnswers)
+      .values(answer)
+      .returning();
+    return newAnswer;
+  }
+
+  async getExamAttemptDetails(attemptId: number): Promise<{
+    attempt: ExamAttempt;
+    exam: MockExam;
+    answers: Array<{
+      question: Question;
+      selectedAnswer: string | null;
+      correctAnswer: string;
+      isCorrect: boolean;
+      timeSpent: number | null;
+      skipped: boolean;
+      questionOrder: number;
+    }>;
+  } | null> {
+    // Get the exam attempt
+    const [attempt] = await db
+      .select()
+      .from(examAttempts)
+      .where(eq(examAttempts.id, attemptId));
+
+    if (!attempt) {
+      return null;
+    }
+
+    // Get the exam details
+    const [exam] = await db
+      .select()
+      .from(mockExams)
+      .where(eq(mockExams.id, attempt.examId));
+
+    if (!exam) {
+      return null;
+    }
+
+    // Get all answers with question details
+    const answersWithQuestions = await db
+      .select({
+        answer: examAttemptAnswers,
+        question: questions,
+      })
+      .from(examAttemptAnswers)
+      .innerJoin(questions, eq(examAttemptAnswers.questionId, questions.id))
+      .where(eq(examAttemptAnswers.examAttemptId, attemptId))
+      .orderBy(examAttemptAnswers.questionOrder);
+
+    const answers = answersWithQuestions.map(row => ({
+      question: row.question,
+      selectedAnswer: row.answer.selectedAnswer,
+      correctAnswer: row.question.correctAnswer,
+      isCorrect: row.answer.isCorrect,
+      timeSpent: row.answer.timeSpent,
+      skipped: row.answer.skipped,
+      questionOrder: row.answer.questionOrder,
+    }));
+
+    return {
+      attempt,
+      exam,
+      answers,
     };
   }
 }

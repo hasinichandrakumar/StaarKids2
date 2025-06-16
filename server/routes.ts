@@ -553,6 +553,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get detailed exam attempt results
+  app.get('/api/exam-attempts/:attemptId/details', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const attemptId = parseInt(req.params.attemptId);
+      
+      if (isNaN(attemptId)) {
+        return res.status(400).json({ message: "Invalid attempt ID" });
+      }
+
+      const details = await storage.getExamAttemptDetails(attemptId);
+      
+      if (!details) {
+        return res.status(404).json({ message: "Exam attempt not found" });
+      }
+
+      // Verify the attempt belongs to the current user
+      if (details.attempt.userId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      res.json(details);
+    } catch (error) {
+      console.error("Error fetching exam attempt details:", error);
+      res.status(500).json({ message: "Failed to fetch exam attempt details" });
+    }
+  });
+
   // Progress and stats routes
   app.get('/api/progress/:grade', isAuthenticated, async (req: any, res) => {
     try {
