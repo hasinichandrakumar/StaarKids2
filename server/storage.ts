@@ -946,7 +946,7 @@ export class DatabaseStorage implements IStorage {
       })
       .from(practiceAttempts)
       .innerJoin(questions, eq(practiceAttempts.questionId, questions.id))
-      .where(sql`${practiceAttempts.userId} IN (${childIds.map(() => '?').join(',')})`, ...childIds)
+      .where(eq(practiceAttempts.userId, childIds[0]))
       .orderBy(desc(practiceAttempts.createdAt))
       .limit(20);
 
