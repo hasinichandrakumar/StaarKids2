@@ -250,6 +250,32 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
               {currentQuestion.questionText}
             </h3>
 
+            {/* Question Image/Diagram */}
+            {currentQuestion.hasImage && (
+              <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
+                <div className="flex justify-center">
+                  <img 
+                    src={`/api/question-svg/${currentQuestion.id}`}
+                    alt={currentQuestion.imageDescription || "Question diagram"}
+                    className="max-w-full h-auto rounded shadow-sm"
+                    style={{ maxHeight: '300px' }}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const fallback = target.parentElement?.querySelector('.fallback-text');
+                      if (fallback) {
+                        fallback.textContent = currentQuestion.imageDescription || "Visual element described in question";
+                        (fallback as HTMLElement).style.display = 'block';
+                      }
+                    }}
+                  />
+                  <div className="fallback-text hidden text-gray-600 italic text-center p-4">
+                    {currentQuestion.imageDescription}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Answer Choices */}
             <div className="space-y-3">
               {currentQuestion.answerChoices.map((choice: any) => {

@@ -99,14 +99,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get authentic STAAR questions for homepage
+  // Get authentic STAAR questions for homepage with diverse visual questions
   app.get("/api/sample-questions", async (req, res) => {
     try {
       const { getHomepageAuthenticQuestions } = await import("./populateAuthenticQuestions");
+      const { generateDiverseSTAARQuestions } = await import("./diverseQuestionGenerator");
+      
+      // Get base authentic questions
       const authenticQuestions = getHomepageAuthenticQuestions();
-      res.json(authenticQuestions);
+      
+      // Generate additional diverse questions with visual elements
+      const diverseQuestions = [];
+      for (const grade of [3, 4, 5]) {
+        for (const subject of ["math", "reading"] as const) {
+          const questions = await generateDiverseSTAARQuestions(grade, subject, 2);
+          diverseQuestions.push(...questions);
+        }
+      }
+      
+      // Convert diverse questions to the expected format
+      const formattedDiverseQuestions = diverseQuestions.map((q, index) => ({
+        id: 1000 + index, // Start from 1000 to avoid conflicts
+        grade: q.grade,
+        subject: q.subject,
+        teksStandard: q.teksStandard,
+        questionText: q.questionText,
+        answerChoices: Array.isArray(q.answerChoices) 
+          ? q.answerChoices.map(choice => `${choice.id}. ${choice.text}`)
+          : [],
+        correctAnswer: q.correctAnswer,
+        category: q.category || "General",
+        isFromRealSTAAR: q.isFromRealSTAAR || false,
+        year: q.year || 2024,
+        hasImage: q.hasImage || false,
+        imageDescription: q.imageDescription
+      }));
+      
+      // Combine authentic and diverse questions, ensuring good mix of visual questions
+      const allQuestions = [...authenticQuestions, ...formattedDiverseQuestions];
+      
+      res.json(allQuestions);
     } catch (error) {
-      console.error("Error fetching authentic STAAR questions:", error);
+      console.error("Error fetching diverse STAAR questions:", error);
       res.status(500).json({ message: "Failed to fetch sample questions" });
     }
   });

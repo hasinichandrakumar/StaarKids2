@@ -1,6 +1,7 @@
 import { generateQuestionWithOpenAI, getRandomTeksStandard, TEKS_STANDARDS } from './questionGenerator';
+import { generateDiverseSTAARQuestions } from './diverseQuestionGenerator';
 import { storage } from './storage';
-import { InsertMockExam } from '../shared/schema';
+import { InsertMockExam, InsertQuestion } from '../shared/schema';
 
 // Official STAAR question counts per grade and subject
 export const STAAR_QUESTION_COUNTS = {

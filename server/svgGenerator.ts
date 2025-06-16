@@ -1,189 +1,318 @@
-import OpenAI from "openai";
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
 /**
- * Generate educational SVG diagrams for STAAR math questions
+ * SVG diagram generator for math and reading questions
+ * Creates authentic visual elements for STAAR-style questions
  */
-export async function generateMathQuestionSVG(
-  questionText: string,
-  imageDescription: string,
-  grade: number
-): Promise<string> {
-  try {
-    const prompt = `
-Create a clean, educational SVG diagram for this STAAR Grade ${grade} math question.
 
-Question: ${questionText}
-Visual Description: ${imageDescription}
-
-Requirements:
-- Generate complete SVG code with viewBox="0 0 400 300"
-- Use clear, simple geometric shapes appropriate for Grade ${grade}
-- Include readable text labels with font-family="Arial, sans-serif"
-- Use educational colors: blues (#4A90E2), greens (#7ED321), oranges (#F5A623)
-- Make diagrams clear and mathematically accurate
-- Include measurements, labels, or annotations as needed
-
-Examples of what to create:
-- Rectangular garden: Draw rectangle with labeled dimensions
-- Geometric shapes: Draw clear quadrilaterals, triangles, etc.
-- Charts/graphs: Create simple bar charts or data displays
-- Mathematical models: Visual representations of math concepts
-
-Return only the complete SVG code with proper structure:
-<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
-  <!-- Your content here -->
-</svg>
-`;
-
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.3
-    });
-
-    const svgContent = response.choices[0].message.content || "";
-    
-    // Validate that we got actual SVG content
-    if (svgContent.includes("<svg") && svgContent.includes("</svg>")) {
-      return svgContent;
-    } else {
-      return generateFallbackSVG(questionText, imageDescription);
-    }
-    
-  } catch (error) {
-    console.error("Error generating SVG diagram:", error);
-    return generateFallbackSVG(questionText, imageDescription);
+export function getQuestionSVG(questionText: string, imageDescription: string | null, grade: number, year?: number): string {
+  // Parse question type from text and description
+  const questionType = detectQuestionType(questionText, imageDescription);
+  
+  switch (questionType) {
+    case 'geometry-shapes':
+      return generateGeometryShapesSVG(questionText, imageDescription);
+    case 'geometry-area':
+      return generateAreaDiagramSVG(questionText, imageDescription);
+    case 'fractions':
+      return generateFractionsDiagramSVG(questionText, imageDescription);
+    case 'data-graph':
+      return generateDataGraphSVG(questionText, imageDescription);
+    case 'number-line':
+      return generateNumberLineSVG(questionText, imageDescription);
+    case 'word-problem':
+      return generateWordProblemSVG(questionText, imageDescription);
+    default:
+      return generateGenericDiagramSVG(questionText, imageDescription);
   }
 }
 
-/**
- * Generate fallback SVG for when AI generation fails
- */
-function generateFallbackSVG(questionText: string, imageDescription: string): string {
-  // Create a simple educational placeholder
+function detectQuestionType(questionText: string, imageDescription: string | null): string {
+  const text = (questionText + ' ' + (imageDescription || '')).toLowerCase();
+  
+  if (text.includes('quadrilateral') || text.includes('rectangle') || text.includes('square') || text.includes('triangle')) {
+    return 'geometry-shapes';
+  }
+  if (text.includes('area') || text.includes('perimeter') || text.includes('length') && text.includes('width')) {
+    return 'geometry-area';
+  }
+  if (text.includes('fraction') || text.includes('parts') || text.includes('shaded')) {
+    return 'fractions';
+  }
+  if (text.includes('graph') || text.includes('chart') || text.includes('data')) {
+    return 'data-graph';
+  }
+  if (text.includes('number line') || text.includes('point')) {
+    return 'number-line';
+  }
+  return 'word-problem';
+}
+
+function generateGeometryShapesSVG(questionText: string, imageDescription: string | null): string {
   return `
-<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
-  <rect x="20" y="20" width="360" height="260" fill="#f8f9fa" stroke="#dee2e6" stroke-width="2" rx="8"/>
-  <text x="200" y="120" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#495057">
-    Visual Element
-  </text>
-  <text x="200" y="150" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#6c757d">
-    ${imageDescription.substring(0, 40)}...
-  </text>
-  <circle cx="200" cy="200" r="30" fill="#4A90E2" opacity="0.3"/>
-  <rect x="150" y="220" width="100" height="40" fill="#7ED321" opacity="0.3" rx="4"/>
-</svg>`;
+    <svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <style>
+          .shape { fill: #e3f2fd; stroke: #1976d2; stroke-width: 2; }
+          .label { font-family: Arial, sans-serif; font-size: 14px; fill: #333; }
+        </style>
+      </defs>
+      
+      <!-- Rectangle -->
+      <rect x="50" y="50" width="80" height="60" class="shape"/>
+      <text x="90" y="85" class="label" text-anchor="middle">Rectangle</text>
+      
+      <!-- Square -->
+      <rect x="150" y="50" width="60" height="60" class="shape"/>
+      <text x="180" y="85" class="label" text-anchor="middle">Square</text>
+      
+      <!-- Trapezoid -->
+      <polygon points="280,110 320,110 310,50 290,50" class="shape"/>
+      <text x="300" y="85" class="label" text-anchor="middle">Trapezoid</text>
+      
+      <!-- Triangle -->
+      <polygon points="90,180 120,230 60,230" class="shape"/>
+      <text x="90" y="250" class="label" text-anchor="middle">Triangle</text>
+      
+      <!-- Parallelogram -->
+      <polygon points="180,180 240,180 220,230 160,230" class="shape"/>
+      <text x="200" y="250" class="label" text-anchor="middle">Parallelogram</text>
+      
+      <text x="200" y="20" class="label" text-anchor="middle" font-weight="bold">Various Quadrilaterals</text>
+    </svg>
+  `;
 }
 
-/**
- * Pre-generated SVGs for specific authentic STAAR questions
- */
-export const AUTHENTIC_QUESTION_SVGS: { [key: string]: string } = {
-  // Grade 4 Quadrilaterals question
-  "quadrilaterals_4_2013": `
-<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background -->
-  <rect x="10" y="10" width="380" height="280" fill="#f8f9fa" stroke="#e9ecef" stroke-width="1" rx="5"/>
+function generateAreaDiagramSVG(questionText: string, imageDescription: string | null): string {
+  // Extract dimensions from question text
+  const lengthMatch = questionText.match(/(\d+)\s*feet?\s*(?:long|length)/i);
+  const widthMatch = questionText.match(/(\d+)\s*feet?\s*(?:wide|width)/i);
   
-  <!-- Title -->
-  <text x="200" y="35" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#212529">
-    Geometric Figures
-  </text>
+  const length = lengthMatch ? parseInt(lengthMatch[1]) : 12;
+  const width = widthMatch ? parseInt(widthMatch[1]) : 8;
   
-  <!-- Square -->
-  <rect x="50" y="60" width="60" height="60" fill="#4A90E2" stroke="#2c5aa0" stroke-width="2"/>
-  <text x="80" y="140" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#495057">Square</text>
+  const scale = Math.min(300 / length, 200 / width);
+  const rectWidth = length * scale;
+  const rectHeight = width * scale;
   
-  <!-- Rectangle -->
-  <rect x="150" y="70" width="80" height="50" fill="#7ED321" stroke="#5cb85c" stroke-width="2"/>
-  <text x="190" y="140" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#495057">Rectangle</text>
-  
-  <!-- Parallelogram -->
-  <path d="M 270 70 L 340 70 L 360 120 L 290 120 Z" fill="#F5A623" stroke="#d58512" stroke-width="2"/>
-  <text x="315" y="140" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#495057">Parallelogram</text>
-  
-  <!-- Trapezoid -->
-  <path d="M 80 170 L 140 170 L 160 220 L 60 220 Z" fill="#BD10E0" stroke="#9013fe" stroke-width="2"/>
-  <text x="110" y="240" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#495057">Trapezoid</text>
-  
-  <!-- Rhombus -->
-  <path d="M 240 195 L 270 170 L 300 195 L 270 220 Z" fill="#50E3C2" stroke="#00d4aa" stroke-width="2"/>
-  <text x="270" y="240" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#495057">Rhombus</text>
-  
-  <!-- Note -->
-  <text x="200" y="270" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#6c757d">
-    All figures shown are quadrilaterals (4-sided shapes)
-  </text>
-</svg>`,
+  return `
+    <svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <style>
+          .garden { fill: #c8e6c9; stroke: #388e3c; stroke-width: 2; }
+          .dimension { font-family: Arial, sans-serif; font-size: 14px; fill: #1976d2; font-weight: bold; }
+          .label { font-family: Arial, sans-serif; font-size: 12px; fill: #666; }
+        </style>
+      </defs>
+      
+      <!-- Garden rectangle -->
+      <rect x="50" y="50" width="${rectWidth}" height="${rectHeight}" class="garden"/>
+      
+      <!-- Length dimension -->
+      <line x1="50" y1="${50 + rectHeight + 20}" x2="${50 + rectWidth}" y2="${50 + rectHeight + 20}" stroke="#1976d2" stroke-width="2"/>
+      <line x1="50" y1="${50 + rectHeight + 15}" x2="50" y2="${50 + rectHeight + 25}" stroke="#1976d2" stroke-width="2"/>
+      <line x1="${50 + rectWidth}" y1="${50 + rectHeight + 15}" x2="${50 + rectWidth}" y2="${50 + rectHeight + 25}" stroke="#1976d2" stroke-width="2"/>
+      <text x="${50 + rectWidth/2}" y="${50 + rectHeight + 35}" class="dimension" text-anchor="middle">${length} feet</text>
+      
+      <!-- Width dimension -->
+      <line x1="25" y1="50" x2="25" y2="${50 + rectHeight}" stroke="#1976d2" stroke-width="2"/>
+      <line x1="20" y1="50" x2="30" y2="50" stroke="#1976d2" stroke-width="2"/>
+      <line x1="20" y1="${50 + rectHeight}" x2="30" y2="${50 + rectHeight}" stroke="#1976d2" stroke-width="2"/>
+      <text x="15" y="${50 + rectHeight/2}" class="dimension" text-anchor="middle" transform="rotate(-90, 15, ${50 + rectHeight/2})">${width} feet</text>
+      
+      <text x="200" y="20" class="dimension" text-anchor="middle">Rectangular Garden</text>
+      <text x="200" y="280" class="label" text-anchor="middle">Area = length × width = ${length} × ${width} = ${length * width} square feet</text>
+    </svg>
+  `;
+}
 
-  // Grade 5 Rectangular Garden
-  "rectangular_garden_5_2016": `
-<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background -->
-  <rect x="10" y="10" width="380" height="280" fill="#f8f9fa" stroke="#e9ecef" stroke-width="1" rx="5"/>
-  
-  <!-- Title -->
-  <text x="200" y="35" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#212529">
-    Rectangular Garden
-  </text>
-  
-  <!-- Garden Rectangle -->
-  <rect x="100" y="80" width="200" height="120" fill="#7ED321" stroke="#5cb85c" stroke-width="3" opacity="0.7"/>
-  
-  <!-- Length label (top) -->
-  <line x1="100" y1="65" x2="300" y2="65" stroke="#212529" stroke-width="2"/>
-  <line x1="100" y1="60" x2="100" y2="70" stroke="#212529" stroke-width="2"/>
-  <line x1="300" y1="60" x2="300" y2="70" stroke="#212529" stroke-width="2"/>
-  <text x="200" y="55" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#212529">
-    12 feet
-  </text>
-  
-  <!-- Width label (right) -->
-  <line x1="315" y1="80" x2="315" y2="200" stroke="#212529" stroke-width="2"/>
-  <line x1="310" y1="80" x2="320" y2="80" stroke="#212529" stroke-width="2"/>
-  <line x1="310" y1="200" x2="320" y2="200" stroke="#212529" stroke-width="2"/>
-  <text x="335" y="145" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#212529">
-    8 feet
-  </text>
-  
-  <!-- Area formula -->
-  <text x="200" y="235" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#495057">
-    Area = length × width
-  </text>
-  <text x="200" y="255" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#495057">
-    Area = 12 × 8 = 96 square feet
-  </text>
-  
-  <!-- Garden details -->
-  <circle cx="130" cy="110" r="3" fill="#F5A623"/>
-  <circle cx="160" cy="130" r="3" fill="#F5A623"/>
-  <circle cx="240" cy="120" r="3" fill="#F5A623"/>
-  <circle cx="270" cy="160" r="3" fill="#F5A623"/>
-  <text x="200" y="275" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#6c757d">
-    ● = Plants in the garden
-  </text>
-</svg>`
-};
+function generateFractionsDiagramSVG(questionText: string, imageDescription: string | null): string {
+  return `
+    <svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <style>
+          .whole { fill: #fff3e0; stroke: #f57c00; stroke-width: 2; }
+          .shaded { fill: #ffcc02; stroke: #f57c00; stroke-width: 2; }
+          .label { font-family: Arial, sans-serif; font-size: 14px; fill: #333; }
+        </style>
+      </defs>
+      
+      <!-- Circle divided into 8 parts, 3 shaded -->
+      <g transform="translate(100, 150)">
+        <circle cx="0" cy="0" r="60" class="whole"/>
+        <!-- Pie slices -->
+        <path d="M 0,0 L 60,0 A 60,60 0 0,1 42.43,42.43 Z" class="shaded"/>
+        <path d="M 0,0 L 42.43,42.43 A 60,60 0 0,1 0,60 Z" class="shaded"/>
+        <path d="M 0,0 L 0,60 A 60,60 0 0,1 -42.43,42.43 Z" class="shaded"/>
+        <!-- Division lines -->
+        <line x1="0" y1="0" x2="60" y2="0" stroke="#f57c00" stroke-width="1"/>
+        <line x1="0" y1="0" x2="42.43" y2="42.43" stroke="#f57c00" stroke-width="1"/>
+        <line x1="0" y1="0" x2="0" y2="60" stroke="#f57c00" stroke-width="1"/>
+        <line x1="0" y1="0" x2="-42.43" y2="42.43" stroke="#f57c00" stroke-width="1"/>
+        <line x1="0" y1="0" x2="-60" y2="0" stroke="#f57c00" stroke-width="1"/>
+        <line x1="0" y1="0" x2="-42.43" y2="-42.43" stroke="#f57c00" stroke-width="1"/>
+        <line x1="0" y1="0" x2="0" y2="-60" stroke="#f57c00" stroke-width="1"/>
+        <line x1="0" y1="0" x2="42.43" y2="-42.43" stroke="#f57c00" stroke-width="1"/>
+      </g>
+      
+      <text x="100" y="50" class="label" text-anchor="middle">3/8 shaded</text>
+      
+      <!-- Rectangle divided into parts -->
+      <g transform="translate(280, 100)">
+        <rect x="0" y="0" width="80" height="40" class="whole"/>
+        <rect x="0" y="0" width="20" height="40" class="shaded"/>
+        <rect x="20" y="0" width="20" height="40" class="shaded"/>
+        <!-- Division lines -->
+        <line x1="20" y1="0" x2="20" y2="40" stroke="#f57c00" stroke-width="1"/>
+        <line x1="40" y1="0" x2="40" y2="40" stroke="#f57c00" stroke-width="1"/>
+        <line x1="60" y1="0" x2="60" y2="40" stroke="#f57c00" stroke-width="1"/>
+      </g>
+      
+      <text x="320" y="170" class="label" text-anchor="middle">2/4 = 1/2</text>
+      
+      <text x="200" y="20" class="label" text-anchor="middle" font-weight="bold">Fraction Representations</text>
+    </svg>
+  `;
+}
 
-/**
- * Get SVG for a specific question based on its characteristics
- */
-export function getQuestionSVG(questionText: string, imageDescription?: string, grade?: number, year?: number): string {
-  // Check for pre-generated SVGs first
-  if (questionText.includes("quadrilaterals") && questionText.includes("figures")) {
-    return AUTHENTIC_QUESTION_SVGS["quadrilaterals_4_2013"];
-  }
-  
-  if (questionText.includes("rectangular garden") && questionText.includes("area")) {
-    return AUTHENTIC_QUESTION_SVGS["rectangular_garden_5_2016"];
-  }
-  
-  // For other questions with images, return a placeholder that indicates visual content
-  if (imageDescription) {
-    return generateFallbackSVG(questionText, imageDescription);
-  }
-  
-  return "";
+function generateDataGraphSVG(questionText: string, imageDescription: string | null): string {
+  return `
+    <svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <style>
+          .bar { fill: #42a5f5; stroke: #1976d2; stroke-width: 1; }
+          .axis { stroke: #333; stroke-width: 2; fill: none; }
+          .grid { stroke: #ddd; stroke-width: 1; }
+          .label { font-family: Arial, sans-serif; font-size: 12px; fill: #333; }
+          .title { font-family: Arial, sans-serif; font-size: 14px; fill: #333; font-weight: bold; }
+        </style>
+      </defs>
+      
+      <!-- Grid lines -->
+      <line x1="60" y1="50" x2="60" y2="220" class="grid"/>
+      <line x1="60" y1="220" x2="350" y2="220" class="grid"/>
+      
+      <!-- Y-axis labels -->
+      <text x="50" y="55" class="label" text-anchor="end">20</text>
+      <text x="50" y="80" class="label" text-anchor="end">16</text>
+      <text x="50" y="105" class="label" text-anchor="end">12</text>
+      <text x="50" y="130" class="label" text-anchor="end">8</text>
+      <text x="50" y="155" class="label" text-anchor="end">4</text>
+      <text x="50" y="180" class="label" text-anchor="end">0</text>
+      
+      <!-- Bars -->
+      <rect x="80" y="130" width="40" height="90" class="bar"/>
+      <rect x="140" y="105" width="40" height="115" class="bar"/>
+      <rect x="200" y="155" width="40" height="65" class="bar"/>
+      <rect x="260" y="80" width="40" height="140" class="bar"/>
+      
+      <!-- X-axis labels -->
+      <text x="100" y="240" class="label" text-anchor="middle">Dogs</text>
+      <text x="160" y="240" class="label" text-anchor="middle">Cats</text>
+      <text x="220" y="240" class="label" text-anchor="middle">Birds</text>
+      <text x="280" y="240" class="label" text-anchor="middle">Fish</text>
+      
+      <!-- Axes -->
+      <line x1="60" y1="50" x2="60" y2="220" class="axis"/>
+      <line x1="60" y1="220" x2="350" y2="220" class="axis"/>
+      
+      <text x="200" y="20" class="title" text-anchor="middle">Favorite Pets Survey</text>
+      <text x="25" y="140" class="label" text-anchor="middle" transform="rotate(-90, 25, 140)">Number of Students</text>
+    </svg>
+  `;
+}
+
+function generateNumberLineSVG(questionText: string, imageDescription: string | null): string {
+  return `
+    <svg width="400" height="150" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <style>
+          .line { stroke: #333; stroke-width: 3; }
+          .tick { stroke: #333; stroke-width: 2; }
+          .label { font-family: Arial, sans-serif; font-size: 14px; fill: #333; text-anchor: middle; }
+          .point { fill: #f44336; stroke: #d32f2f; stroke-width: 2; }
+        </style>
+      </defs>
+      
+      <!-- Number line -->
+      <line x1="50" y1="75" x2="350" y2="75" class="line"/>
+      
+      <!-- Tick marks and labels -->
+      <line x1="50" y1="70" x2="50" y2="80" class="tick"/>
+      <text x="50" y="100" class="label">0</text>
+      
+      <line x1="110" y1="70" x2="110" y2="80" class="tick"/>
+      <text x="110" y="100" class="label">0.2</text>
+      
+      <line x1="170" y1="70" x2="170" y2="80" class="tick"/>
+      <text x="170" y="100" class="label">0.4</text>
+      
+      <line x1="230" y1="70" x2="230" y2="80" class="tick"/>
+      <text x="230" y="100" class="label">0.6</text>
+      
+      <line x1="290" y1="70" x2="290" y2="80" class="tick"/>
+      <text x="290" y="100" class="label">0.8</text>
+      
+      <line x1="350" y1="70" x2="350" y2="80" class="tick"/>
+      <text x="350" y="100" class="label">1.0</text>
+      
+      <!-- Point at 0.5 -->
+      <circle cx="200" cy="75" r="5" class="point"/>
+      <text x="200" y="50" class="label" style="fill: #f44336; font-weight: bold;">0.5</text>
+      
+      <text x="200" y="30" class="label" style="font-weight: bold;">Point on Number Line</text>
+    </svg>
+  `;
+}
+
+function generateWordProblemSVG(questionText: string, imageDescription: string | null): string {
+  return `
+    <svg width="400" height="250" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <style>
+          .object { fill: #e1f5fe; stroke: #0277bd; stroke-width: 2; }
+          .label { font-family: Arial, sans-serif; font-size: 12px; fill: #333; text-anchor: middle; }
+          .title { font-family: Arial, sans-serif; font-size: 14px; fill: #333; font-weight: bold; text-anchor: middle; }
+        </style>
+      </defs>
+      
+      <!-- Glass cases (7 cases) -->
+      <g transform="translate(50, 80)">
+        ${Array.from({length: 7}, (_, i) => `
+          <rect x="${i * 40}" y="0" width="30" height="40" class="object"/>
+          <text x="${i * 40 + 15}" y="55" class="label">Case ${i + 1}</text>
+        `).join('')}
+      </g>
+      
+      <!-- Feathers representation -->
+      <g transform="translate(70, 100)">
+        ${Array.from({length: 7}, (_, i) => `
+          <g transform="translate(${i * 40}, 0)">
+            ${Array.from({length: 6}, (_, j) => `
+              <circle cx="${(j % 3) * 3 + 3}" cy="${Math.floor(j / 3) * 6 + 3}" r="1.5" fill="#ff9800"/>
+            `).join('')}
+          </g>
+        `).join('')}
+      </g>
+      
+      <text x="200" y="30" class="title">42 feathers ÷ 7 cases = 6 feathers per case</text>
+      <text x="200" y="190" class="label">Each glass case contains an equal number of feathers</text>
+    </svg>
+  `;
+}
+
+function generateGenericDiagramSVG(questionText: string, imageDescription: string | null): string {
+  return `
+    <svg width="400" height="200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <style>
+          .box { fill: #f5f5f5; stroke: #666; stroke-width: 2; }
+          .label { font-family: Arial, sans-serif; font-size: 14px; fill: #333; text-anchor: middle; }
+        </style>
+      </defs>
+      
+      <rect x="100" y="60" width="200" height="80" class="box"/>
+      <text x="200" y="105" class="label">${imageDescription || 'Visual Element'}</text>
+      
+      <text x="200" y="30" class="label" style="font-weight: bold;">Question Diagram</text>
+    </svg>
+  `;
 }
