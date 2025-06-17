@@ -718,13 +718,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid exam ID" });
       }
 
-      const examDetails = await storage.getExamWithQuestions(examId);
+      // Get exam basic info
+      const exam = await storage.getMockExamById(examId);
       
-      if (!examDetails) {
+      if (!exam) {
         return res.status(404).json({ message: "Exam not found" });
       }
 
-      res.json(examDetails);
+      // Get questions for this grade and subject
+      const allQuestions = await storage.getQuestionsByGradeAndSubject(exam.grade, exam.subject);
+      
+      // Randomly select questions up to the exam limit
+      const shuffled = allQuestions.sort(() => 0.5 - Math.random());
+      const examQuestions = shuffled.slice(0, Math.min(exam.totalQuestions, shuffled.length));
+
+      const examWithQuestions = {
+        ...exam,
+        questions: examQuestions
+      };
+
+      res.json(examWithQuestions);
     } catch (error) {
       console.error("Error fetching exam details:", error);
       res.status(500).json({ message: "Failed to fetch exam details" });

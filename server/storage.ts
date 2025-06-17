@@ -293,7 +293,7 @@ export class DatabaseStorage implements IStorage {
     const exam = await this.getMockExamById(examId);
     if (!exam) return null;
 
-    // Get questions for this exam
+    // Try to get questions specifically linked to this exam
     const examQuestions = await db
       .select({
         question: questions,
@@ -303,6 +303,29 @@ export class DatabaseStorage implements IStorage {
       .innerJoin(questions, eq(mockExamQuestions.questionId, questions.id))
       .where(eq(mockExamQuestions.examId, examId))
       .orderBy(mockExamQuestions.order);
+
+    // If no specific exam questions found, get random questions for the grade/subject
+    if (examQuestions.length === 0) {
+      console.log(`Looking for questions: grade=${exam.grade}, subject=${exam.subject}`);
+      
+      const availableQuestions = await db
+        .select()
+        .from(questions)
+        .where(
+          and(
+            eq(questions.grade, exam.grade),
+            eq(questions.subject, exam.subject)
+          )
+        )
+        .limit(exam.totalQuestions);
+
+      console.log(`Found ${availableQuestions.length} questions for exam ${examId}`);
+      
+      return {
+        ...exam,
+        questions: availableQuestions
+      };
+    }
 
     return {
       ...exam,
