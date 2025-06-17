@@ -334,6 +334,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Math SVG image generation endpoint
+  app.get('/api/question-svg/:questionId', async (req, res) => {
+    try {
+      const questionId = parseInt(req.params.questionId);
+      
+      // Get question details to determine image type
+      const question = await storage.getQuestionById(questionId);
+      
+      if (!question || !question.hasImage) {
+        return res.status(404).json({ message: "Image not found" });
+      }
+
+      const { generateMathSVG } = require("./mathImageGenerator");
+      
+      const imageConfig = {
+        questionId,
+        questionType: question.category || "default",
+        grade: question.grade,
+        subject: question.subject,
+        imageDescription: question.imageDescription || ""
+      };
+      
+      const svgContent = generateMathSVG(imageConfig);
+      
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+      res.send(svgContent);
+    } catch (error) {
+      console.error("Error generating math SVG:", error);
+      res.status(500).json({ message: "Failed to generate image" });
+    }
+  });
+
   // Add test route to verify routing works
   app.get("/test-route", (req, res) => {
     console.log("=== TEST ROUTE REACHED ===");
