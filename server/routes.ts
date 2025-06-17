@@ -491,10 +491,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch('/api/user/profile', isAuthenticated, async (req: any, res) => {
     try {
-      // Handle both Google OAuth and Replit auth users
-      const userId = req.user.claims?.sub || req.user.id;
-      const updates = updateUserSchema.parse(req.body);
+      // Handle different authentication methods
+      let userId: string;
       
+      // Direct Google OAuth session
+      if (req.session?.userId) {
+        userId = req.session.userId;
+      }
+      // Passport-based auth (Replit or Google)
+      else if (req.user) {
+        userId = req.user.claims?.sub || req.user.id;
+      }
+      else {
+        return res.status(401).json({ message: "No user found" });
+      }
+      
+      const updates = updateUserSchema.parse(req.body);
       const updatedUser = await storage.updateUserProfile(userId, updates);
       res.json(updatedUser);
     } catch (error) {
@@ -694,7 +706,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // StarPower routes
   app.get('/api/star-power/stats', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      // Handle different authentication methods
+      let userId: string;
+      
+      if (req.session?.userId) {
+        userId = req.session.userId;
+      } else if (req.user) {
+        userId = req.user.claims?.sub || req.user.id;
+      } else {
+        return res.status(401).json({ message: "No user found" });
+      }
+      
       const stats = await storage.getStarPowerStats(userId);
       res.json(stats);
     } catch (error) {
@@ -706,7 +728,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Accuracy tracking routes
   app.get('/api/accuracy', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      // Handle different authentication methods
+      let userId: string;
+      
+      if (req.session?.userId) {
+        userId = req.session.userId;
+      } else if (req.user) {
+        userId = req.user.claims?.sub || req.user.id;
+      } else {
+        return res.status(401).json({ message: "No user found" });
+      }
+      
       const accuracy = await storage.getOverallAccuracy(userId);
       res.json(accuracy);
     } catch (error) {
@@ -717,7 +749,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/accuracy/:grade/:subject', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      // Handle different authentication methods
+      let userId: string;
+      
+      if (req.session?.userId) {
+        userId = req.session.userId;
+      } else if (req.user) {
+        userId = req.user.claims?.sub || req.user.id;
+      } else {
+        return res.status(401).json({ message: "No user found" });
+      }
+      
       const grade = parseInt(req.params.grade);
       const subject = req.params.subject;
       
@@ -736,7 +778,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Stats overview route
   app.get('/api/stats', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      // Handle different authentication methods
+      let userId: string;
+      
+      if (req.session?.userId) {
+        userId = req.session.userId;
+      } else if (req.user) {
+        userId = req.user.claims?.sub || req.user.id;
+      } else {
+        return res.status(401).json({ message: "No user found" });
+      }
       
       // Get overall accuracy across all grades
       const overallAccuracy = await storage.getOverallAccuracy(userId);
@@ -921,7 +972,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/nova-chat', isAuthenticated, async (req: any, res) => {
     try {
       const { message, grade } = req.body;
-      const userId = req.user.claims.sub;
+      
+      // Handle different authentication methods
+      let userId: string;
+      
+      // Direct Google OAuth session
+      if (req.session?.userId) {
+        userId = req.session.userId;
+      }
+      // Passport-based auth (Replit or Google)
+      else if (req.user) {
+        userId = req.user.claims?.sub || req.user.id;
+      }
+      else {
+        return res.status(401).json({ message: "No user found" });
+      }
       
       if (!message || !grade) {
         return res.status(400).json({ message: "Message and grade are required" });
