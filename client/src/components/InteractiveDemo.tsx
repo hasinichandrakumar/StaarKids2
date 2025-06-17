@@ -43,20 +43,24 @@ export default function InteractiveDemo() {
   };
 
   const handleSubmit = () => {
+    if (!selectedAnswer) return;
+    
     if (selectedAnswer === demoQuestions[currentQuestion].correct) {
-      setScore(score + 1);
+      setScore(prev => prev + 1);
     }
     setShowResult(true);
   };
 
   const handleNext = () => {
     if (currentQuestion < demoQuestions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
+      setCurrentQuestion(prev => prev + 1);
       setSelectedAnswer(null);
       setShowResult(false);
     } else {
-      // Demo complete
-      setShowResult(true);
+      // Demo complete - move to completion state
+      setCurrentQuestion(demoQuestions.length);
+      setSelectedAnswer(null);
+      setShowResult(false);
     }
   };
 
@@ -68,7 +72,22 @@ export default function InteractiveDemo() {
   };
 
   const question = demoQuestions[currentQuestion];
-  const isCorrect = selectedAnswer === question.correct;
+  const isCorrect = selectedAnswer === question?.correct;
+
+  // Prevent accessing invalid question index
+  if (currentQuestion < 0 || !question) {
+    return (
+      <Card className="bg-red-50 border-red-200">
+        <CardContent className="p-8 text-center">
+          <h3 className="text-xl font-bold text-red-700 mb-2">Demo Error</h3>
+          <p className="text-red-600 mb-4">Something went wrong with the demo.</p>
+          <Button onClick={resetDemo} variant="outline">
+            Restart Demo
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (currentQuestion >= demoQuestions.length) {
     return (
