@@ -1,0 +1,141 @@
+📘 StaarKids MVP PRD (Updated)
+
+Executive Summary
+
+StaarKids is an online STAAR prep platform targeting Texas students in grades 3–5. It blends TEKS-aligned practice with personalized progress tracking and AI-driven motivation. The updated MVP will incorporate the live dashboard and reporting insights observed on the site, along with enhanced communication tools for tutors, parents, and guides.
+
+Problem Statement
+
+Students preparing for STAAR face challenges such as inconsistent practice, fluctuating motivation, lack of clear progress reporting, and limited parent–student guidance and visibility.
+
+Solution Overview
+
+A holistic STAAR prep tool including:
+
+Digital student profiles with STAAR skill mapping
+Learning intelligence via dashboard and alert systems
+AI-driven micro-lessons and motivational nudges
+Insights-sharing among tutors, parents, and educators
+Target Users
+
+Primary Users:
+
+Students (self-guided practice)
+Tutors/Teachers
+Secondary Users:
+
+Parents (via upcoming portal)
+School Admins (aggregate dashboards)
+Core Features (MVP)
+
+1. Student Profile & Skill Tracking
+– Capture grade, subject goals, and learning preferences
+– Map TEKS competencies to STAAR skill buckets
+– Log performance data from practice sessions
+– Upload scores, benchmark results, and annotated docs
+
+2. Live Dashboard & Reporting
+– Real-time progress views (by skill domain, grade level, demographics)
+– Drill-down to student-level data for CCMR-style tracking, similar to the platform’s CCMR dashboard shared during Round Rock ISD walkthrough
+– Monthly "Monitoring Reports" highlighting underperforming skills, groups, and suggested tutor actions
+– Alerts for skill-slippage or stalled progress
+
+3. AI-Powered Tutor Coach
+– Interactive chatbot to design micro-lessons or motivational prompts ("Help Marcus master 2-digit multiplication!")
+– Suggest homework tactics and confidence boosters aligned with student profiles
+– Exportable strategies: printable praise cards, parent guidance messages
+
+4. Engagement & Communication
+– Save and share tutor-favorite motivational strategies
+– Send prompt messages to parents (“Your student improved +10% in fractions!”)
+– In-platform messaging feed for tutors and guardians
+
+5. Search & Role-Based Access
+– Search students by name, grade, subject, and performance tags
+– Filter views by skill weaknesses, learning style, or alert flags
+– Access control for tutors, parents, and school admins
+
+Technical Requirements
+
+Frontend:
+
+Responsive web UI with dashboard widgets and drill-down charts
+Practice interfaces for sample STAAR questions
+Downloadable monitoring reports (PDF/CSV)
+Drag-and-drop uploads
+Backend:
+
+REST API, secure login, and permissions
+Data encryption at rest/in transit
+Audit logs for all student data changes (FERPA-compliant)
+AI Integration:
+
+LLM chat for tutor/student prompts
+Context injection from skill dashboard and profiles
+Ongoing calibration based on guide feedback
+Data Storage:
+
+TEKS-aligned skill database
+Structured student performance logs
+Document repository for attachments and test data
+User Stories
+
+Tutor sees a student falling behind in fractions and uses the dashboard to plan a targeted session.
+Tutor asks, "How can I motivate Mia to complete her math practice?" and receives profile-based suggestions.
+Tutor/Parent shares a reward message automatically when student hits a milestone.
+Parent views weekly progress reports via a portal (planned in later releases).
+MVP Timeline
+
+Phase 1: Foundation
+
+User login, roles, and basic profile setup
+STAAR-aligned skill database and practice scoring
+Phase 2: Dashboard & Reporting
+
+Live dashboards with drill-down filters
+Monitoring report generation
+Phase 3: AI Coaching
+
+Chatbot for personalized strategies
+Favorite/save/share strategy features
+Phase 4: Parental Engagement
+
+Parent portal with read-only dashboard
+Automated milestone notifications
+Future Enhancements (Post-MVP)
+
+Full mobile apps
+Gamified practice for students
+Live parent access to report cards and progress
+Curriculum integration (school LMS)
+Predictive alerts for at-risk learners
+Collaborative learning groups and shared strategy boards
+Security & Privacy
+
+Fully FERPA-compliant
+Role-based permissions and secure authentication
+Data encryption
+Audit trail logging
+Regular security reviews and data retention policies
+Dependencies & Risks
+
+STAAR/TEXAS TEKS question bank licensing
+Reliable LLM access
+Data accuracy (benchmark alignment)
+Adoption by parents and educators
+Success Criteria
+
+90% of registered students engage weekly
+Tutors report ≥85% satisfaction with dashboards and chatbot
+Parents find reports valuable in surveys
+Measurable improvement in targeted STAAR skills
+Active use of mentor-favorite strategies
+🎙️ Summary of Dashboard Insights
+
+Although no public screenshots are available, staarkids.org showcases a live CCMR-style dashboard with:
+
+Drill-down survival for performance by grade/domain
+Student-level tracking for targeted intervention
+Monthly Monitoring Reports for educators, including next-step guidance
+Data broken out by student groups and trending over time (as seen in Round Rock ISD’s internal walkthrough referenced) 
+staarkids.org

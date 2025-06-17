@@ -44,10 +44,15 @@ export const users = pgTable("users", {
   avatarColor: varchar("avatar_color").default("#FF5B00"),
   userRank: varchar("user_rank").default("Cadet"),
   // Role-based access fields
-  role: varchar("role").default("student"), // student, parent, teacher
+  role: varchar("role").default("student"), // student, parent, tutor, teacher, admin
   organizationId: varchar("organization_id"),
   parentId: varchar("parent_id"), // For student accounts linked to parents
   isVerified: boolean("is_verified").default(false), // For teacher/organization verification
+  // Learning preferences and profile
+  learningStyle: varchar("learning_style"), // visual, auditory, kinesthetic, reading
+  motivationPreferences: jsonb("motivation_preferences"), // Array of motivation types
+  skillWeaknesses: jsonb("skill_weaknesses"), // Array of TEKS standards needing focus
+  lastActiveAt: timestamp("last_active_at")
 });
 
 export const questions = pgTable("questions", {

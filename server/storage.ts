@@ -278,6 +278,36 @@ export class DatabaseStorage implements IStorage {
     return newExam;
   }
 
+  async getMockExamById(examId: number): Promise<MockExam | undefined> {
+    const [exam] = await db
+      .select()
+      .from(mockExams)
+      .where(eq(mockExams.id, examId));
+    return exam;
+  }
+
+  async getExamWithQuestions(examId: number): Promise<any> {
+    // Get exam details
+    const exam = await this.getMockExamById(examId);
+    if (!exam) return null;
+
+    // Get questions for this exam
+    const examQuestions = await db
+      .select({
+        question: questions,
+        order: mockExamQuestions.order
+      })
+      .from(mockExamQuestions)
+      .innerJoin(questions, eq(mockExamQuestions.questionId, questions.id))
+      .where(eq(mockExamQuestions.examId, examId))
+      .orderBy(mockExamQuestions.order);
+
+    return {
+      ...exam,
+      questions: examQuestions.map(eq => eq.question)
+    };
+  }
+
   async createExamAttempt(attempt: InsertExamAttempt): Promise<ExamAttempt> {
     const [newAttempt] = await db
       .insert(examAttempts)

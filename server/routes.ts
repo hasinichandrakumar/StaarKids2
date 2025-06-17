@@ -672,6 +672,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Start exam endpoint
+  app.post('/api/exams/:examId/start', isAuthenticated, async (req: any, res) => {
+    try {
+      const examId = parseInt(req.params.examId);
+      const userId = req.user.claims.sub;
+      
+      if (isNaN(examId)) {
+        return res.status(400).json({ message: "Invalid exam ID" });
+      }
+
+      // Check if exam exists
+      const exam = await storage.getMockExamById(examId);
+      if (!exam) {
+        return res.status(404).json({ message: "Exam not found" });
+      }
+
+      // Create exam attempt
+      const attempt = await storage.createExamAttempt({
+        userId,
+        examId,
+        totalQuestions: exam.totalQuestions,
+        correctAnswers: 0,
+        completed: false
+      });
+
+      res.json({ 
+        success: true, 
+        attemptId: attempt.id,
+        examId,
+        timeLimit: exam.timeLimit 
+      });
+    } catch (error) {
+      console.error("Error starting exam:", error);
+      res.status(500).json({ message: "Failed to start exam" });
+    }
+  });
+
+  // Get exam details with questions
+  app.get('/api/exams/details/:examId', async (req, res) => {
+    try {
+      const examId = parseInt(req.params.examId);
+      
+      if (isNaN(examId)) {
+        return res.status(400).json({ message: "Invalid exam ID" });
+      }
+
+      const examDetails = await storage.getExamWithQuestions(examId);
+      
+      if (!examDetails) {
+        return res.status(404).json({ message: "Exam not found" });
+      }
+
+      res.json(examDetails);
+    } catch (error) {
+      console.error("Error fetching exam details:", error);
+      res.status(500).json({ message: "Failed to fetch exam details" });
+    }
+  });
+
   // Get detailed exam attempt results
   app.get('/api/exam-attempts/:attemptId/details', isAuthenticated, async (req: any, res) => {
     try {
