@@ -656,6 +656,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Mock exam routes
+  app.get('/api/exams', async (req, res) => {
+    try {
+      const grade = req.query.grade ? parseInt(req.query.grade as string) : null;
+      
+      if (grade && ![3, 4, 5].includes(grade)) {
+        return res.status(400).json({ message: "Invalid grade" });
+      }
+      
+      const exams = grade ? await storage.getMockExams(grade) : await storage.getAllMockExams();
+      res.json(exams);
+    } catch (error) {
+      console.error("Error fetching mock exams:", error);
+      res.status(500).json({ message: "Failed to fetch mock exams" });
+    }
+  });
+
   app.get('/api/exams/:grade', async (req, res) => {
     try {
       const grade = parseInt(req.params.grade);

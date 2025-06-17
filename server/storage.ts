@@ -62,6 +62,7 @@ export interface IStorage {
   getUserPracticeHistory(userId: string, limit?: number): Promise<PracticeAttempt[]>;
   
   // Mock exam operations
+  getAllMockExams(): Promise<MockExam[]>;
   getMockExams(grade: number): Promise<MockExam[]>;
   createMockExam(exam: InsertMockExam): Promise<MockExam>;
   getMockExamById(examId: number): Promise<MockExam | undefined>;
@@ -264,6 +265,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Mock exam operations
+  async getAllMockExams(): Promise<MockExam[]> {
+    return await db
+      .select()
+      .from(mockExams)
+      .orderBy(mockExams.grade, mockExams.subject, desc(mockExams.createdAt));
+  }
+
   async getMockExams(grade: number): Promise<MockExam[]> {
     return await db
       .select()
