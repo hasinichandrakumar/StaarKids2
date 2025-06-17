@@ -731,6 +731,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Submit exam answers endpoint
+  app.post('/api/exams/:examId/submit', async (req, res) => {
+    try {
+      const examId = parseInt(req.params.examId);
+      const { answers, timeSpent, score } = req.body;
+      
+      if (isNaN(examId)) {
+        return res.status(400).json({ message: "Invalid exam ID" });
+      }
+
+      // For demo purposes, return success
+      res.json({ 
+        success: true, 
+        score: score || 0,
+        totalQuestions: answers ? answers.length : 0,
+        correctAnswers: answers ? answers.filter((a: any) => a.isCorrect).length : 0,
+        timeSpent: timeSpent || 0
+      });
+    } catch (error) {
+      console.error("Error submitting exam:", error);
+      res.status(500).json({ message: "Failed to submit exam" });
+    }
+  });
+
   // Get detailed exam attempt results
   app.get('/api/exam-attempts/:attemptId/details', isAuthenticated, async (req: any, res) => {
     try {

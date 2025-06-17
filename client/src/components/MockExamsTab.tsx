@@ -51,17 +51,8 @@ export default function MockExamsTab({ grade }: MockExamsTabProps) {
 
   const handleStartExam = (examId: number, examName: string) => {
     if (confirm(`Start "${cleanExamName(examName)}"? This will begin a timed practice exam.`)) {
-      // Create a proper exam session by redirecting to exam endpoint
-      fetch(`/api/exams/${examId}/start`, { method: 'POST' })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            window.open(`/exam/${examId}`, '_blank');
-          } else {
-            alert('Failed to start exam. Please try again.');
-          }
-        })
-        .catch(() => alert('Failed to start exam. Please try again.'));
+      // Direct navigation to exam page - authentication handled there
+      window.open(`/exam/${examId}`, '_blank');
     }
   };
 

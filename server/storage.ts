@@ -64,6 +64,8 @@ export interface IStorage {
   // Mock exam operations
   getMockExams(grade: number): Promise<MockExam[]>;
   createMockExam(exam: InsertMockExam): Promise<MockExam>;
+  getMockExamById(examId: number): Promise<MockExam | undefined>;
+  getExamWithQuestions(examId: number): Promise<any>;
   createExamAttempt(attempt: InsertExamAttempt): Promise<ExamAttempt>;
   getUserExamHistory(userId: string, limit?: number): Promise<ExamAttempt[]>;
   
