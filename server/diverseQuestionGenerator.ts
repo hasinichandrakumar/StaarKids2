@@ -352,39 +352,8 @@ function generateAlgebraPatternQuestion(grade: number, teksStandard: string): In
 
 // Reading question generators
 function generateComprehensionQuestion(grade: number, teksStandard: string): InsertQuestion {
-  const passages = [
-    {
-      question: "Based on the story 'The Brave Little Mouse', what was the mouse's main problem?",
-      choices: ["A. He was too small", "B. He was afraid of cats", "C. He wanted to help his family", "D. He couldn't find food"],
-      correct: "C"
-    },
-    {
-      question: "In the passage about recycling, what is the author's main purpose?",
-      choices: ["A. To entertain readers", "B. To persuade people to recycle", "C. To describe types of trash", "D. To tell a funny story"],
-      correct: "B"
-    }
-  ];
-  
-  const passage = passages[Math.floor(Math.random() * passages.length)];
-  
-  return {
-    grade,
-    subject: "reading",
-    teksStandard,
-    questionText: passage.question,
-    answerChoices: passage.choices.map((choice, index) => ({
-      id: choice.charAt(0),
-      text: choice.substring(3)
-    })),
-    correctAnswer: passage.correct,
-    explanation: "This question tests reading comprehension and understanding of main ideas.",
-    difficulty: "medium",
-    category: "Comprehension",
-    year: 2024,
-    isFromRealSTAAR: false,
-    hasImage: false,
-    imageDescription: null
-  };
+  const { generateAuthenticReadingQuestion } = require("./authenticSTAARPassages");
+  return generateAuthenticReadingQuestion(grade, "Comprehension", teksStandard);
 }
 
 function generateVocabularyQuestion(grade: number, teksStandard: string): InsertQuestion {
