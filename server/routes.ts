@@ -193,57 +193,91 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get SVG diagrams for questions with visual elements
   app.get("/api/question-svg/:questionId", async (req, res) => {
     try {
-      const { getQuestionSVG } = await import("./svgGenerator");
-      const { getHomepageAuthenticQuestions } = await import("./populateAuthenticQuestions");
-      
       const questionId = parseInt(req.params.questionId);
+      console.log("Generating visual content for question ID:", questionId);
       
-      // First check authentic questions
-      const authenticQuestions = getHomepageAuthenticQuestions();
-      let question = authenticQuestions.find(q => q.id === questionId);
+      // Try to get question from database first
+      let question;
+      try {
+        question = await storage.getQuestionById(questionId);
+      } catch (error) {
+        console.log("Question not found in database, checking sample questions");
+      }
       
-      // If not found in authentic questions, generate fallback visual content
+      // If not found in database, check sample questions
       if (!question) {
-        console.log("Generating visual content for question ID:", questionId);
+        const { getHomepageAuthenticQuestions } = await import("./populateAuthenticQuestions");
+        const authenticQuestions = getHomepageAuthenticQuestions();
+        question = authenticQuestions.find(q => q.id === questionId);
       }
       
-      // If still not found, generate a fallback SVG based on question ID
-      if (!question) {
-        const fallbackQuestionData = {
-          questionText: "Visual diagram for this question",
-          imageDescription: "Mathematical or reading comprehension visual element",
-          grade: Math.floor((questionId % 3) + 3), // Grade 3-5
-          year: 2024
-        };
+      // Generate SVG based on question data or fallback
+      const { generateMathSVG } = await import("./mathImageGenerator");
+      const { getQuestionSVG } = await import("./svgGenerator");
+      
+      let svg: string;
+      
+      if (question && question.hasImage) {
+        // Use specific generator based on subject
+        if (question.subject === "math") {
+          const imageConfig = {
+            questionId,
+            questionType: question.category || "default",
+            grade: question.grade,
+            subject: question.subject,
+            imageDescription: question.imageDescription || ""
+          };
+          svg = generateMathSVG(imageConfig);
+        } else {
+          svg = getQuestionSVG(
+            question.questionText, 
+            question.imageDescription || "Visual element for this question", 
+            question.grade, 
+            question.year
+          );
+        }
+      } else {
+        // Generate fallback visual based on question ID pattern
+        const grade = Math.floor((questionId % 3) + 3); // Grade 3-5
+        const isEven = questionId % 2 === 0;
         
-        const svg = getQuestionSVG(
-          fallbackQuestionData.questionText,
-          fallbackQuestionData.imageDescription,
-          fallbackQuestionData.grade,
-          fallbackQuestionData.year
-        );
-        
-        res.setHeader('Content-Type', 'image/svg+xml');
-        res.send(svg);
-        return;
+        if (isEven) {
+          // Math visual
+          const imageConfig = {
+            questionId,
+            questionType: "geometry",
+            grade,
+            subject: "math",
+            imageDescription: "rectangular garden diagram with labeled dimensions"
+          };
+          svg = generateMathSVG(imageConfig);
+        } else {
+          // Reading visual or general diagram
+          svg = getQuestionSVG(
+            "Visual diagram for this question",
+            "Mathematical or reading comprehension visual element",
+            grade,
+            2024
+          );
+        }
       }
-      
-      if (!question.hasImage) {
-        return res.status(404).json({ message: "Question has no visual elements" });
-      }
-      
-      const svg = getQuestionSVG(
-        question.questionText, 
-        question.imageDescription || "Visual element for this question", 
-        question.grade, 
-        question.year
-      );
       
       res.setHeader('Content-Type', 'image/svg+xml');
+      res.setHeader('Cache-Control', 'public, max-age=3600');
       res.send(svg);
     } catch (error) {
       console.error("Error generating question SVG:", error);
-      res.status(500).json({ message: "Failed to generate diagram" });
+      
+      // Generate emergency fallback SVG
+      const fallbackSVG = `<svg width="400" height="200" xmlns="http://www.w3.org/2000/svg">
+        <rect width="400" height="200" fill="#f8f9fa" stroke="#dee2e6"/>
+        <text x="200" y="100" text-anchor="middle" font-family="Arial" font-size="14" fill="#6c757d">
+          Visual Element
+        </text>
+      </svg>`;
+      
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.send(fallbackSVG);
     }
   });
 
@@ -334,38 +368,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Math SVG image generation endpoint
-  app.get('/api/question-svg/:questionId', async (req, res) => {
-    try {
-      const questionId = parseInt(req.params.questionId);
-      
-      // Get question details to determine image type
-      const question = await storage.getQuestionById(questionId);
-      
-      if (!question || !question.hasImage) {
-        return res.status(404).json({ message: "Image not found" });
-      }
 
-      const { generateMathSVG } = require("./mathImageGenerator");
-      
-      const imageConfig = {
-        questionId,
-        questionType: question.category || "default",
-        grade: question.grade,
-        subject: question.subject,
-        imageDescription: question.imageDescription || ""
-      };
-      
-      const svgContent = generateMathSVG(imageConfig);
-      
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
-      res.send(svgContent);
-    } catch (error) {
-      console.error("Error generating math SVG:", error);
-      res.status(500).json({ message: "Failed to generate image" });
-    }
-  });
 
   // Add test route to verify routing works
   app.get("/test-route", (req, res) => {
