@@ -725,178 +725,201 @@ export default function StarSpaceStoryTab({ user, starPower }: StarSpaceStoryTab
               </p>
             </CardHeader>
             <CardContent>
-              <div className="relative bg-gradient-to-b from-black via-blue-900/30 to-purple-900/50 rounded-lg overflow-hidden">
+              <div className="relative bg-gradient-to-br from-slate-900 via-indigo-900 to-violet-900 rounded-2xl overflow-hidden shadow-2xl">
                 {/* Scrollable Galaxy Container */}
-                <div className="h-[700px] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-purple-500/50">
-                  <div className="relative min-h-[3000px] p-8">
+                <div className="h-[700px] overflow-y-auto scrollbar-thin scrollbar-track-slate-800/50 scrollbar-thumb-violet-500/70 hover:scrollbar-thumb-violet-400/90">
+                  <div className="relative min-h-[2800px] p-6">
                     
-                    {/* Galaxy Core - Central spiral */}
-                    <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 z-5">
-                      <div className="absolute inset-0 bg-gradient-radial from-purple-600/30 via-blue-600/20 to-transparent rounded-full animate-spin-slow"></div>
-                      <div className="absolute inset-4 bg-gradient-radial from-yellow-400/20 via-orange-500/15 to-transparent rounded-full animate-pulse"></div>
-                    </div>
-                    
-                    {/* Nebula Clouds Background */}
-                    <div className="absolute inset-0 opacity-40 pointer-events-none">
-                      {[...Array(8)].map((_, i) => (
+                    {/* Beautiful Starfield Background */}
+                    <div className="absolute inset-0 pointer-events-none">
+                      {/* Large bright stars */}
+                      {[...Array(30)].map((_, i) => (
                         <div
-                          key={`nebula-${i}`}
-                          className="absolute bg-gradient-radial from-purple-500/20 via-blue-500/10 to-transparent rounded-full animate-pulse"
-                          style={{
-                            left: `${20 + (i * 15)}%`,
-                            top: `${10 + (i * 12)}%`,
-                            width: `${150 + (i * 30)}px`,
-                            height: `${100 + (i * 20)}px`,
-                            animationDelay: `${i * 2}s`,
-                          }}
-                        />
-                      ))}
-                    </div>
-
-                    {/* Distant Stars */}
-                    <div className="absolute inset-0 opacity-60 pointer-events-none">
-                      {[...Array(150)].map((_, i) => (
-                        <div
-                          key={`star-${i}`}
-                          className="absolute bg-white rounded-full animate-twinkle"
+                          key={`bright-star-${i}`}
+                          className="absolute bg-white rounded-full animate-twinkle drop-shadow-sm"
                           style={{
                             left: `${Math.random() * 100}%`,
                             top: `${Math.random() * 100}%`,
-                            width: `${Math.random() * 3 + 1}px`,
-                            height: `${Math.random() * 3 + 1}px`,
-                            animationDelay: `${Math.random() * 10}s`,
-                            animationDuration: `${2 + Math.random() * 4}s`,
+                            width: `${3 + Math.random() * 2}px`,
+                            height: `${3 + Math.random() * 2}px`,
+                            animationDelay: `${Math.random() * 5}s`,
+                            animationDuration: `${3 + Math.random() * 2}s`,
+                          }}
+                        />
+                      ))}
+                      
+                      {/* Medium stars */}
+                      {[...Array(60)].map((_, i) => (
+                        <div
+                          key={`med-star-${i}`}
+                          className="absolute bg-blue-100 rounded-full animate-twinkle"
+                          style={{
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                            width: `2px`,
+                            height: `2px`,
+                            animationDelay: `${Math.random() * 8}s`,
+                            animationDuration: `${4 + Math.random() * 3}s`,
+                          }}
+                        />
+                      ))}
+                      
+                      {/* Small distant stars */}
+                      {[...Array(80)].map((_, i) => (
+                        <div
+                          key={`small-star-${i}`}
+                          className="absolute bg-slate-300 rounded-full opacity-40"
+                          style={{
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                            width: `1px`,
+                            height: `1px`,
                           }}
                         />
                       ))}
                     </div>
 
-                    {/* Galaxy Spiral Arms with Chapters */}
-                    {STORY_CHAPTERS.slice(0, 30).map((chapter, index) => {
-                      const isUnlocked = unlockedChapters.some(c => c.id === chapter.id);
-                      const character = SPACE_FRIENDS.find(f => f.unlockStars <= chapter.unlockStars && f.unlockStars >= (STORY_CHAPTERS[index - 1]?.unlockStars || 0));
-                      
-                      // Calculate spiral position for galaxy effect
-                      const angle = (index * 12) % 360; // Degrees around the spiral
-                      const radius = 100 + (index * 15); // Distance from center increases
-                      const spiralX = 50 + (Math.cos(angle * Math.PI / 180) * radius / 8);
-                      const spiralY = 20 + (index * 85); // Vertical progression
-                      
-                      // Prevent cards from going off-screen
-                      const finalX = Math.max(5, Math.min(95, spiralX));
-                      const finalY = spiralY;
-                      
-                      return (
-                        <div 
-                          key={chapter.id} 
-                          className="absolute z-20" 
-                          style={{ 
-                            left: `${finalX}%`, 
-                            top: `${finalY}px`,
-                            transform: 'translateX(-50%)'
+                    {/* Elegant Cosmic Clouds */}
+                    <div className="absolute inset-0 opacity-20 pointer-events-none">
+                      {[...Array(5)].map((_, i) => (
+                        <div
+                          key={`cloud-${i}`}
+                          className="absolute rounded-full"
+                          style={{
+                            left: `${15 + (i * 20)}%`,
+                            top: `${20 + (i * 15)}%`,
+                            width: `${200 + (i * 50)}px`,
+                            height: `${120 + (i * 30)}px`,
+                            background: `radial-gradient(ellipse, rgba(99, 102, 241, 0.3) 0%, rgba(168, 85, 247, 0.2) 40%, transparent 70%)`,
+                            animation: `float ${8 + i * 2}s ease-in-out infinite`,
+                            animationDelay: `${i * 1.5}s`,
                           }}
-                        >
-                          
-                          {/* Planet/Location Node */}
-                          <div className={`relative mb-4 ${isUnlocked ? 'animate-float' : ''}`}>
-                            <div className={`w-16 h-16 rounded-full flex items-center justify-center border-4 transition-all duration-500 ${
-                              isUnlocked 
-                                ? 'bg-gradient-to-br from-yellow-400 to-orange-500 border-yellow-300 shadow-2xl shadow-yellow-400/50' 
-                                : 'bg-gray-700 border-gray-600 opacity-40'
-                            }`}>
-                              <span className={`text-2xl ${isUnlocked ? 'animate-bounce' : 'grayscale'}`}>
-                                {chapter.planet === "Earth's Roof" ? "🏠" :
-                                 chapter.planet === "Starport Academy" ? "🏫" :
-                                 chapter.planet === "Planet Harmonia" ? "🎵" :
-                                 chapter.planet === "Tech Station" ? "🤖" :
-                                 chapter.planet === "Time Vortex" ? "⏰" :
-                                 chapter.planet === "Planet Gigglia" ? "😂" :
-                                 chapter.planet === "Memory Palace" ? "📚" :
-                                 chapter.planet === "Planet Athletica" ? "🏃‍♂️" :
-                                 chapter.planet === "Dragon's Gate" ? "🐉" :
-                                 chapter.planet === "Confusion Fortress" ? "🏰" :
-                                 chapter.planet === "The Infinite Cosmos" ? "♾️" : "🌟"}
-                              </span>
-                            </div>
-                            
-                            {/* Planet Ring Effect */}
-                            {isUnlocked && (
-                              <div className="absolute inset-0 border-2 border-blue-400/30 rounded-full animate-spin-slow"></div>
-                            )}
-                          </div>
+                        />
+                      ))}
+                    </div>
 
-                          {/* Chapter Info Card */}
-                          <div className={`w-72 transition-all duration-500 ${
-                            isUnlocked 
-                              ? 'bg-gradient-to-br from-indigo-900/95 to-purple-900/95 border-2 border-blue-400/50 backdrop-blur-md shadow-2xl' 
-                              : 'bg-gray-800/60 border border-gray-600/30 opacity-60'
-                          } rounded-2xl p-5 relative`}>
+                    {/* Clean Chapter Timeline */}
+                    <div className="flex flex-col items-center space-y-8 pt-8">
+                      {STORY_CHAPTERS.slice(0, 30).map((chapter, index) => {
+                        const isUnlocked = unlockedChapters.some(c => c.id === chapter.id);
+                        const character = SPACE_FRIENDS.find(f => f.unlockStars <= chapter.unlockStars && f.unlockStars >= (STORY_CHAPTERS[index - 1]?.unlockStars || 0));
+                        
+                        return (
+                          <div key={chapter.id} className="w-full max-w-2xl mx-auto">
                             
-                            {/* Glow Effect for Unlocked */}
-                            {isUnlocked && (
-                              <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-2xl"></div>
-                            )}
-                            
-                            <div className="relative z-10">
-                              {/* Chapter Title */}
-                              <div className="text-center mb-4">
-                                <h3 className={`font-bold text-xl mb-1 ${isUnlocked ? 'text-white' : 'text-gray-400'}`}>
-                                  Chapter {chapter.id}
-                                </h3>
-                                <p className={`text-sm font-medium ${isUnlocked ? 'text-blue-300' : 'text-gray-500'}`}>
-                                  {chapter.title}
-                                </p>
+                            {/* Chapter Card */}
+                            <div className={`relative transition-all duration-500 ${
+                              isUnlocked 
+                                ? 'bg-white/10 border border-violet-400/30 shadow-xl shadow-violet-500/20' 
+                                : 'bg-slate-800/40 border border-slate-600/30 opacity-60'
+                            } backdrop-blur-sm rounded-3xl p-6 hover:scale-[1.02] hover:shadow-2xl hover:shadow-violet-500/30`}>
+                              
+                              {/* Chapter Header */}
+                              <div className="flex items-center gap-6 mb-4">
+                                
+                                {/* Planet Icon */}
+                                <div className={`relative ${isUnlocked ? 'animate-float' : ''}`}>
+                                  <div className={`w-20 h-20 rounded-full flex items-center justify-center border-3 transition-all duration-500 ${
+                                    isUnlocked 
+                                      ? 'bg-gradient-to-br from-amber-400 via-orange-500 to-pink-500 border-amber-300 shadow-xl shadow-amber-500/50' 
+                                      : 'bg-slate-700 border-slate-600'
+                                  }`}>
+                                    <span className="text-3xl">
+                                      {chapter.planet === "Earth's Roof" ? "🏠" :
+                                       chapter.planet === "Starport Academy" ? "🏫" :
+                                       chapter.planet === "Planet Harmonia" ? "🎵" :
+                                       chapter.planet === "Tech Station" ? "🤖" :
+                                       chapter.planet === "Time Vortex" ? "⏰" :
+                                       chapter.planet === "Planet Gigglia" ? "😂" :
+                                       chapter.planet === "Memory Palace" ? "📚" :
+                                       chapter.planet === "Planet Athletica" ? "🏃‍♂️" :
+                                       chapter.planet === "Dragon's Gate" ? "🐉" :
+                                       chapter.planet === "Confusion Fortress" ? "🏰" :
+                                       chapter.planet === "The Infinite Cosmos" ? "♾️" : "🌟"}
+                                    </span>
+                                  </div>
+                                  {isUnlocked && (
+                                    <div className="absolute inset-0 border-2 border-violet-400/40 rounded-full animate-ping"></div>
+                                  )}
+                                </div>
+
+                                {/* Chapter Info */}
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-3 mb-2">
+                                    <h3 className={`font-bold text-2xl ${isUnlocked ? 'text-white' : 'text-slate-400'}`}>
+                                      Chapter {chapter.id}
+                                    </h3>
+                                    {!isUnlocked && (
+                                      <div className="bg-slate-700/50 px-3 py-1 rounded-full flex items-center gap-2">
+                                        <span className="text-lg">🔒</span>
+                                        <span className="text-sm text-slate-300">Locked</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                  <h4 className={`text-lg font-semibold mb-3 ${isUnlocked ? 'text-violet-200' : 'text-slate-500'}`}>
+                                    {chapter.title}
+                                  </h4>
+                                  
+                                  {/* Character Introduction */}
+                                  {character && isUnlocked && (
+                                    <div className="bg-violet-800/30 rounded-xl p-3 mb-3 border border-violet-500/30">
+                                      <div className="flex items-center gap-3">
+                                        <span className="text-2xl">{character.emoji}</span>
+                                        <div>
+                                          <p className="font-semibold text-violet-200">{character.name}</p>
+                                          <p className="text-sm text-violet-300">{character.ability}</p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
 
-                              {/* Character Introduction */}
-                              {character && isUnlocked && (
-                                <div className="mb-4 p-3 bg-purple-800/50 rounded-xl border border-purple-500/40">
-                                  <div className="flex items-center gap-3">
-                                    <span className="text-2xl">{character.emoji}</span>
-                                    <div>
-                                      <p className="text-sm font-bold text-purple-200">{character.name}</p>
-                                      <p className="text-xs text-purple-300">{character.ability}</p>
+                              {/* Story & Mission Content */}
+                              {isUnlocked && (
+                                <div className="mb-6">
+                                  <p className="text-slate-200 mb-4 leading-relaxed">
+                                    {chapter.story.substring(0, 200)}...
+                                  </p>
+                                  
+                                  <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
+                                    <h5 className="font-semibold text-amber-300 mb-2">Mission Objective:</h5>
+                                    <p className="text-slate-300 mb-3 leading-relaxed">{chapter.mission}</p>
+                                    
+                                    <div className="flex justify-between items-center">
+                                      <div className="bg-emerald-500/20 px-3 py-1 rounded-full border border-emerald-400/30">
+                                        <span className="text-emerald-300 font-semibold">Reward: +{chapter.reward} SP</span>
+                                      </div>
+                                      <div className="bg-blue-500/20 px-3 py-1 rounded-full border border-blue-400/30">
+                                        <span className="text-blue-300 text-sm">Requires: {chapter.unlockStars.toLocaleString()} SP</span>
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
                               )}
 
-                              {/* Story Preview */}
-                              {isUnlocked && (
-                                <p className="text-xs text-gray-300 mb-4 leading-relaxed line-clamp-3">
-                                  {chapter.story.substring(0, 140)}...
-                                </p>
-                              )}
-
-                              {/* Mission Details */}
-                              <div className={`text-xs mb-4 ${isUnlocked ? 'text-yellow-300' : 'text-gray-500'}`}>
-                                <p className="font-semibold mb-2">Mission:</p>
-                                <p className="mb-3 leading-relaxed">{chapter.mission}</p>
-                                <div className="flex justify-between items-center bg-black/30 rounded-lg p-2">
-                                  <span className="text-green-400">+{chapter.reward} SP</span>
-                                  <span className="text-blue-400">{chapter.unlockStars.toLocaleString()} SP needed</span>
-                                </div>
-                              </div>
-
                               {/* Action Button */}
-                              {isUnlocked ? (
-                                <button
-                                  onClick={() => handleStartMission(chapter.id)}
-                                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-3 px-4 rounded-xl text-sm transition-all duration-300 transform hover:scale-105 shadow-lg"
-                                >
-                                  🚀 Launch Mission
-                                </button>
-                              ) : (
-                                <div className="w-full flex items-center justify-center gap-3 py-3 text-gray-500 bg-gray-700/30 rounded-xl">
-                                  <span className="text-xl">🔒</span>
-                                  <span className="text-sm font-medium">Locked</span>
-                                </div>
-                              )}
+                              <div className="flex justify-center">
+                                {isUnlocked ? (
+                                  <button
+                                    onClick={() => handleStartMission(chapter.id)}
+                                    className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-3"
+                                  >
+                                    <span className="text-lg">🚀</span>
+                                    Launch Mission
+                                  </button>
+                                ) : (
+                                  <div className="bg-slate-700/50 text-slate-400 font-medium py-4 px-8 rounded-2xl flex items-center gap-3">
+                                    <span className="text-lg">🔒</span>
+                                    Mission Locked
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
 
                     {/* Progress Indicator */}
                     <div className="absolute top-4 left-4 bg-black/90 text-white p-3 rounded-xl text-xs z-30 border border-yellow-400/50">
