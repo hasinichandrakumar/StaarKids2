@@ -8,6 +8,7 @@ import DailyChallenges from "@/components/DailyChallenges";
 import NavigationTabs from "@/components/NavigationTabs";
 import PracticeTab from "@/components/PracticeTab";
 import MockExamsTab from "@/components/MockExamsTab";
+import EssaysTab from "@/components/EssaysTab";
 import PerformanceTab from "@/components/PerformanceTab";
 import AICoachTab from "@/components/AICoachTab";
 import AvatarCustomizationModal from "@/components/AvatarCustomizationModal";
@@ -149,6 +150,10 @@ export default function Dashboard() {
         
         {activeTab === "mock-exams" && (
           <MockExamsTab grade={selectedGrade} />
+        )}
+        
+        {activeTab === "essays" && (
+          <EssaysTab />
         )}
         
         {activeTab === "performance" && (

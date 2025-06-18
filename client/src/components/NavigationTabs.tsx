@@ -1,4 +1,4 @@
-import { PencilIcon, ClipboardDocumentListIcon, ChartBarIcon, CpuChipIcon } from "@heroicons/react/24/outline";
+import { PencilIcon, ClipboardDocumentListIcon, ChartBarIcon, CpuChipIcon, DocumentTextIcon } from "@heroicons/react/24/outline";
 
 interface NavigationTabsProps {
   activeTab: string;
@@ -20,6 +20,13 @@ export default function NavigationTabs({ activeTab, onTabChange }: NavigationTab
       icon: ClipboardDocumentListIcon,
       description: "Full-length practice tests",
       color: "from-purple-500 to-purple-600"
+    },
+    { 
+      id: "essays", 
+      label: "Essays", 
+      icon: DocumentTextIcon,
+      description: "Writing practice & prompts",
+      color: "from-red-500 to-pink-600"
     },
     { 
       id: "performance", 
