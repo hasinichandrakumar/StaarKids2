@@ -12,44 +12,47 @@ interface AvatarCustomizationModalProps {
 }
 
 export default function AvatarCustomizationModal({ user, onClose }: AvatarCustomizationModalProps) {
-  const [selectedAvatar, setSelectedAvatar] = useState(user.avatarType || "fox");
-  const [selectedColor, setSelectedColor] = useState(user.avatarColor || "#FF5B00");
+  const [selectedAvatar, setSelectedAvatar] = useState(user.avatarType || "moon");
+  const [selectedColor, setSelectedColor] = useState(user.avatarColor || "#4F46E5");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const avatarOptions = [
-    { id: "shooting-star", emoji: "🌟", name: "Shooting Star" },
-    { id: "star", emoji: "⭐", name: "Golden Star" },
-    { id: "sparkles", emoji: "✨", name: "Sparkles" },
+    { id: "moon", emoji: "🌙", name: "Crescent Moon" },
+    { id: "full-moon", emoji: "🌕", name: "Full Moon" },
+    { id: "rocket", emoji: "🚀", name: "Rocket Ship" },
+    { id: "astronaut", emoji: "👨‍🚀", name: "Astronaut" },
+    { id: "satellite", emoji: "🛰️", name: "Satellite" },
+    { id: "ufo", emoji: "🛸", name: "UFO" },
+    { id: "milky-way", emoji: "🌌", name: "Milky Way" },
+    { id: "planet", emoji: "🪐", name: "Planet" },
+    { id: "shooting-star", emoji: "🌠", name: "Shooting Star" },
     { id: "comet", emoji: "☄️", name: "Comet" },
-    { id: "constellation", emoji: "🌌", name: "Constellation" },
-    { id: "dizzy", emoji: "💫", name: "Dizzy Star" },
-    { id: "glowing-star", emoji: "🌠", name: "Glowing Star" },
-    { id: "bright-star", emoji: "⭐", name: "Bright Star" },
-    { id: "magic-wand", emoji: "🪄", name: "Magic Wand" },
+    { id: "sun", emoji: "☀️", name: "Sun" },
+    { id: "earth", emoji: "🌍", name: "Earth" },
   ];
 
   const colorOptions = [
-    "#FF5B00", // Primary Orange
-    "#FCC201", // Golden Yellow
-    "#10B981", // Emerald Green
-    "#3B82F6", // Sky Blue
-    "#8B5CF6", // Purple
-    "#EF4444", // Red
-    "#F97316", // Orange
-    "#84CC16", // Lime
-    "#06B6D4", // Cyan
-    "#EC4899", // Pink
-    "#6366F1", // Indigo
-    "#14B8A6", // Teal
-    "#F59E0B", // Amber
-    "#8B5A2B", // Brown
-    "#6B7280", // Gray
+    "#4F46E5", // Deep Space Purple
+    "#1E1B4B", // Midnight Blue
+    "#7C3AED", // Cosmic Purple
+    "#2563EB", // Galaxy Blue
+    "#0891B2", // Nebula Cyan
+    "#059669", // Aurora Green
+    "#DC2626", // Mars Red
+    "#EA580C", // Solar Orange
+    "#FACC15", // Star Gold
+    "#F59E0B", // Moon Amber
+    "#EC4899", // Pink Nebula
+    "#8B5CF6", // Violet Galaxy
+    "#06B6D4", // Ice Blue
+    "#10B981", // Alien Green
+    "#374151", // Dark Matter Gray
   ];
 
   const updateProfileMutation = useMutation({
     mutationFn: async (updates: { avatarType: string; avatarColor: string }) => {
-      await apiRequest("PATCH", "/api/user/profile", updates);
+      return await apiRequest("PUT", "/api/user/avatar", updates);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });

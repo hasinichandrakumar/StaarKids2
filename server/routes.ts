@@ -551,6 +551,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Avatar update endpoint
+  app.put('/api/user/avatar', isAuthenticated, async (req: any, res) => {
+    try {
+      // Handle different authentication methods
+      let userId: string;
+      
+      // Direct Google OAuth session
+      if (req.session?.userId) {
+        userId = req.session.userId;
+      }
+      // Passport-based auth (Replit or Google)
+      else if (req.user) {
+        userId = req.user.claims?.sub || req.user.id;
+      }
+      else {
+        return res.status(401).json({ message: "No user found" });
+      }
+      
+      const avatarSchema = z.object({
+        avatarType: z.string(),
+        avatarColor: z.string()
+      });
+      
+      const { avatarType, avatarColor } = avatarSchema.parse(req.body);
+      const updatedUser = await storage.updateUserProfile(userId, { avatarType, avatarColor });
+      
+      res.json({ 
+        success: true, 
+        user: updatedUser,
+        message: "Avatar saved successfully" 
+      });
+    } catch (error) {
+      console.error("Error updating avatar:", error);
+      res.status(500).json({ message: "Failed to save avatar" });
+    }
+  });
+
   // Question routes with diverse visual content
   app.get('/api/questions/:grade/:subject', async (req, res) => {
     try {
