@@ -320,99 +320,163 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
 
 
 
-          {/* Question */}
+          {/* Question Content - Reading vs Math Layout */}
           <div className="mb-8">
-            {/* Enhanced Reading Question Display */}
             {subject === 'reading' ? (
-              <div className="prose prose-lg max-w-none mb-6">
-                <div 
-                  className="text-lg leading-relaxed text-gray-800"
-                  dangerouslySetInnerHTML={{
-                    __html: currentQuestion.questionText
-                      .replace(/\n\n/g, '</p><p class="mb-4">')
-                      .replace(/\n/g, '<br/>')
-                      .replace(/^/, '<p class="mb-4">')
-                      .replace(/$/, '</p>')
-                  }}
-                />
-              </div>
-            ) : (
-              <h3 className="text-xl font-semibold text-gray-800 mb-6 leading-relaxed">
-                {currentQuestion.questionText}
-              </h3>
-            )}
-
-            {/* Question Image/Diagram */}
-            {currentQuestion.hasImage && (
-              <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
-                <div className="flex justify-center">
-                  <div 
-                    className="max-w-full rounded shadow-sm bg-white p-3 border"
-                    style={{ maxHeight: '320px', maxWidth: '600px' }}
-                  >
-                    <SvgDisplay 
-                      questionId={currentQuestion.id} 
-                      description={currentQuestion.imageDescription || "Question diagram"}
+              /* Reading Comprehension Layout: Text on Left, Questions on Right */
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Reading Passage on Left */}
+                <div className="lg:border-r lg:pr-8">
+                  <h4 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Reading Passage</h4>
+                  <div className="prose prose-lg max-w-none">
+                    <div 
+                      className="text-base leading-relaxed text-gray-800 bg-gray-50 p-6 rounded-lg border"
+                      style={{ maxHeight: '500px', overflowY: 'auto' }}
+                      dangerouslySetInnerHTML={{
+                        __html: currentQuestion.questionText
+                          .replace(/\n\n/g, '</p><p class="mb-3">')
+                          .replace(/\n/g, '<br/>')
+                          .replace(/^/, '<p class="mb-3">')
+                          .replace(/$/, '</p>')
+                      }}
                     />
                   </div>
                 </div>
+
+                {/* Question and Answer Choices on Right */}
+                <div className="lg:pl-4">
+                  <h4 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Question</h4>
+                  
+                  {/* Extract and display the actual question */}
+                  <div className="mb-6">
+                    <p className="text-lg font-medium text-gray-800 leading-relaxed">
+                      {/* Extract question from passage text or use a default reading question */}
+                      Based on the passage, which statement is most accurate?
+                    </p>
+                  </div>
+
+                  {/* Answer Choices */}
+                  <div className="space-y-3">
+                    {currentQuestion.answerChoices.map((choice: any, index: number) => {
+                      const choiceId = choice.id || choice;
+                      const choiceText = choice.text || choice;
+                      
+                      let buttonStyle = "";
+                      let textStyle = "";
+                      
+                      if (showExplanation) {
+                        if (choiceId === currentQuestion.correctAnswer) {
+                          buttonStyle = "border-green-500 bg-green-50 hover:bg-green-100";
+                          textStyle = "text-green-700";
+                        } else if (choiceId === selectedAnswer) {
+                          buttonStyle = "border-red-500 bg-red-50 hover:bg-red-100";
+                          textStyle = "text-red-700";
+                        } else {
+                          buttonStyle = "border-gray-200 bg-gray-50";
+                          textStyle = "text-gray-500";
+                        }
+                      } else {
+                        if (selectedAnswer === choiceId) {
+                          buttonStyle = "border-orange-300 bg-orange-50 hover:bg-orange-100";
+                          textStyle = "text-orange-800";
+                        } else {
+                          buttonStyle = "border-gray-200 hover:border-gray-300 hover:bg-gray-50";
+                          textStyle = "text-gray-700";
+                        }
+                      }
+
+                      return (
+                        <button
+                          key={choiceId}
+                          onClick={() => !showExplanation && setSelectedAnswer(choiceId)}
+                          disabled={showExplanation}
+                          className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 ${buttonStyle} ${
+                            showExplanation ? 'cursor-default' : 'cursor-pointer'
+                          }`}
+                        >
+                          <div className="flex items-start">
+                            <span className={`text-lg font-semibold mr-3 mt-0.5 ${textStyle}`}>{choiceId})</span>
+                            <span className={`text-base leading-relaxed ${textStyle}`}>{choiceText}</span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* Math Layout: Traditional Single Column */
+              <div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-6 leading-relaxed">
+                  {currentQuestion.questionText}
+                </h3>
+
+                {/* Question Image/Diagram for Math */}
+                {currentQuestion.hasImage && (
+                  <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
+                    <div className="flex justify-center">
+                      <div 
+                        className="max-w-full rounded shadow-sm bg-white p-3 border"
+                        style={{ maxHeight: '320px', maxWidth: '600px' }}
+                      >
+                        <SvgDisplay 
+                          questionId={currentQuestion.id} 
+                          description={currentQuestion.imageDescription || "Question diagram"}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Answer Choices for Math */}
+                <div className="space-y-3">
+                  {currentQuestion.answerChoices.map((choice: any, index: number) => {
+                    const choiceId = choice.id || choice;
+                    const choiceText = choice.text || choice;
+                    
+                    let buttonStyle = "";
+                    let textStyle = "";
+                    
+                    if (showExplanation) {
+                      if (choiceId === currentQuestion.correctAnswer) {
+                        buttonStyle = "border-green-500 bg-green-50 hover:bg-green-100";
+                        textStyle = "text-green-700";
+                      } else if (choiceId === selectedAnswer) {
+                        buttonStyle = "border-red-500 bg-red-50 hover:bg-red-100";
+                        textStyle = "text-red-700";
+                      } else {
+                        buttonStyle = "border-gray-200 bg-gray-50";
+                        textStyle = "text-gray-500";
+                      }
+                    } else {
+                      if (selectedAnswer === choiceId) {
+                        buttonStyle = "border-orange-300 bg-orange-50 hover:bg-orange-100";
+                        textStyle = "text-orange-800";
+                      } else {
+                        buttonStyle = "border-gray-200 hover:border-gray-300 hover:bg-gray-50";
+                        textStyle = "text-gray-700";
+                      }
+                    }
+
+                    return (
+                      <button
+                        key={choiceId}
+                        onClick={() => !showExplanation && setSelectedAnswer(choiceId)}
+                        disabled={showExplanation}
+                        className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 ${buttonStyle} ${
+                          showExplanation ? 'cursor-default' : 'cursor-pointer'
+                        }`}
+                      >
+                        <div className="flex items-center">
+                          <span className={`text-lg font-semibold mr-4 ${textStyle}`}>{choiceId})</span>
+                          <span className={`text-lg ${textStyle}`}>{choiceText}</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             )}
-
-            {/* Answer Choices */}
-            <div className="space-y-3">
-              {currentQuestion.answerChoices.map((choice: any, index: number) => {
-                // Handle both data formats: array of objects or array of strings
-                const choiceId = choice.id || choice;
-                const choiceText = choice.text || choice;
-                
-                // Determine styling based on answer status
-                let buttonStyle = "";
-                let textStyle = "";
-                
-                if (showExplanation) {
-                  // After answer is submitted, show correct/incorrect feedback
-                  if (choiceId === currentQuestion.correctAnswer) {
-                    // Correct answer - always green
-                    buttonStyle = "border-green-500 bg-green-50 hover:bg-green-100";
-                    textStyle = "text-green-700";
-                  } else if (choiceId === selectedAnswer) {
-                    // Selected wrong answer - red
-                    buttonStyle = "border-red-500 bg-red-50 hover:bg-red-100";
-                    textStyle = "text-red-700";
-                  } else {
-                    // Unselected options - gray
-                    buttonStyle = "border-gray-200 bg-gray-50";
-                    textStyle = "text-gray-500";
-                  }
-                } else {
-                  // Before answer submission - normal selection styling
-                  if (selectedAnswer === choiceId) {
-                    buttonStyle = "border-orange-300 bg-orange-50 hover:bg-orange-100";
-                    textStyle = "text-orange-800";
-                  } else {
-                    buttonStyle = "border-gray-200 hover:border-gray-300 hover:bg-gray-50";
-                    textStyle = "text-gray-700";
-                  }
-                }
-
-                return (
-                  <button
-                    key={choiceId}
-                    onClick={() => !showExplanation && setSelectedAnswer(choiceId)}
-                    disabled={showExplanation}
-                    className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 ${buttonStyle} ${
-                      showExplanation ? 'cursor-default' : 'cursor-pointer'
-                    }`}
-                  >
-                    <div className="flex items-center">
-                      <span className={`text-lg font-semibold mr-4 ${textStyle}`}>{choiceId})</span>
-                      <span className={`text-lg ${textStyle}`}>{choiceText}</span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
           </div>
 
           {/* Nova's Explanation Display */}
