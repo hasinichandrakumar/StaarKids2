@@ -1,4 +1,4 @@
-import { PencilIcon, ClipboardDocumentListIcon, ChartBarIcon, CpuChipIcon, DocumentTextIcon } from "@heroicons/react/24/outline";
+import { PencilIcon, ClipboardDocumentListIcon, ChartBarIcon, CpuChipIcon, DocumentTextIcon, StarIcon, RocketLaunchIcon, AcademicCapIcon } from "@heroicons/react/24/outline";
 
 interface NavigationTabsProps {
   activeTab: string;
@@ -8,18 +8,25 @@ interface NavigationTabsProps {
 export default function NavigationTabs({ activeTab, onTabChange }: NavigationTabsProps) {
   const tabs = [
     { 
-      id: "practice", 
-      label: "Practice", 
-      icon: PencilIcon,
-      description: "Quick practice sessions",
+      id: "starspace", 
+      label: "StarSpace", 
+      icon: RocketLaunchIcon,
+      description: "Avatar & gamification hub",
+      color: "from-purple-500 to-pink-600"
+    },
+    { 
+      id: "unlimited-practice", 
+      label: "Unlimited Practice", 
+      icon: AcademicCapIcon,
+      description: "AI-powered TEKS practice",
       color: "from-blue-500 to-blue-600"
     },
     { 
       id: "mock-exams", 
       label: "Mock Exams", 
       icon: ClipboardDocumentListIcon,
-      description: "Full-length practice tests",
-      color: "from-purple-500 to-purple-600"
+      description: "2013-2025 practice tests",
+      color: "from-indigo-500 to-indigo-600"
     },
     { 
       id: "essays", 
@@ -30,14 +37,14 @@ export default function NavigationTabs({ activeTab, onTabChange }: NavigationTab
     },
     { 
       id: "performance", 
-      label: "Performance", 
+      label: "Analytics", 
       icon: ChartBarIcon,
-      description: "Track your progress",
+      description: "Detailed progress tracking",
       color: "from-green-500 to-green-600"
     },
     { 
-      id: "ai-coach", 
-      label: "Study Plan", 
+      id: "ai-study-plan", 
+      label: "AI Study Plan", 
       icon: CpuChipIcon,
       description: "Personalized learning guidance",
       color: "from-orange-500 to-yellow-500"

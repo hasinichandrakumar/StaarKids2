@@ -45,7 +45,7 @@ export default function Dashboard() {
     rank: "Explorer"
   };
   const [selectedGrade, setSelectedGrade] = useState(4);
-  const [activeTab, setActiveTab] = useState("practice");
+  const [activeTab, setActiveTab] = useState("starspace");
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [showNovaChat, setShowNovaChat] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
@@ -148,15 +148,29 @@ export default function Dashboard() {
           onTabChange={setActiveTab} 
         />
         
-        {activeTab === "practice" && (
-          <PracticeTab 
+        {activeTab === "starspace" && (
+          <StarSpaceTab 
+            user={currentUser as any}
+            onOpenAvatarModal={() => setShowAvatarModal(true)}
+          />
+        )}
+
+        {activeTab === "unlimited-practice" && (
+          <UnlimitedPracticeTab 
             grade={selectedGrade} 
             onStartPractice={startPractice}
           />
         )}
         
         {activeTab === "mock-exams" && (
-          <MockExamsTab grade={selectedGrade} />
+          <EnhancedMockExamsTab grade={selectedGrade} />
+        )}
+
+        {activeTab === "practice" && (
+          <PracticeTab 
+            grade={selectedGrade} 
+            onStartPractice={startPractice}
+          />
         )}
         
         {activeTab === "essays" && (
@@ -165,6 +179,13 @@ export default function Dashboard() {
         
         {activeTab === "performance" && (
           <PerformanceTab grade={selectedGrade} />
+        )}
+
+        {activeTab === "ai-study-plan" && (
+          <AIStudyPlanTab 
+            grade={selectedGrade}
+            user={currentUser as any}
+          />
         )}
         
         {activeTab === "ai-coach" && (
