@@ -395,23 +395,36 @@ const SPACE_FRIENDS = [
 ];
 
 const GALAXY_LOCATIONS = [
-  { name: "Academy Station", unlockChapter: 1, x: 50, y: 50, emoji: "🏫", description: "Where your adventure begins" },
-  { name: "Planet Lumina", unlockChapter: 4, x: 20, y: 30, emoji: "💎", description: "Crystal caves sing with knowledge" },
-  { name: "Asteroid Belt", unlockChapter: 3, x: 75, y: 25, emoji: "☄️", description: "Dangerous meteors to navigate" },
-  { name: "Zephyr", unlockChapter: 4, x: 30, y: 70, emoji: "👽", description: "Home of the friendly aliens" },
-  { name: "Techno Station", unlockChapter: 5, x: 80, y: 60, emoji: "🤖", description: "Robot factory in space" },
-  { name: "Whale Nebula", unlockChapter: 6, x: 15, y: 80, emoji: "🐋", description: "Where space whales sing" },
-  { name: "Time Rift Station", unlockChapter: 7, x: 60, y: 15, emoji: "⏰", description: "Portal through time itself" },
-  { name: "Planet Bounce", unlockChapter: 8, x: 85, y: 40, emoji: "🏃‍♂️", description: "Low gravity sports world" },
-  { name: "Story Library", unlockChapter: 9, x: 40, y: 85, emoji: "📚", description: "Where books come alive" },
-  { name: "Mobile Circus Ship", unlockChapter: 11, x: 70, y: 75, emoji: "🎪", description: "Traveling cosmic circus" },
-  { name: "Cloud City", unlockChapter: 12, x: 25, y: 20, emoji: "⛈️", description: "City floating in storms" },
-  { name: "Treasure Cove", unlockChapter: 13, x: 90, y: 80, emoji: "🏴‍☠️", description: "Secret pirate hideout" },
-  { name: "Innovation Hub", unlockChapter: 14, x: 55, y: 35, emoji: "⚙️", description: "Galaxy's invention center" },
-  { name: "Harmonia", unlockChapter: 15, x: 35, y: 55, emoji: "🎼", description: "Planet of musical mathematics" },
-  { name: "Shadow Fortress", unlockChapter: 16, x: 10, y: 10, emoji: "🌑", description: "Lord Confusion's dark domain" },
-  { name: "Council of Planets", unlockChapter: 19, x: 65, y: 90, emoji: "🏛️", description: "Government of the galaxy" },
-  { name: "Infinity Realm", unlockChapter: 21, x: 50, y: 5, emoji: "♾️", description: "Beyond all understanding" }
+  { name: "Earth's Roof", unlockChapter: 1, x: 5, y: 95, emoji: "🏠", description: "Where your cosmic adventure began", type: "origin", connections: [1] },
+  { name: "Starport Academy", unlockChapter: 2, x: 50, y: 80, emoji: "🏫", description: "Training ground for galactic heroes", type: "hub", connections: [2, 3] },
+  { name: "Planet Harmonia", unlockChapter: 4, x: 20, y: 60, emoji: "🎵", description: "Musical world of crystal singers", type: "planet", connections: [4, 5] },
+  { name: "Tech Station", unlockChapter: 6, x: 75, y: 70, emoji: "🤖", description: "Zyx-9's robotic wonderland", type: "station", connections: [6] },
+  { name: "Time Vortex", unlockChapter: 7, x: 40, y: 20, emoji: "⏰", description: "Where past and future collide", type: "anomaly", connections: [7] },
+  { name: "Planet Gigglia", unlockChapter: 8, x: 85, y: 45, emoji: "😂", description: "World powered by laughter", type: "planet", connections: [8] },
+  { name: "Memory Palace", unlockChapter: 9, x: 30, y: 40, emoji: "📚", description: "Cosmic library of all knowledge", type: "palace", connections: [9] },
+  { name: "Planet Athletica", unlockChapter: 10, x: 60, y: 90, emoji: "🏃‍♂️", description: "Home of the Learning Olympics", type: "planet", connections: [10] },
+  { name: "Dragon's Gate", unlockChapter: 11, x: 90, y: 25, emoji: "🐉", description: "Calculon's riddle fortress", type: "gate", connections: [11] },
+  { name: "Planet Bounce", unlockChapter: 12, x: 15, y: 85, emoji: "🌍", description: "Gravity-defying sports world", type: "planet", connections: [12] },
+  { name: "Rainbow Nexus", unlockChapter: 13, x: 70, y: 30, emoji: "🌈", description: "Prism's light-weaving realm", type: "nexus", connections: [13] },
+  { name: "Sound Caverns", unlockChapter: 14, x: 25, y: 15, emoji: "🔊", description: "Echo's acoustic wonderland", type: "cavern", connections: [14] },
+  { name: "Between Worlds", unlockChapter: 15, x: 55, y: 50, emoji: "👣", description: "Orbit's dimensional crossroads", type: "void", connections: [15] },
+  { name: "Secret Dojo", unlockChapter: 16, x: 80, y: 85, emoji: "🥷", description: "Number Ninjas training ground", type: "hidden", connections: [16] },
+  { name: "Dream Dimension", unlockChapter: 17, x: 10, y: 50, emoji: "💤", description: "Crystal's realm of learning dreams", type: "dimension", connections: [17] },
+  { name: "Inspiration Station", unlockChapter: 18, x: 65, y: 15, emoji: "💡", description: "Spark's idea-generating hub", type: "station", connections: [18] },
+  { name: "Pattern Maze", unlockChapter: 19, x: 35, y: 75, emoji: "🌀", description: "Maze's geometric labyrinth", type: "maze", connections: [19] },
+  { name: "Resilience Peak", unlockChapter: 20, x: 85, y: 10, emoji: "🔥", description: "Phoenix's comeback mountain", type: "peak", connections: [20] },
+  { name: "Star Factory", unlockChapter: 21, x: 45, y: 35, emoji: "⭐", description: "Stellar's constellation workshop", type: "factory", connections: [21] },
+  { name: "Oracle Temple", unlockChapter: 22, x: 15, y: 25, emoji: "🔮", description: "Wisdom's ancient prophecy hall", type: "temple", connections: [22] },
+  { name: "Council Chambers", unlockChapter: 23, x: 75, y: 55, emoji: "🏛️", description: "The Learning Council's headquarters", type: "government", connections: [23] },
+  { name: "Reformed Fortress", unlockChapter: 24, x: 95, y: 60, emoji: "👑", description: "Emperor Confusion's new home", type: "fortress", connections: [24] },
+  { name: "Crystal Chamber", unlockChapter: 25, x: 50, y: 65, emoji: "💎", description: "Heart of all galactic learning", type: "core", connections: [25] },
+  { name: "Confusion Fortress", unlockChapter: 27, x: 5, y: 5, emoji: "🏰", description: "The dark emperor's stronghold", type: "evil", connections: [27] },
+  { name: "Confusion Throne Room", unlockChapter: 28, x: 3, y: 3, emoji: "⚔️", description: "Final battle arena", type: "boss", connections: [28] },
+  { name: "Infinite Realm", unlockChapter: 30, x: 50, y: 5, emoji: "♾️", description: "Beyond all understanding", type: "infinite", connections: [30] },
+  { name: "Asteroid Field", unlockChapter: 4, x: 65, y: 75, emoji: "☄️", description: "Dangerous space debris", type: "hazard", connections: [] },
+  { name: "Wormhole Junction", unlockChapter: 15, x: 40, y: 60, emoji: "🌀", description: "Instant travel network", type: "portal", connections: [] },
+  { name: "Dark Nebula", unlockChapter: 26, x: 20, y: 8, emoji: "🌑", description: "Approach to evil's domain", type: "dark", connections: [] },
+  { name: "Victory Celebration", unlockChapter: 29, x: 50, y: 45, emoji: "🎉", description: "Heroes' triumph gathering", type: "celebration", connections: [] }
 ];
 
 const SPACE_ACHIEVEMENTS = [
@@ -764,24 +777,43 @@ export default function StarSpaceStoryTab({ user, starPower }: StarSpaceStoryTab
                 )}
 
                 {/* Progress Info */}
-                <div className="absolute top-6 left-6 bg-black/80 text-white p-4 rounded-xl text-sm z-30">
-                  <div className="text-yellow-300 mb-2 font-bold">🚀 Current Progress</div>
+                <div className="absolute top-6 left-6 bg-black/90 text-white p-4 rounded-xl text-sm z-30 border border-blue-400/30 backdrop-blur-sm">
+                  <div className="text-yellow-300 mb-2 font-bold">🚀 Mission Progress</div>
                   <div className="text-xs text-gray-300 space-y-1">
                     <div>StarPower: {starPower.toLocaleString()}</div>
-                    <div>Chapter: {Math.max(1, unlockedChapters.length)}/21</div>
+                    <div>Chapter: {Math.max(1, unlockedChapters.length)}/30</div>
                     <div>Locations: {unlockedLocations.length}/{GALAXY_LOCATIONS.length}</div>
+                    <div>Friends: {unlockedFriends.length}/25</div>
+                    <div className="text-green-400 mt-2">Next unlock: {
+                      STORY_CHAPTERS.find(c => c.unlockStars > starPower)?.unlockStars.toLocaleString() || 'MAX'
+                    } SP</div>
                   </div>
                 </div>
 
-                {/* Legend */}
-                <div className="absolute top-6 right-6 bg-black/80 text-white p-4 rounded-xl text-sm z-30">
-                  <div className="text-purple-300 mb-2 font-bold">Legend</div>
+                {/* Enhanced Legend */}
+                <div className="absolute top-6 right-6 bg-black/90 text-white p-4 rounded-xl text-sm z-30 border border-purple-400/30 backdrop-blur-sm">
+                  <div className="text-purple-300 mb-2 font-bold">Galaxy Guide</div>
                   <div className="text-xs text-gray-300 space-y-1">
-                    <div>✨ Unlocked Location</div>
-                    <div>🔒 Locked Location</div>
-                    <div className="text-yellow-300">Click to explore!</div>
+                    <div>🏠 Origin Point</div>
+                    <div>🏫 Learning Hub</div>
+                    <div>🎵 Musical World</div>
+                    <div>🤖 Tech Station</div>
+                    <div>🏰 Boss Fortress</div>
+                    <div>♾️ Infinite Realm</div>
+                    <div className="text-yellow-300 mt-2">Click locations to explore!</div>
                   </div>
                 </div>
+
+                {/* Mission Status */}
+                {unlockedChapters.length > 0 && (
+                  <div className="absolute bottom-6 left-6 bg-black/90 text-white p-4 rounded-xl text-sm z-30 border border-green-400/30 backdrop-blur-sm">
+                    <div className="text-green-300 mb-2 font-bold">⚡ Current Mission</div>
+                    <div className="text-xs text-gray-300">
+                      <div className="font-medium">{STORY_CHAPTERS[Math.min(unlockedChapters.length, STORY_CHAPTERS.length - 1)]?.title}</div>
+                      <div className="mt-1">{STORY_CHAPTERS[Math.min(unlockedChapters.length, STORY_CHAPTERS.length - 1)]?.mission}</div>
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
