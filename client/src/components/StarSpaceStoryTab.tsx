@@ -235,7 +235,7 @@ const STORY_CHAPTERS = [
   {
     id: 21,
     title: "The Infinite Adventure",
-    unlockStars: 75000,
+    unlockStars: 200000,
     description: "Discover that learning is truly infinite and the adventure continues forever!",
     story: "♾️ As you gaze out at the infinite cosmos, you realize your greatest adventure is just beginning! There are always new worlds to explore, new problems to solve, and new friends to help. The Crystal of Learning within you glows brighter than ever, ready for whatever challenges and discoveries await in the endless galaxy of knowledge!",
     mission: "Demonstrate legendary mastery: 99% accuracy on 1000 problems across all subjects",
@@ -309,9 +309,22 @@ export default function StarSpaceStoryTab({ user, starPower }: StarSpaceStoryTab
     // Redirect to practice questions based on chapter requirements
     const chapter = STORY_CHAPTERS.find(c => c.id === chapterId);
     if (chapter) {
-      // This would trigger opening the practice modal with specific requirements
-      window.location.hash = 'practice-mode';
-      console.log(`Starting mission: ${chapter.mission}`);
+      // Determine subject and difficulty based on chapter
+      const subject = chapterId % 2 === 0 ? 'reading' : 'math';
+      
+      // Trigger practice modal with specific requirements
+      const event = new CustomEvent('startPractice', {
+        detail: {
+          subject: subject,
+          category: 'all',
+          missionContext: {
+            chapterId,
+            title: chapter.title,
+            mission: chapter.mission
+          }
+        }
+      });
+      window.dispatchEvent(event);
     }
   };
 
@@ -538,43 +551,104 @@ export default function StarSpaceStoryTab({ user, starPower }: StarSpaceStoryTab
         </TabsContent>
 
         <TabsContent value="map" className="space-y-4">
-          <Card className="bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white min-h-96">
+          <Card className="bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white">
             <CardHeader>
               <CardTitle className="text-center text-2xl">
-                🌌 Galaxy Map 🌌
+                🌌 Interactive Galaxy Map 🌌
               </CardTitle>
               <p className="text-center text-purple-200">
-                Your journey through the cosmos of learning
+                {unlockedLocations.length}/{GALAXY_LOCATIONS.length} Locations Discovered
               </p>
             </CardHeader>
             <CardContent>
-              <div className="relative h-80 overflow-hidden rounded-lg">
+              <div className="relative bg-gradient-to-br from-blue-900/50 to-purple-900/70 rounded-lg p-6 min-h-[500px] overflow-hidden">
                 {/* Animated star background */}
-                <div className="absolute inset-0">
-                  {[...Array(50)].map((_, i) => (
+                <div className="absolute inset-0 opacity-40">
+                  {[...Array(80)].map((_, i) => (
                     <div
                       key={i}
                       className="absolute w-1 h-1 bg-white rounded-full animate-pulse"
                       style={{
                         left: `${Math.random() * 100}%`,
                         top: `${Math.random() * 100}%`,
-                        animationDelay: `${Math.random() * 3}s`,
+                        animationDelay: `${Math.random() * 4}s`,
                       }}
                     />
                   ))}
                 </div>
-                
-                {/* Journey path */}
-                <div className="relative z-10 h-full flex items-center justify-center">
-                  <div className="text-center space-y-4">
-                    <div className="text-6xl">🚀</div>
-                    <div className="text-xl font-bold">Current Location</div>
-                    <div className="text-lg">
-                      Chapter {Math.max(1, unlockedChapters.length)}
+
+                {/* Galaxy Locations */}
+                {GALAXY_LOCATIONS.map((location) => {
+                  const isUnlocked = unlockedLocations.includes(location);
+                  const isSelected = selectedLocation === location.name;
+                  
+                  return (
+                    <div
+                      key={location.name}
+                      className={`absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all duration-300 z-20 ${
+                        isUnlocked ? 'hover:scale-125' : 'opacity-20'
+                      } ${isSelected ? 'scale-150 z-30' : ''}`}
+                      style={{ left: `${location.x}%`, top: `${location.y}%` }}
+                      onClick={() => isUnlocked && setSelectedLocation(isSelected ? null : location.name)}
+                    >
+                      <div className={`relative group ${isUnlocked ? 'animate-pulse' : ''}`}>
+                        <div className={`text-3xl transition-all duration-300 ${
+                          isUnlocked ? 'filter-none drop-shadow-lg' : 'grayscale'
+                        }`}>
+                          {location.emoji}
+                        </div>
+                        {isUnlocked && (
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black/90 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-purple-400">
+                            {location.name}
+                          </div>
+                        )}
+                        {isUnlocked && (
+                          <div className="absolute inset-0 bg-blue-400/30 rounded-full animate-ping" />
+                        )}
+                        {!isUnlocked && (
+                          <div className="absolute -top-1 -right-1 text-red-400 text-lg">🔒</div>
+                        )}
+                      </div>
                     </div>
-                    <Badge className="bg-white text-purple-900">
-                      {starPower.toLocaleString()} StarPower Collected
-                    </Badge>
+                  );
+                })}
+
+                {/* Location Details Panel */}
+                {selectedLocation && (
+                  <div className="absolute bottom-6 right-6 bg-black/90 text-white p-6 rounded-xl max-w-sm border border-purple-400 z-40">
+                    <h3 className="font-bold text-xl mb-3 text-purple-300">{selectedLocation}</h3>
+                    <p className="text-sm text-gray-300 mb-3">
+                      {GALAXY_LOCATIONS.find(l => l.name === selectedLocation)?.description}
+                    </p>
+                    <div className="text-xs text-blue-300 mb-3">
+                      Unlocked at Chapter {GALAXY_LOCATIONS.find(l => l.name === selectedLocation)?.unlockChapter}
+                    </div>
+                    <button
+                      onClick={() => setSelectedLocation(null)}
+                      className="bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded text-sm transition-colors"
+                    >
+                      Close
+                    </button>
+                  </div>
+                )}
+
+                {/* Progress Info */}
+                <div className="absolute top-6 left-6 bg-black/80 text-white p-4 rounded-xl text-sm z-30">
+                  <div className="text-yellow-300 mb-2 font-bold">🚀 Current Progress</div>
+                  <div className="text-xs text-gray-300 space-y-1">
+                    <div>StarPower: {starPower.toLocaleString()}</div>
+                    <div>Chapter: {Math.max(1, unlockedChapters.length)}/21</div>
+                    <div>Locations: {unlockedLocations.length}/{GALAXY_LOCATIONS.length}</div>
+                  </div>
+                </div>
+
+                {/* Legend */}
+                <div className="absolute top-6 right-6 bg-black/80 text-white p-4 rounded-xl text-sm z-30">
+                  <div className="text-purple-300 mb-2 font-bold">Legend</div>
+                  <div className="text-xs text-gray-300 space-y-1">
+                    <div>✨ Unlocked Location</div>
+                    <div>🔒 Locked Location</div>
+                    <div className="text-yellow-300">Click to explore!</div>
                   </div>
                 </div>
               </div>

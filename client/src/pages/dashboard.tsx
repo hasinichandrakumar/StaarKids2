@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/Header";
 import WelcomeSection from "@/components/WelcomeSection";
@@ -52,9 +52,24 @@ export default function Dashboard() {
   const [showQuestionModal, setShowQuestionModal] = useState(false);
   const [practiceSubject, setPracticeSubject] = useState<"math" | "reading">("math");
   const [practiceCategory, setPracticeCategory] = useState<string | undefined>(undefined);
+  const [missionContext, setMissionContext] = useState<any>(null);
 
   // Use demo data when in demo mode, otherwise use authenticated user data
   const currentUser = isDemo ? demoUser : user;
+
+  // Listen for StarSpace mission events
+  useEffect(() => {
+    const handleStartPractice = (event: any) => {
+      const { subject, category, missionContext } = event.detail;
+      setPracticeSubject(subject);
+      setPracticeCategory(category);
+      setMissionContext(missionContext);
+      setShowQuestionModal(true);
+    };
+
+    window.addEventListener('startPractice', handleStartPractice);
+    return () => window.removeEventListener('startPractice', handleStartPractice);
+  }, []);
   
   // In demo mode, skip loading state
   if (!isDemo && isLoading) {
@@ -205,7 +220,9 @@ export default function Dashboard() {
           onClose={() => {
             setShowQuestionModal(false);
             setPracticeCategory(undefined);
+            setMissionContext(null);
           }}
+          missionContext={missionContext}
         />
       )}
 
