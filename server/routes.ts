@@ -14,6 +14,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log("=== API TEST ENDPOINT REACHED ===");
     res.json({ message: "API routes are working", timestamp: new Date().toISOString() });
   });
+
+  // Test accurate SVG generation
+  app.get("/api/test-svg", async (req, res) => {
+    try {
+      const { generateAccurateSVG } = await import("./accurateImageGenerator");
+      
+      const testConfig = {
+        questionId: 1000,
+        questionText: "The diagram shows a rectangular garden with a length of 15 feet and a width of 8 feet. What is the area of the garden?",
+        imageDescription: "A rectangular garden diagram with clearly labeled dimensions of 15 feet by 8 feet",
+        grade: 4,
+        subject: "math" as const
+      };
+      
+      console.log("=== TESTING ACCURATE SVG GENERATION ===");
+      console.log("Config:", testConfig);
+      
+      const svg = generateAccurateSVG(testConfig);
+      
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.send(svg);
+    } catch (error) {
+      console.error("Test SVG generation error:", error);
+      res.status(500).json({ error: "Failed to generate test SVG" });
+    }
+  });
   
   // CRITICAL: Add OAuth callback route using API prefix to bypass Vite
   app.get("/api/oauth/google/callback", async (req, res) => {

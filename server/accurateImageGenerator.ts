@@ -16,15 +16,20 @@ export function generateAccurateSVG(config: ImageConfig): string {
   const text = questionText?.toLowerCase() || '';
   
   // Rectangle/Garden area problems
-  if (description.includes('rectangular') && description.includes('garden')) {
+  if ((description.includes('rectangular') && (description.includes('garden') || description.includes('diagram'))) ||
+      (text.includes('rectangular') && text.includes('area')) ||
+      (text.includes('length') && text.includes('width') && text.includes('feet'))) {
     const lengthMatch = description.match(/(\d+)\s*feet?\s*by\s*(\d+)\s*feet?/) || 
                        text.match(/length\s*of\s*(\d+)\s*feet?\s*.*width\s*of\s*(\d+)\s*feet?/) ||
-                       text.match(/(\d+)\s*feet\s*.*(\d+)\s*feet/);
+                       text.match(/(\d+)\s*feet\s*.*(\d+)\s*feet/) ||
+                       description.match(/(\d+)\s*feet\s*by\s*(\d+)\s*feet/);
     if (lengthMatch) {
       const length = parseInt(lengthMatch[1]);
       const width = parseInt(lengthMatch[2]);
       return generateRectangleAreaDiagram(length, width);
     }
+    // Default rectangular garden for area questions
+    return generateRectangleAreaDiagram(15, 8);
   }
   
   // Bar graph data visualization
@@ -59,6 +64,11 @@ export function generateAccurateSVG(config: ImageConfig): string {
   // Triangle area calculations
   if (description.includes('triangle')) {
     return generateTriangle();
+  }
+  
+  // Check for any area calculation questions
+  if (text.includes('area') || text.includes('garden') || text.includes('rectangular')) {
+    return generateRectangleAreaDiagram(15, 8);
   }
   
   // Default math diagram
