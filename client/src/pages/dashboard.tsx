@@ -173,9 +173,6 @@ export default function Dashboard() {
           />
         )}
         
-        {activeTab === "essays" && (
-          <EssaysTab />
-        )}
         
         {activeTab === "performance" && (
           <PerformanceTab grade={selectedGrade} />

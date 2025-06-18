@@ -29,13 +29,6 @@ export default function NavigationTabs({ activeTab, onTabChange }: NavigationTab
       color: "from-indigo-500 to-indigo-600"
     },
     { 
-      id: "essays", 
-      label: "Essays", 
-      icon: DocumentTextIcon,
-      description: "Writing practice & prompts",
-      color: "from-red-500 to-pink-600"
-    },
-    { 
       id: "performance", 
       label: "Analytics", 
       icon: ChartBarIcon,
