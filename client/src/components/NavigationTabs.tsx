@@ -37,7 +37,7 @@ export default function NavigationTabs({ activeTab, onTabChange }: NavigationTab
     },
     { 
       id: "ai-coach", 
-      label: "AI Coach", 
+      label: "Study Plan", 
       icon: CpuChipIcon,
       description: "Personalized learning guidance",
       color: "from-orange-500 to-yellow-500"
