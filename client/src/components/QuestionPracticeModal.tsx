@@ -234,8 +234,9 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
     } else {
       // Show Nova's explanation for incorrect answer
       setShowExplanation(true);
-      const userAnswerChoice = currentQuestion.answer_choices.find((choice: any) => choice.id === selectedAnswer);
-      await getNovaExplanation(currentQuestion, userAnswerChoice?.text || selectedAnswer, currentQuestion.correctAnswer, false);
+      const userAnswerChoice = currentQuestion.answerChoices.find((choice: any) => (choice.id || choice) === selectedAnswer);
+      const userAnswerText = userAnswerChoice?.text || userAnswerChoice || selectedAnswer;
+      await getNovaExplanation(currentQuestion, userAnswerText, currentQuestion.correctAnswer, false);
     }
   };
 
@@ -360,18 +361,22 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
 
             {/* Answer Choices */}
             <div className="space-y-3">
-              {currentQuestion.answerChoices.map((choice: any) => {
+              {currentQuestion.answerChoices.map((choice: any, index: number) => {
+                // Handle both data formats: array of objects or array of strings
+                const choiceId = choice.id || choice;
+                const choiceText = choice.text || choice;
+                
                 // Determine styling based on answer status
                 let buttonStyle = "";
                 let textStyle = "";
                 
                 if (showExplanation) {
                   // After answer is submitted, show correct/incorrect feedback
-                  if (choice.id === currentQuestion.correctAnswer) {
+                  if (choiceId === currentQuestion.correctAnswer) {
                     // Correct answer - always green
                     buttonStyle = "border-green-500 bg-green-50 hover:bg-green-100";
                     textStyle = "text-green-700";
-                  } else if (choice.id === selectedAnswer) {
+                  } else if (choiceId === selectedAnswer) {
                     // Selected wrong answer - red
                     buttonStyle = "border-red-500 bg-red-50 hover:bg-red-100";
                     textStyle = "text-red-700";
@@ -382,7 +387,7 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
                   }
                 } else {
                   // Before answer submission - normal selection styling
-                  if (selectedAnswer === choice.id) {
+                  if (selectedAnswer === choiceId) {
                     buttonStyle = "border-orange-300 bg-orange-50 hover:bg-orange-100";
                     textStyle = "text-orange-800";
                   } else {
@@ -393,16 +398,16 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
 
                 return (
                   <button
-                    key={choice.id}
-                    onClick={() => !showExplanation && setSelectedAnswer(choice.id)}
+                    key={choiceId}
+                    onClick={() => !showExplanation && setSelectedAnswer(choiceId)}
                     disabled={showExplanation}
                     className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 ${buttonStyle} ${
                       showExplanation ? 'cursor-default' : 'cursor-pointer'
                     }`}
                   >
                     <div className="flex items-center">
-                      <span className={`text-lg font-semibold mr-4 ${textStyle}`}>{choice.id})</span>
-                      <span className={`text-lg ${textStyle}`}>{choice.text}</span>
+                      <span className={`text-lg font-semibold mr-4 ${textStyle}`}>{choiceId})</span>
+                      <span className={`text-lg ${textStyle}`}>{choiceText}</span>
                     </div>
                   </button>
                 );
