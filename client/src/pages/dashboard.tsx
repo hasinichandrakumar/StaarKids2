@@ -25,15 +25,18 @@ export default function Dashboard() {
   // Check if demo mode is enabled via localStorage
   const isDemo = typeof window !== 'undefined' && localStorage.getItem('demoMode') === 'true';
   
+  // Get demo role from localStorage, default to student
+  const demoRole = typeof window !== 'undefined' ? localStorage.getItem('demoRole') || 'student' : 'student';
+  
   // Demo user data when in demo mode
   const demoUser = {
     id: "demo-user",
     email: "demo@staarkids.org",
     firstName: "Demo",
-    lastName: "Student",
+    lastName: demoRole === 'parent' ? "Parent" : demoRole === 'teacher' ? "Teacher" : "Student",
     profileImageUrl: null,
     starPower: 1250,
-    role: "student",
+    role: demoRole,
     grade: 4,
     rank: "Explorer"
   };

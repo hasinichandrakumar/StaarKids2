@@ -85,12 +85,26 @@ export default function SettingsModal({ user, selectedGrade, onGradeChange, onCl
   const handleRoleChange = async (newRole: string) => {
     setIsChangingRole(true);
     try {
-      await apiRequest("POST", "/api/test/role", { role: newRole });
-      toast({
-        title: "Role Changed",
-        description: `Successfully switched to ${newRole} account. Refreshing...`,
-      });
-      setTimeout(() => window.location.reload(), 1000);
+      // Check if in demo mode
+      const isDemo = typeof window !== 'undefined' && localStorage.getItem('demoMode') === 'true';
+      
+      if (isDemo) {
+        // Handle demo role switching via localStorage
+        localStorage.setItem('demoRole', newRole);
+        toast({
+          title: "Role Changed",
+          description: `Successfully switched to ${newRole} account. Refreshing...`,
+        });
+        setTimeout(() => window.location.reload(), 1000);
+      } else {
+        // Handle authenticated role switching
+        await apiRequest("POST", "/api/test/role", { role: newRole });
+        toast({
+          title: "Role Changed",
+          description: `Successfully switched to ${newRole} account. Refreshing...`,
+        });
+        setTimeout(() => window.location.reload(), 1000);
+      }
     } catch (error) {
       toast({
         title: "Error",

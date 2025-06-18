@@ -14,17 +14,61 @@ interface ParentDashboardProps {
 export default function ParentDashboard({ user }: ParentDashboardProps) {
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
 
+  // Check if in demo mode
+  const isDemo = typeof window !== 'undefined' && localStorage.getItem('demoMode') === 'true';
+
+  // Demo data for parent dashboard
+  const demoStudents = [
+    {
+      id: "student-1",
+      firstName: "Emma",
+      lastName: "Johnson",
+      grade: 4,
+      avatarType: "rocket",
+      avatarColor: "#4F46E5",
+      starPower: 1250,
+      overallAccuracy: 78,
+      mathAccuracy: 75,
+      readingAccuracy: 82,
+      recentActivity: "Completed reading practice 2 hours ago",
+      weeklyProgress: [65, 70, 72, 75, 78],
+      totalQuestions: 156,
+      correctAnswers: 122
+    },
+    {
+      id: "student-2", 
+      firstName: "Liam",
+      lastName: "Chen",
+      grade: 3,
+      avatarType: "moon",
+      avatarColor: "#7C3AED",
+      starPower: 890,
+      overallAccuracy: 65,
+      mathAccuracy: 62,
+      readingAccuracy: 68,
+      recentActivity: "Practiced math problems yesterday",
+      weeklyProgress: [58, 60, 63, 64, 65],
+      totalQuestions: 89,
+      correctAnswers: 58
+    }
+  ];
+
   const { data: students, isLoading } = useQuery({
     queryKey: ['/api/parent/students'],
-    enabled: user?.role === 'parent'
+    enabled: user?.role === 'parent' && !isDemo,
+    staleTime: Infinity
   });
 
   const { data: selectedStudentStats } = useQuery({
     queryKey: ['/api/stats/overall', selectedStudent?.id],
-    enabled: !!selectedStudent?.id
+    enabled: !!selectedStudent?.id && !isDemo
   });
 
-  if (isLoading) {
+  // Use demo data if in demo mode, otherwise use API data
+  const studentsData = isDemo ? demoStudents : (students || []);
+  const statsData = isDemo ? selectedStudent : selectedStudentStats;
+
+  if (isLoading && !isDemo) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-yellow-50 p-6">
         <div className="max-w-6xl mx-auto">
@@ -37,7 +81,7 @@ export default function ParentDashboard({ user }: ParentDashboardProps) {
     );
   }
 
-  if (!students || students.length === 0) {
+  if (!studentsData || studentsData.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-yellow-50 p-6">
         <div className="max-w-6xl mx-auto">
@@ -74,7 +118,7 @@ export default function ParentDashboard({ user }: ParentDashboardProps) {
         <div className="mb-6">
           <h2 className="text-lg font-semibold mb-3">Select a Student</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {students.map((student: any) => (
+            {studentsData.map((student: any) => (
               <Card
                 key={student.id}
                 className={`cursor-pointer transition-all duration-200 ${
