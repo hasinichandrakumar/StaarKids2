@@ -10,15 +10,8 @@ export default function NavigationTabs({ activeTab, onTabChange }: NavigationTab
     { 
       id: "starspace", 
       label: "StarSpace", 
-      icon: RocketLaunchIcon,
-      description: "Avatar & gamification hub",
-      color: "from-purple-500 to-pink-600"
-    },
-    { 
-      id: "starspace-story", 
-      label: "Space Adventure", 
       icon: StarIcon,
-      description: "Interactive storyline journey",
+      description: "Interactive space adventure",
       color: "from-indigo-500 to-purple-600"
     },
     { 
