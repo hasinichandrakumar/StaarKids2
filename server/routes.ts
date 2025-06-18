@@ -211,55 +211,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
         question = authenticQuestions.find(q => q.id === questionId);
       }
       
-      // Generate SVG based on question data or fallback
-      const { generateMathSVG } = await import("./mathImageGenerator");
-      const { getQuestionSVG } = await import("./svgGenerator");
+      // Generate SVG using the new accurate generator
+      const { generateAccurateSVG } = await import("./accurateImageGenerator");
       
       let svg: string;
       
       if (question && question.hasImage) {
-        // Use specific generator based on subject
-        if (question.subject === "math") {
-          const imageConfig = {
-            questionId,
-            questionType: question.category || "default",
-            grade: question.grade,
-            subject: question.subject,
-            imageDescription: question.imageDescription || ""
-          };
-          svg = generateMathSVG(imageConfig);
-        } else {
-          svg = getQuestionSVG(
-            question.questionText, 
-            question.imageDescription || "Visual element for this question", 
-            question.grade, 
-            question.year
-          );
-        }
+        // Use accurate generator that matches question content exactly
+        const imageConfig = {
+          questionId,
+          questionText: question.questionText,
+          imageDescription: question.imageDescription || "",
+          grade: question.grade,
+          subject: question.subject
+        };
+        svg = generateAccurateSVG(imageConfig);
       } else {
-        // Generate fallback visual based on question ID pattern
+        // Generate accurate visual based on question content
         const grade = Math.floor((questionId % 3) + 3); // Grade 3-5
-        const isEven = questionId % 2 === 0;
-        
-        if (isEven) {
-          // Math visual
-          const imageConfig = {
-            questionId,
-            questionType: "geometry",
-            grade,
-            subject: "math",
-            imageDescription: "rectangular garden diagram with labeled dimensions"
-          };
-          svg = generateMathSVG(imageConfig);
-        } else {
-          // Reading visual or general diagram
-          svg = getQuestionSVG(
-            "Visual diagram for this question",
-            "Mathematical or reading comprehension visual element",
-            grade,
-            2024
-          );
-        }
+        const imageConfig = {
+          questionId,
+          questionText: question?.questionText || "Mathematical diagram",
+          imageDescription: question?.imageDescription || "Visual element matching question content",
+          grade,
+          subject: (question?.subject as "math" | "reading") || "math"
+        };
+        svg = generateAccurateSVG(imageConfig);
       }
       
       res.setHeader('Content-Type', 'image/svg+xml');
