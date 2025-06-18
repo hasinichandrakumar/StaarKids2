@@ -12,24 +12,58 @@ export interface MathImageConfig {
 }
 
 export function generateMathSVG(config: MathImageConfig): string {
-  const { questionType, imageDescription } = config;
+  const { questionType, imageDescription, questionId } = config;
   
-  // Generate SVG based on question type and description
-  if (imageDescription?.includes('fraction')) {
-    return generateFractionModelSVG();
-  } else if (imageDescription?.includes('bar graph')) {
-    return generateBarGraphSVG();
-  } else if (imageDescription?.includes('rectangular')) {
-    return generateRectangleSVG();
-  } else if (imageDescription?.includes('geometric shapes')) {
-    return generateGeometricShapesSVG();
-  } else if (imageDescription?.includes('division')) {
-    return generateDivisionModelSVG();
-  } else if (imageDescription?.includes('trapezoid')) {
-    return generateTrapezoidSVG();
-  } else {
-    return generateDefaultMathSVG();
+  // Parse specific measurements and data from image description
+  const description = imageDescription?.toLowerCase() || '';
+  
+  // Rectangle/Garden area problems
+  if (description.includes('rectangular') && (description.includes('garden') || description.includes('area'))) {
+    const lengthMatch = description.match(/(\d+)\s*feet?\s*by\s*(\d+)\s*feet?/) || 
+                       description.match(/length\s*of\s*(\d+)\s*feet?\s*.*width\s*of\s*(\d+)\s*feet?/);
+    if (lengthMatch) {
+      const length = parseInt(lengthMatch[1]);
+      const width = parseInt(lengthMatch[2]);
+      return generateRectangleAreaSVG(length, width);
+    }
   }
+  
+  // Bar graph data visualization
+  if (description.includes('bar graph') && description.includes('books')) {
+    return generateBooksBarGraphSVG();
+  }
+  
+  // Fraction models with equivalent fractions
+  if (description.includes('fraction') && description.includes('equivalent')) {
+    return generateEquivalentFractionsSVG();
+  }
+  
+  // Geometric shapes classification
+  if (description.includes('geometric shapes') || (description.includes('quadrilateral') && description.includes('square'))) {
+    return generateQuadrilateralsSVG();
+  }
+  
+  // Division/grouping problems
+  if (description.includes('stickers') && description.includes('albums')) {
+    const stickerMatch = description.match(/(\d+)\s*stickers?/) || [null, '48'];
+    const albumMatch = description.match(/(\d+)\s*albums?/) || [null, '6'];
+    const stickers = parseInt(stickerMatch[1] || '48');
+    const albums = parseInt(albumMatch[1] || '6');
+    return generateStickerDivisionSVG(stickers, albums);
+  }
+  
+  // Parallelogram calculations
+  if (description.includes('parallelogram')) {
+    return generateParallelogramSVG();
+  }
+  
+  // Triangle area calculations
+  if (description.includes('triangle')) {
+    return generateTriangleAreaSVG();
+  }
+  
+  // Default fallback
+  return generateDefaultMathSVG();
 }
 
 function generateFractionModelSVG(): string {

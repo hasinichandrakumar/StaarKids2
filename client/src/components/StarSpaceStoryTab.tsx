@@ -513,11 +513,11 @@ export default function StarSpaceStoryTab({ user, starPower }: StarSpaceStoryTab
         </CardHeader>
       </Card>
 
-      <Tabs defaultValue="story" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="story" className="flex items-center gap-2">
-            <Book className="w-4 h-4" />
-            Story
+      <Tabs defaultValue="map" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="map" className="flex items-center gap-2">
+            <MapPin className="w-4 h-4" />
+            Galaxy Adventure
           </TabsTrigger>
           <TabsTrigger value="friends" className="flex items-center gap-2">
             <Users className="w-4 h-4" />
@@ -526,10 +526,6 @@ export default function StarSpaceStoryTab({ user, starPower }: StarSpaceStoryTab
           <TabsTrigger value="achievements" className="flex items-center gap-2">
             <Trophy className="w-4 h-4" />
             Achievements
-          </TabsTrigger>
-          <TabsTrigger value="map" className="flex items-center gap-2">
-            <MapPin className="w-4 h-4" />
-            Galaxy Map
           </TabsTrigger>
         </TabsList>
 
