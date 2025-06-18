@@ -33,6 +33,92 @@ export default function TeacherDashboard({ user }: TeacherDashboardProps) {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Check if in demo mode
+  const isDemo = typeof window !== 'undefined' && localStorage.getItem('demoMode') === 'true';
+
+  // Demo data for teacher dashboard
+  const demoClassrooms = [
+    {
+      id: "class-1",
+      className: "Ms. Rodriguez's 4th Grade",
+      grade: 4,
+      subject: "both",
+      teacherId: "teacher-1",
+      classCode: "MATH4A",
+      studentCount: 24,
+      averageAccuracy: 73,
+      mathAccuracy: 71,
+      readingAccuracy: 75,
+      totalStarPower: 18650,
+      recentActivity: "15 students completed practice today"
+    },
+    {
+      id: "class-2", 
+      className: "Mr. Johnson's 3rd Grade Math",
+      grade: 3,
+      subject: "math",
+      teacherId: "teacher-1",
+      classCode: "MATH3B",
+      studentCount: 18,
+      averageAccuracy: 68,
+      mathAccuracy: 68,
+      readingAccuracy: null,
+      totalStarPower: 12340,
+      recentActivity: "12 students practiced yesterday"
+    }
+  ];
+
+  const demoStudents = [
+    {
+      id: "student-1",
+      firstName: "Emma",
+      lastName: "Johnson", 
+      grade: 4,
+      classroomId: "class-1",
+      avatarType: "rocket",
+      avatarColor: "#4F46E5",
+      starPower: 1250,
+      overallAccuracy: 78,
+      mathAccuracy: 75,
+      readingAccuracy: 82,
+      lastActive: "2 hours ago",
+      totalQuestions: 156,
+      correctAnswers: 122
+    },
+    {
+      id: "student-2",
+      firstName: "Liam", 
+      lastName: "Chen",
+      grade: 4,
+      classroomId: "class-1",
+      avatarType: "moon",
+      avatarColor: "#7C3AED",
+      starPower: 890,
+      overallAccuracy: 65,
+      mathAccuracy: 62,
+      readingAccuracy: 68,
+      lastActive: "1 day ago",
+      totalQuestions: 89,
+      correctAnswers: 58
+    },
+    {
+      id: "student-3",
+      firstName: "Sofia",
+      lastName: "Martinez",
+      grade: 3,
+      classroomId: "class-2", 
+      avatarType: "planet",
+      avatarColor: "#059669",
+      starPower: 1120,
+      overallAccuracy: 71,
+      mathAccuracy: 71,
+      readingAccuracy: null,
+      lastActive: "4 hours ago",
+      totalQuestions: 98,
+      correctAnswers: 70
+    }
+  ];
   
   const createClassroomForm = useForm<z.infer<typeof createClassroomSchema>>({
     resolver: zodResolver(createClassroomSchema),

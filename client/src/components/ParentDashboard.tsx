@@ -11,6 +11,24 @@ interface ParentDashboardProps {
   user: any;
 }
 
+function getAvatarEmoji(avatarType: string): string {
+  switch (avatarType) {
+    case "moon": return "🌙";
+    case "full-moon": return "🌕";
+    case "rocket": return "🚀";
+    case "astronaut": return "👨‍🚀";
+    case "satellite": return "🛰️";
+    case "ufo": return "🛸";
+    case "milky-way": return "🌌";
+    case "planet": return "🪐";
+    case "shooting-star": return "🌠";
+    case "comet": return "☄️";
+    case "sun": return "☀️";
+    case "earth": return "🌍";
+    default: return "🌟";
+  }
+}
+
 export default function ParentDashboard({ user }: ParentDashboardProps) {
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
 
@@ -130,12 +148,15 @@ export default function ParentDashboard({ user }: ParentDashboardProps) {
               >
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-orange-400 to-yellow-400 flex items-center justify-center text-white font-bold">
-                      {student.email?.charAt(0).toUpperCase() || 'S'}
+                    <div 
+                      className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-xl"
+                      style={{ backgroundColor: student.avatarColor || "#4F46E5" }}
+                    >
+                      {getAvatarEmoji(student.avatarType)}
                     </div>
                     <div>
-                      <h3 className="font-semibold">{student.email || 'Student'}</h3>
-                      <p className="text-sm text-gray-600">Grade {student.currentGrade}</p>
+                      <h3 className="font-semibold">{student.firstName} {student.lastName}</h3>
+                      <p className="text-sm text-gray-600">Grade {student.grade}</p>
                     </div>
                   </div>
                   <div className="mt-3 flex items-center space-x-2">
@@ -169,7 +190,7 @@ export default function ParentDashboard({ user }: ParentDashboardProps) {
                     </div>
                     <div className="mt-3">
                       <div className="text-2xl font-bold text-orange-600">
-                        {selectedStudentStats?.overallAccuracy || 0}%
+                        {selectedStudent?.overallAccuracy || 0}%
                       </div>
                       <p className="text-sm text-gray-600">Average accuracy</p>
                     </div>
@@ -184,7 +205,7 @@ export default function ParentDashboard({ user }: ParentDashboardProps) {
                     </div>
                     <div className="mt-3">
                       <div className="text-2xl font-bold text-red-600">
-                        {selectedStudentStats?.mathAccuracy || 0}%
+                        {selectedStudent?.mathAccuracy || 0}%
                       </div>
                       <p className="text-sm text-gray-600">Math accuracy</p>
                     </div>
@@ -199,7 +220,7 @@ export default function ParentDashboard({ user }: ParentDashboardProps) {
                     </div>
                     <div className="mt-3">
                       <div className="text-2xl font-bold text-yellow-600">
-                        {selectedStudentStats?.readingAccuracy || 0}%
+                        {selectedStudent?.readingAccuracy || 0}%
                       </div>
                       <p className="text-sm text-gray-600">Reading accuracy</p>
                     </div>
@@ -225,7 +246,7 @@ export default function ParentDashboard({ user }: ParentDashboardProps) {
               {/* Progress by Grade Breakdown */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Grade {selectedStudent.currentGrade} Progress</CardTitle>
+                  <CardTitle>Grade {selectedStudent.grade} Progress</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -233,20 +254,20 @@ export default function ParentDashboard({ user }: ParentDashboardProps) {
                       <div className="flex justify-between items-center mb-2">
                         <span className="font-medium text-red-700">Math Progress</span>
                         <span className="text-sm text-gray-600">
-                          {selectedStudentStats?.mathAccuracy || 0}% accuracy
+                          {selectedStudent?.mathAccuracy || 0}% accuracy
                         </span>
                       </div>
-                      <Progress value={selectedStudentStats?.mathAccuracy || 0} className="h-2" />
+                      <Progress value={selectedStudent?.mathAccuracy || 0} className="h-2" />
                     </div>
                     
                     <div>
                       <div className="flex justify-between items-center mb-2">
                         <span className="font-medium text-yellow-700">Reading Progress</span>
                         <span className="text-sm text-gray-600">
-                          {selectedStudentStats?.readingAccuracy || 0}% accuracy
+                          {selectedStudent?.readingAccuracy || 0}% accuracy
                         </span>
                       </div>
-                      <Progress value={selectedStudentStats?.readingAccuracy || 0} className="h-2" />
+                      <Progress value={selectedStudent?.readingAccuracy || 0} className="h-2" />
                     </div>
                   </div>
                 </CardContent>
