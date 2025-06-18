@@ -94,15 +94,18 @@ export default function Header({ user, onOpenAvatarModal, onOpenNovaChat, onOpen
 
 function getAvatarEmoji(avatarType: string): string {
   switch (avatarType) {
-    case "shooting-star": return "🌟";
-    case "star": return "⭐";
-    case "sparkles": return "✨";
+    case "moon": return "🌙";
+    case "full-moon": return "🌕";
+    case "rocket": return "🚀";
+    case "astronaut": return "👨‍🚀";
+    case "satellite": return "🛰️";
+    case "ufo": return "🛸";
+    case "milky-way": return "🌌";
+    case "planet": return "🪐";
+    case "shooting-star": return "🌠";
     case "comet": return "☄️";
-    case "constellation": return "🌌";
-    case "dizzy": return "💫";
-    case "glowing-star": return "🌠";
-    case "bright-star": return "⭐";
-    case "magic-wand": return "🪄";
+    case "sun": return "☀️";
+    case "earth": return "🌍";
     default: return "🌟";
   }
 }

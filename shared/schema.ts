@@ -40,8 +40,8 @@ export const users = pgTable("users", {
   // Staarkid specific fields
   currentGrade: integer("current_grade").default(4),
   starPower: integer("star_power").default(0),
-  avatarType: varchar("avatar_type").default("fox"),
-  avatarColor: varchar("avatar_color").default("#FF5B00"),
+  avatarType: varchar("avatar_type").default("moon"),
+  avatarColor: varchar("avatar_color").default("#4F46E5"),
   userRank: varchar("user_rank").default("Cadet"),
   // Role-based access fields
   role: varchar("role").default("student"), // student, parent, tutor, teacher, admin
