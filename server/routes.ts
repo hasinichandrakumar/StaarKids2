@@ -237,33 +237,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         question = authenticQuestions.find(q => q.id === questionId);
       }
       
-      // Generate SVG using the new accurate generator
+      // Generate SVG using the accurate generator that creates content-specific visuals
       const { generateAccurateSVG } = await import("./accurateImageGenerator");
       
-      let svg: string;
+      const imageConfig = {
+        questionId,
+        questionText: question?.questionText || "Mathematical diagram",
+        imageDescription: question?.imageDescription || "Visual element matching question content",
+        grade: question?.grade || Math.floor((questionId % 3) + 3),
+        subject: (question?.subject as "math" | "reading") || "math"
+      };
       
-      if (question && question.hasImage) {
-        // Use accurate generator that matches question content exactly
-        const imageConfig = {
-          questionId,
-          questionText: question.questionText,
-          imageDescription: question.imageDescription || "",
-          grade: question.grade,
-          subject: question.subject
-        };
-        svg = generateAccurateSVG(imageConfig);
-      } else {
-        // Generate accurate visual based on question content
-        const grade = Math.floor((questionId % 3) + 3); // Grade 3-5
-        const imageConfig = {
-          questionId,
-          questionText: question?.questionText || "Mathematical diagram",
-          imageDescription: question?.imageDescription || "Visual element matching question content",
-          grade,
-          subject: (question?.subject as "math" | "reading") || "math"
-        };
-        svg = generateAccurateSVG(imageConfig);
-      }
+      console.log("Generating accurate SVG with config:", imageConfig);
+      const svg = generateAccurateSVG(imageConfig);
+      console.log("Generated SVG length:", svg.length);
       
       res.setHeader('Content-Type', 'image/svg+xml');
       res.setHeader('Cache-Control', 'public, max-age=3600');

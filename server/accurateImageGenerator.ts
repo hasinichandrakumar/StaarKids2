@@ -15,10 +15,15 @@ export function generateAccurateSVG(config: ImageConfig): string {
   const description = imageDescription?.toLowerCase() || '';
   const text = questionText?.toLowerCase() || '';
   
+  console.log("=== ACCURATE SVG GENERATION DEBUG ===");
+  console.log("Question text:", text);
+  console.log("Image description:", description);
+  
   // Rectangle/Garden area problems
   if ((description.includes('rectangular') && (description.includes('garden') || description.includes('diagram'))) ||
       (text.includes('rectangular') && text.includes('area')) ||
       (text.includes('length') && text.includes('width') && text.includes('feet'))) {
+    console.log("Matched rectangular garden pattern");
     const lengthMatch = description.match(/(\d+)\s*feet?\s*by\s*(\d+)\s*feet?/) || 
                        text.match(/length\s*of\s*(\d+)\s*feet?\s*.*width\s*of\s*(\d+)\s*feet?/) ||
                        text.match(/(\d+)\s*feet\s*.*(\d+)\s*feet/) ||
@@ -26,9 +31,11 @@ export function generateAccurateSVG(config: ImageConfig): string {
     if (lengthMatch) {
       const length = parseInt(lengthMatch[1]);
       const width = parseInt(lengthMatch[2]);
+      console.log("Found dimensions:", length, "x", width);
       return generateRectangleAreaDiagram(length, width);
     }
     // Default rectangular garden for area questions
+    console.log("Using default garden dimensions");
     return generateRectangleAreaDiagram(15, 8);
   }
   
