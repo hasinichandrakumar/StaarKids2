@@ -726,90 +726,136 @@ export default function StarSpaceStoryTab({ user, starPower }: StarSpaceStoryTab
             </CardHeader>
             <CardContent>
               <div className="relative bg-gradient-to-b from-black via-blue-900/30 to-purple-900/50 rounded-lg overflow-hidden">
-                {/* Scrollable Timeline Container */}
-                <div className="h-[600px] overflow-y-auto scrollbar-thin scrollbar-track-gray-800 scrollbar-thumb-purple-500">
-                  <div className="relative min-h-[2000px] p-6">
+                {/* Scrollable Galaxy Container */}
+                <div className="h-[700px] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-purple-500/50">
+                  <div className="relative min-h-[3000px] p-8">
                     
-                    {/* Central Timeline Line */}
-                    <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-400 via-purple-500 to-pink-600 transform -translate-x-1/2 z-10"></div>
+                    {/* Galaxy Core - Central spiral */}
+                    <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 z-5">
+                      <div className="absolute inset-0 bg-gradient-radial from-purple-600/30 via-blue-600/20 to-transparent rounded-full animate-spin-slow"></div>
+                      <div className="absolute inset-4 bg-gradient-radial from-yellow-400/20 via-orange-500/15 to-transparent rounded-full animate-pulse"></div>
+                    </div>
                     
-                    {/* Floating Stars Background */}
-                    <div className="absolute inset-0 opacity-30 pointer-events-none">
-                      {[...Array(100)].map((_, i) => (
+                    {/* Nebula Clouds Background */}
+                    <div className="absolute inset-0 opacity-40 pointer-events-none">
+                      {[...Array(8)].map((_, i) => (
                         <div
-                          key={i}
-                          className="absolute w-1 h-1 bg-white rounded-full animate-pulse"
+                          key={`nebula-${i}`}
+                          className="absolute bg-gradient-radial from-purple-500/20 via-blue-500/10 to-transparent rounded-full animate-pulse"
                           style={{
-                            left: `${Math.random() * 100}%`,
-                            top: `${Math.random() * 100}%`,
-                            animationDelay: `${Math.random() * 5}s`,
+                            left: `${20 + (i * 15)}%`,
+                            top: `${10 + (i * 12)}%`,
+                            width: `${150 + (i * 30)}px`,
+                            height: `${100 + (i * 20)}px`,
+                            animationDelay: `${i * 2}s`,
                           }}
                         />
                       ))}
                     </div>
 
-                    {/* Chapter Timeline Events */}
+                    {/* Distant Stars */}
+                    <div className="absolute inset-0 opacity-60 pointer-events-none">
+                      {[...Array(150)].map((_, i) => (
+                        <div
+                          key={`star-${i}`}
+                          className="absolute bg-white rounded-full animate-twinkle"
+                          style={{
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                            width: `${Math.random() * 3 + 1}px`,
+                            height: `${Math.random() * 3 + 1}px`,
+                            animationDelay: `${Math.random() * 10}s`,
+                            animationDuration: `${2 + Math.random() * 4}s`,
+                          }}
+                        />
+                      ))}
+                    </div>
+
+                    {/* Galaxy Spiral Arms with Chapters */}
                     {STORY_CHAPTERS.slice(0, 30).map((chapter, index) => {
                       const isUnlocked = unlockedChapters.some(c => c.id === chapter.id);
-                      const isLeft = index % 2 === 0;
-                      const yPosition = 80 + (index * 65);
                       const character = SPACE_FRIENDS.find(f => f.unlockStars <= chapter.unlockStars && f.unlockStars >= (STORY_CHAPTERS[index - 1]?.unlockStars || 0));
                       
+                      // Calculate spiral position for galaxy effect
+                      const angle = (index * 12) % 360; // Degrees around the spiral
+                      const radius = 100 + (index * 15); // Distance from center increases
+                      const spiralX = 50 + (Math.cos(angle * Math.PI / 180) * radius / 8);
+                      const spiralY = 20 + (index * 85); // Vertical progression
+                      
+                      // Prevent cards from going off-screen
+                      const finalX = Math.max(5, Math.min(95, spiralX));
+                      const finalY = spiralY;
+                      
                       return (
-                        <div key={chapter.id} className="relative" style={{ top: `${yPosition}px` }}>
+                        <div 
+                          key={chapter.id} 
+                          className="absolute z-20" 
+                          style={{ 
+                            left: `${finalX}%`, 
+                            top: `${finalY}px`,
+                            transform: 'translateX(-50%)'
+                          }}
+                        >
                           
-                          {/* Timeline Node */}
-                          <div className={`absolute left-1/2 transform -translate-x-1/2 z-20 ${
-                            isUnlocked ? 'animate-pulse' : 'opacity-40'
-                          }`}>
-                            <div className={`w-6 h-6 rounded-full border-4 ${
+                          {/* Planet/Location Node */}
+                          <div className={`relative mb-4 ${isUnlocked ? 'animate-float' : ''}`}>
+                            <div className={`w-16 h-16 rounded-full flex items-center justify-center border-4 transition-all duration-500 ${
                               isUnlocked 
-                                ? 'bg-yellow-400 border-yellow-300 shadow-lg shadow-yellow-400/50' 
-                                : 'bg-gray-600 border-gray-500'
-                            }`}></div>
+                                ? 'bg-gradient-to-br from-yellow-400 to-orange-500 border-yellow-300 shadow-2xl shadow-yellow-400/50' 
+                                : 'bg-gray-700 border-gray-600 opacity-40'
+                            }`}>
+                              <span className={`text-2xl ${isUnlocked ? 'animate-bounce' : 'grayscale'}`}>
+                                {chapter.planet === "Earth's Roof" ? "🏠" :
+                                 chapter.planet === "Starport Academy" ? "🏫" :
+                                 chapter.planet === "Planet Harmonia" ? "🎵" :
+                                 chapter.planet === "Tech Station" ? "🤖" :
+                                 chapter.planet === "Time Vortex" ? "⏰" :
+                                 chapter.planet === "Planet Gigglia" ? "😂" :
+                                 chapter.planet === "Memory Palace" ? "📚" :
+                                 chapter.planet === "Planet Athletica" ? "🏃‍♂️" :
+                                 chapter.planet === "Dragon's Gate" ? "🐉" :
+                                 chapter.planet === "Confusion Fortress" ? "🏰" :
+                                 chapter.planet === "The Infinite Cosmos" ? "♾️" : "🌟"}
+                              </span>
+                            </div>
+                            
+                            {/* Planet Ring Effect */}
+                            {isUnlocked && (
+                              <div className="absolute inset-0 border-2 border-blue-400/30 rounded-full animate-spin-slow"></div>
+                            )}
                           </div>
 
-                          {/* Chapter Event Card */}
-                          <div className={`absolute ${isLeft ? 'right-1/2 mr-8' : 'left-1/2 ml-8'} w-80 z-15`}>
-                            <div className={`p-4 rounded-xl border-2 transition-all duration-500 ${
-                              isUnlocked 
-                                ? 'bg-gradient-to-br from-blue-900/80 to-purple-900/80 border-blue-400/50 backdrop-blur-sm' 
-                                : 'bg-gray-800/60 border-gray-600/30 opacity-50'
-                            }`}>
-                              
-                              {/* Chapter Header */}
-                              <div className="flex items-center gap-3 mb-3">
-                                <div className={`text-2xl ${isUnlocked ? 'animate-bounce' : 'grayscale'}`}>
-                                  {chapter.planet === "Earth's Roof" ? "🏠" :
-                                   chapter.planet === "Starport Academy" ? "🏫" :
-                                   chapter.planet === "Planet Harmonia" ? "🎵" :
-                                   chapter.planet === "Tech Station" ? "🤖" :
-                                   chapter.planet === "Time Vortex" ? "⏰" :
-                                   chapter.planet === "Planet Gigglia" ? "😂" :
-                                   chapter.planet === "Memory Palace" ? "📚" :
-                                   chapter.planet === "Planet Athletica" ? "🏃‍♂️" :
-                                   chapter.planet === "Dragon's Gate" ? "🐉" :
-                                   chapter.planet === "Confusion Fortress" ? "🏰" :
-                                   chapter.planet === "The Infinite Cosmos" ? "♾️" : "🌟"}
-                                </div>
-                                <div>
-                                  <h3 className={`font-bold text-lg ${isUnlocked ? 'text-white' : 'text-gray-400'}`}>
-                                    Chapter {chapter.id}
-                                  </h3>
-                                  <p className={`text-sm ${isUnlocked ? 'text-blue-300' : 'text-gray-500'}`}>
-                                    {chapter.title}
-                                  </p>
-                                </div>
+                          {/* Chapter Info Card */}
+                          <div className={`w-72 transition-all duration-500 ${
+                            isUnlocked 
+                              ? 'bg-gradient-to-br from-indigo-900/95 to-purple-900/95 border-2 border-blue-400/50 backdrop-blur-md shadow-2xl' 
+                              : 'bg-gray-800/60 border border-gray-600/30 opacity-60'
+                          } rounded-2xl p-5 relative`}>
+                            
+                            {/* Glow Effect for Unlocked */}
+                            {isUnlocked && (
+                              <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-2xl"></div>
+                            )}
+                            
+                            <div className="relative z-10">
+                              {/* Chapter Title */}
+                              <div className="text-center mb-4">
+                                <h3 className={`font-bold text-xl mb-1 ${isUnlocked ? 'text-white' : 'text-gray-400'}`}>
+                                  Chapter {chapter.id}
+                                </h3>
+                                <p className={`text-sm font-medium ${isUnlocked ? 'text-blue-300' : 'text-gray-500'}`}>
+                                  {chapter.title}
+                                </p>
                               </div>
 
                               {/* Character Introduction */}
                               {character && isUnlocked && (
-                                <div className="mb-3 p-2 bg-purple-800/40 rounded-lg border border-purple-500/30">
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-xl">{character.emoji}</span>
+                                <div className="mb-4 p-3 bg-purple-800/50 rounded-xl border border-purple-500/40">
+                                  <div className="flex items-center gap-3">
+                                    <span className="text-2xl">{character.emoji}</span>
                                     <div>
-                                      <p className="text-xs font-bold text-purple-300">{character.name}</p>
-                                      <p className="text-xs text-purple-200">{character.ability}</p>
+                                      <p className="text-sm font-bold text-purple-200">{character.name}</p>
+                                      <p className="text-xs text-purple-300">{character.ability}</p>
                                     </div>
                                   </div>
                                 </div>
@@ -817,45 +863,37 @@ export default function StarSpaceStoryTab({ user, starPower }: StarSpaceStoryTab
 
                               {/* Story Preview */}
                               {isUnlocked && (
-                                <p className="text-xs text-gray-300 mb-3 leading-relaxed">
-                                  {chapter.story.substring(0, 120)}...
+                                <p className="text-xs text-gray-300 mb-4 leading-relaxed line-clamp-3">
+                                  {chapter.story.substring(0, 140)}...
                                 </p>
                               )}
 
-                              {/* Mission & Rewards */}
-                              <div className={`text-xs ${isUnlocked ? 'text-yellow-300' : 'text-gray-500'}`}>
-                                <p className="font-medium mb-1">Mission Requirement:</p>
-                                <p className="mb-2">{chapter.mission}</p>
-                                <div className="flex justify-between items-center">
-                                  <span>Reward: {chapter.reward} SP</span>
-                                  <span>Required: {chapter.unlockStars.toLocaleString()} SP</span>
+                              {/* Mission Details */}
+                              <div className={`text-xs mb-4 ${isUnlocked ? 'text-yellow-300' : 'text-gray-500'}`}>
+                                <p className="font-semibold mb-2">Mission:</p>
+                                <p className="mb-3 leading-relaxed">{chapter.mission}</p>
+                                <div className="flex justify-between items-center bg-black/30 rounded-lg p-2">
+                                  <span className="text-green-400">+{chapter.reward} SP</span>
+                                  <span className="text-blue-400">{chapter.unlockStars.toLocaleString()} SP needed</span>
                                 </div>
                               </div>
 
-                              {/* Start Mission Button */}
-                              {isUnlocked && (
+                              {/* Action Button */}
+                              {isUnlocked ? (
                                 <button
                                   onClick={() => handleStartMission(chapter.id)}
-                                  className="mt-3 w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition-all duration-300 transform hover:scale-105"
+                                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-3 px-4 rounded-xl text-sm transition-all duration-300 transform hover:scale-105 shadow-lg"
                                 >
-                                  🚀 Start Mission
+                                  🚀 Launch Mission
                                 </button>
-                              )}
-
-                              {/* Locked State */}
-                              {!isUnlocked && (
-                                <div className="mt-3 flex items-center justify-center gap-2 text-gray-500">
-                                  <span className="text-lg">🔒</span>
-                                  <span className="text-xs">Locked</span>
+                              ) : (
+                                <div className="w-full flex items-center justify-center gap-3 py-3 text-gray-500 bg-gray-700/30 rounded-xl">
+                                  <span className="text-xl">🔒</span>
+                                  <span className="text-sm font-medium">Locked</span>
                                 </div>
                               )}
                             </div>
                           </div>
-
-                          {/* Connection Line to Timeline */}
-                          <div className={`absolute top-3 ${isLeft ? 'right-1/2' : 'left-1/2'} w-8 h-0.5 ${
-                            isUnlocked ? 'bg-blue-400' : 'bg-gray-600'
-                          } z-10`}></div>
                         </div>
                       );
                     })}
