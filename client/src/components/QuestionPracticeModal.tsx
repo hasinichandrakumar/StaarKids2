@@ -264,23 +264,34 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
             {currentQuestion.hasImage && (
               <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
                 <div className="flex justify-center">
-                  <img 
-                    src={`/api/question-svg/${currentQuestion.id}`}
-                    alt={currentQuestion.imageDescription || "Question diagram"}
-                    className="max-w-full h-auto rounded shadow-sm"
-                    style={{ maxHeight: '300px' }}
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      const fallback = target.parentElement?.querySelector('.fallback-text');
-                      if (fallback) {
-                        fallback.textContent = currentQuestion.imageDescription || "Visual element described in question";
-                        (fallback as HTMLElement).style.display = 'block';
-                      }
-                    }}
-                  />
-                  <div className="fallback-text hidden text-gray-600 italic text-center p-4">
-                    {currentQuestion.imageDescription}
+                  <div 
+                    className="max-w-full rounded shadow-sm bg-white p-3 border"
+                    style={{ maxHeight: '320px', maxWidth: '600px' }}
+                  >
+                    <iframe
+                      src={`/api/question-svg/${currentQuestion.id}`}
+                      className="w-full border-0"
+                      style={{ height: '280px', minHeight: '200px' }}
+                      title={currentQuestion.imageDescription || "Question diagram"}
+                      onLoad={(e) => {
+                        console.log('SVG iframe loaded successfully');
+                      }}
+                      onError={(e) => {
+                        console.error('SVG iframe failed to load');
+                        const target = e.target as HTMLIFrameElement;
+                        const container = target.parentElement;
+                        if (container) {
+                          container.innerHTML = `
+                            <div class="text-center p-4 bg-blue-50 border border-blue-200 rounded">
+                              <div class="text-blue-800">
+                                <strong>📊 Visual Element</strong><br/>
+                                <span class="text-sm">${currentQuestion.imageDescription || "Diagram for this question"}</span>
+                              </div>
+                            </div>
+                          `;
+                        }
+                      }}
+                    />
                   </div>
                 </div>
               </div>
