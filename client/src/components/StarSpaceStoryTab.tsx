@@ -428,11 +428,31 @@ const GALAXY_LOCATIONS = [
 ];
 
 const SPACE_ACHIEVEMENTS = [
-  { name: "Asteroid Miner", description: "Find 10 hidden knowledge gems", emoji: "💎", unlockStars: 2000 },
-  { name: "Comet Rider", description: "Complete 5 speed challenges", emoji: "☄️", unlockStars: 5000 },
-  { name: "Planet Discoverer", description: "Explore all story locations", emoji: "🌍", unlockStars: 15000 },
-  { name: "Star Collector", description: "Gather 10,000 StarPower total", emoji: "⭐", unlockStars: 10000 },
-  { name: "Galaxy Guardian", description: "Help all space friends with their missions", emoji: "🛡️", unlockStars: 50000 }
+  { name: "First Contact", description: "Meet your first space friend", emoji: "👋", unlockStars: 500, story: "Make contact with Captain Stardust" },
+  { name: "Toolkit Master", description: "Unlock the legendary Learning Toolkit", emoji: "🔧", unlockStars: 1000, story: "Receive Professor Quantum's golden toolkit" },
+  { name: "Crystal Singer", description: "Restore the harmony of Planet Harmonia", emoji: "🎵", unlockStars: 2000, story: "Help the Crystal Conductor rebuild the choir" },
+  { name: "Time Traveler", description: "Navigate the dangerous Time Vortex", emoji: "⏰", unlockStars: 3000, story: "Survive Professor Chronos's timeline tests" },
+  { name: "Laughter Bringer", description: "Restore giggles to Planet Gigglia", emoji: "😂", unlockStars: 4000, story: "Help the Giggle King find his joy again" },
+  { name: "Knowledge Keeper", description: "Reorganize the cosmic Memory Palace", emoji: "📚", unlockStars: 5000, story: "Assist Librarian Luna with the scattered books" },
+  { name: "Olympic Champion", description: "Win gold at the Learning Olympics", emoji: "🏆", unlockStars: 7500, story: "Triumph in Coach Comet's Brain Olympics" },
+  { name: "Dragon Whisperer", description: "Answer all of Calculon's riddles", emoji: "🐉", unlockStars: 10000, story: "Earn the Math Dragon's respect and passage" },
+  { name: "Gravity Defier", description: "Master the physics of Planet Bounce", emoji: "🌍", unlockStars: 12500, story: "Learn to control gravity with the Bounce Guardians" },
+  { name: "Rainbow Bridge Builder", description: "Connect learning concepts with Prism", emoji: "🌈", unlockStars: 15000, story: "Help Prism weave bridges between ideas" },
+  { name: "Dream Walker", description: "Enter Crystal's learning dream realm", emoji: "💤", unlockStars: 17500, story: "Navigate the dimension where dreams become reality" },
+  { name: "Idea Spark", description: "Generate brilliant flashes with Spark", emoji: "💡", unlockStars: 20000, story: "Create new ideas at Inspiration Station" },
+  { name: "Pattern Solver", description: "Escape Maze's geometric labyrinth", emoji: "🌀", unlockStars: 22500, story: "Master logical thinking in the Pattern Maze" },
+  { name: "Phoenix Rising", description: "Learn resilience from Phoenix", emoji: "🔥", unlockStars: 25000, story: "Rise from learning mistakes on Resilience Peak" },
+  { name: "Star Creator", description: "Help Stellar build new constellations", emoji: "⭐", unlockStars: 30000, story: "Connect knowledge points like stars in the sky" },
+  { name: "Oracle's Student", description: "Decode Wisdom's ancient prophecies", emoji: "🔮", unlockStars: 35000, story: "Understand the riddles of the Oracle Temple" },
+  { name: "Council Member", description: "Join the Learning Council's ranks", emoji: "🏛️", unlockStars: 40000, story: "Earn a seat among the galaxy's wisest beings" },
+  { name: "Confusion Reformer", description: "Help Emperor Confusion change his ways", emoji: "👑", unlockStars: 50000, story: "Convert the former villain into an ally" },
+  { name: "Fortress Infiltrator", description: "Sneak into the Confusion Fortress", emoji: "🏰", unlockStars: 75000, story: "Use stealth and smarts to breach defenses" },
+  { name: "Emperor Defeater", description: "Triumph over Emperor Confusion", emoji: "⚔️", unlockStars: 100000, story: "Win the ultimate battle of wits and knowledge" },
+  { name: "Crystal Restorer", description: "Repair the galaxy's source of learning", emoji: "💎", unlockStars: 125000, story: "Channel all knowledge to heal the crystal" },
+  { name: "Legend of Learning", description: "Become a galactic learning hero", emoji: "🌟", unlockStars: 150000, story: "Achieve legendary status across the cosmos" },
+  { name: "Infinite Explorer", description: "Reach the endless realm of possibilities", emoji: "♾️", unlockStars: 200000, story: "Discover that learning truly has no limits" },
+  { name: "Master of All", description: "Achieve 95% accuracy across all subjects", emoji: "🎯", unlockStars: 175000, story: "Demonstrate complete mastery of knowledge" },
+  { name: "Speed Scholar", description: "Complete 100 problems in under 10 minutes", emoji: "⚡", unlockStars: 50000, story: "Prove your lightning-fast thinking skills" }
 ];
 
 export default function StarSpaceStoryTab({ user, starPower }: StarSpaceStoryTabProps) {
@@ -698,122 +718,165 @@ export default function StarSpaceStoryTab({ user, starPower }: StarSpaceStoryTab
           <Card className="bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white">
             <CardHeader>
               <CardTitle className="text-center text-2xl">
-                🌌 Interactive Galaxy Map 🌌
+                🌌 Galactic Timeline Adventure 🌌
               </CardTitle>
               <p className="text-center text-purple-200">
-                {unlockedLocations.length}/{GALAXY_LOCATIONS.length} Locations Discovered
+                Scroll through your epic journey - {Math.max(1, unlockedChapters.length)}/30 Chapters Unlocked
               </p>
             </CardHeader>
             <CardContent>
-              <div className="relative bg-gradient-to-br from-blue-900/50 to-purple-900/70 rounded-lg p-6 min-h-[500px] overflow-hidden">
-                {/* Animated star background */}
-                <div className="absolute inset-0 opacity-40">
-                  {[...Array(80)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="absolute w-1 h-1 bg-white rounded-full animate-pulse"
-                      style={{
-                        left: `${Math.random() * 100}%`,
-                        top: `${Math.random() * 100}%`,
-                        animationDelay: `${Math.random() * 4}s`,
-                      }}
-                    />
-                  ))}
-                </div>
+              <div className="relative bg-gradient-to-b from-black via-blue-900/30 to-purple-900/50 rounded-lg overflow-hidden">
+                {/* Scrollable Timeline Container */}
+                <div className="h-[600px] overflow-y-auto scrollbar-thin scrollbar-track-gray-800 scrollbar-thumb-purple-500">
+                  <div className="relative min-h-[2000px] p-6">
+                    
+                    {/* Central Timeline Line */}
+                    <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-400 via-purple-500 to-pink-600 transform -translate-x-1/2 z-10"></div>
+                    
+                    {/* Floating Stars Background */}
+                    <div className="absolute inset-0 opacity-30 pointer-events-none">
+                      {[...Array(100)].map((_, i) => (
+                        <div
+                          key={i}
+                          className="absolute w-1 h-1 bg-white rounded-full animate-pulse"
+                          style={{
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                            animationDelay: `${Math.random() * 5}s`,
+                          }}
+                        />
+                      ))}
+                    </div>
 
-                {/* Galaxy Locations */}
-                {GALAXY_LOCATIONS.map((location) => {
-                  const isUnlocked = unlockedLocations.includes(location);
-                  const isSelected = selectedLocation === location.name;
-                  
-                  return (
-                    <div
-                      key={location.name}
-                      className={`absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all duration-300 z-20 ${
-                        isUnlocked ? 'hover:scale-125' : 'opacity-20'
-                      } ${isSelected ? 'scale-150 z-30' : ''}`}
-                      style={{ left: `${location.x}%`, top: `${location.y}%` }}
-                      onClick={() => isUnlocked && setSelectedLocation(isSelected ? null : location.name)}
-                    >
-                      <div className={`relative group ${isUnlocked ? 'animate-pulse' : ''}`}>
-                        <div className={`text-3xl transition-all duration-300 ${
-                          isUnlocked ? 'filter-none drop-shadow-lg' : 'grayscale'
-                        }`}>
-                          {location.emoji}
-                        </div>
-                        {isUnlocked && (
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black/90 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-purple-400">
-                            {location.name}
+                    {/* Chapter Timeline Events */}
+                    {STORY_CHAPTERS.slice(0, 30).map((chapter, index) => {
+                      const isUnlocked = unlockedChapters.some(c => c.id === chapter.id);
+                      const isLeft = index % 2 === 0;
+                      const yPosition = 80 + (index * 65);
+                      const character = SPACE_FRIENDS.find(f => f.unlockStars <= chapter.unlockStars && f.unlockStars >= (STORY_CHAPTERS[index - 1]?.unlockStars || 0));
+                      
+                      return (
+                        <div key={chapter.id} className="relative" style={{ top: `${yPosition}px` }}>
+                          
+                          {/* Timeline Node */}
+                          <div className={`absolute left-1/2 transform -translate-x-1/2 z-20 ${
+                            isUnlocked ? 'animate-pulse' : 'opacity-40'
+                          }`}>
+                            <div className={`w-6 h-6 rounded-full border-4 ${
+                              isUnlocked 
+                                ? 'bg-yellow-400 border-yellow-300 shadow-lg shadow-yellow-400/50' 
+                                : 'bg-gray-600 border-gray-500'
+                            }`}></div>
                           </div>
-                        )}
-                        {isUnlocked && (
-                          <div className="absolute inset-0 bg-blue-400/30 rounded-full animate-ping" />
-                        )}
-                        {!isUnlocked && (
-                          <div className="absolute -top-1 -right-1 text-red-400 text-lg">🔒</div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
 
-                {/* Location Details Panel */}
-                {selectedLocation && (
-                  <div className="absolute bottom-6 right-6 bg-black/90 text-white p-6 rounded-xl max-w-sm border border-purple-400 z-40">
-                    <h3 className="font-bold text-xl mb-3 text-purple-300">{selectedLocation}</h3>
-                    <p className="text-sm text-gray-300 mb-3">
-                      {GALAXY_LOCATIONS.find(l => l.name === selectedLocation)?.description}
-                    </p>
-                    <div className="text-xs text-blue-300 mb-3">
-                      Unlocked at Chapter {GALAXY_LOCATIONS.find(l => l.name === selectedLocation)?.unlockChapter}
-                    </div>
-                    <button
-                      onClick={() => setSelectedLocation(null)}
-                      className="bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded text-sm transition-colors"
-                    >
-                      Close
-                    </button>
-                  </div>
-                )}
+                          {/* Chapter Event Card */}
+                          <div className={`absolute ${isLeft ? 'right-1/2 mr-8' : 'left-1/2 ml-8'} w-80 z-15`}>
+                            <div className={`p-4 rounded-xl border-2 transition-all duration-500 ${
+                              isUnlocked 
+                                ? 'bg-gradient-to-br from-blue-900/80 to-purple-900/80 border-blue-400/50 backdrop-blur-sm' 
+                                : 'bg-gray-800/60 border-gray-600/30 opacity-50'
+                            }`}>
+                              
+                              {/* Chapter Header */}
+                              <div className="flex items-center gap-3 mb-3">
+                                <div className={`text-2xl ${isUnlocked ? 'animate-bounce' : 'grayscale'}`}>
+                                  {chapter.planet === "Earth's Roof" ? "🏠" :
+                                   chapter.planet === "Starport Academy" ? "🏫" :
+                                   chapter.planet === "Planet Harmonia" ? "🎵" :
+                                   chapter.planet === "Tech Station" ? "🤖" :
+                                   chapter.planet === "Time Vortex" ? "⏰" :
+                                   chapter.planet === "Planet Gigglia" ? "😂" :
+                                   chapter.planet === "Memory Palace" ? "📚" :
+                                   chapter.planet === "Planet Athletica" ? "🏃‍♂️" :
+                                   chapter.planet === "Dragon's Gate" ? "🐉" :
+                                   chapter.planet === "Confusion Fortress" ? "🏰" :
+                                   chapter.planet === "The Infinite Cosmos" ? "♾️" : "🌟"}
+                                </div>
+                                <div>
+                                  <h3 className={`font-bold text-lg ${isUnlocked ? 'text-white' : 'text-gray-400'}`}>
+                                    Chapter {chapter.id}
+                                  </h3>
+                                  <p className={`text-sm ${isUnlocked ? 'text-blue-300' : 'text-gray-500'}`}>
+                                    {chapter.title}
+                                  </p>
+                                </div>
+                              </div>
 
-                {/* Progress Info */}
-                <div className="absolute top-6 left-6 bg-black/90 text-white p-4 rounded-xl text-sm z-30 border border-blue-400/30 backdrop-blur-sm">
-                  <div className="text-yellow-300 mb-2 font-bold">🚀 Mission Progress</div>
-                  <div className="text-xs text-gray-300 space-y-1">
-                    <div>StarPower: {starPower.toLocaleString()}</div>
-                    <div>Chapter: {Math.max(1, unlockedChapters.length)}/30</div>
-                    <div>Locations: {unlockedLocations.length}/{GALAXY_LOCATIONS.length}</div>
-                    <div>Friends: {unlockedFriends.length}/25</div>
-                    <div className="text-green-400 mt-2">Next unlock: {
-                      STORY_CHAPTERS.find(c => c.unlockStars > starPower)?.unlockStars.toLocaleString() || 'MAX'
-                    } SP</div>
+                              {/* Character Introduction */}
+                              {character && isUnlocked && (
+                                <div className="mb-3 p-2 bg-purple-800/40 rounded-lg border border-purple-500/30">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xl">{character.emoji}</span>
+                                    <div>
+                                      <p className="text-xs font-bold text-purple-300">{character.name}</p>
+                                      <p className="text-xs text-purple-200">{character.ability}</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Story Preview */}
+                              {isUnlocked && (
+                                <p className="text-xs text-gray-300 mb-3 leading-relaxed">
+                                  {chapter.story.substring(0, 120)}...
+                                </p>
+                              )}
+
+                              {/* Mission & Rewards */}
+                              <div className={`text-xs ${isUnlocked ? 'text-yellow-300' : 'text-gray-500'}`}>
+                                <p className="font-medium mb-1">Mission Requirement:</p>
+                                <p className="mb-2">{chapter.mission}</p>
+                                <div className="flex justify-between items-center">
+                                  <span>Reward: {chapter.reward} SP</span>
+                                  <span>Required: {chapter.unlockStars.toLocaleString()} SP</span>
+                                </div>
+                              </div>
+
+                              {/* Start Mission Button */}
+                              {isUnlocked && (
+                                <button
+                                  onClick={() => handleStartMission(chapter.id)}
+                                  className="mt-3 w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition-all duration-300 transform hover:scale-105"
+                                >
+                                  🚀 Start Mission
+                                </button>
+                              )}
+
+                              {/* Locked State */}
+                              {!isUnlocked && (
+                                <div className="mt-3 flex items-center justify-center gap-2 text-gray-500">
+                                  <span className="text-lg">🔒</span>
+                                  <span className="text-xs">Locked</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Connection Line to Timeline */}
+                          <div className={`absolute top-3 ${isLeft ? 'right-1/2' : 'left-1/2'} w-8 h-0.5 ${
+                            isUnlocked ? 'bg-blue-400' : 'bg-gray-600'
+                          } z-10`}></div>
+                        </div>
+                      );
+                    })}
+
+                    {/* Progress Indicator */}
+                    <div className="absolute top-4 left-4 bg-black/90 text-white p-3 rounded-xl text-xs z-30 border border-yellow-400/50">
+                      <div className="text-yellow-300 font-bold mb-1">🌟 Journey Progress</div>
+                      <div>Chapter: {Math.max(1, unlockedChapters.length)}/30</div>
+                      <div>StarPower: {starPower.toLocaleString()}</div>
+                      <div>Friends: {unlockedFriends.length}/25</div>
+                    </div>
+
+                    {/* Scroll Instructions */}
+                    <div className="absolute top-4 right-4 bg-black/90 text-white p-3 rounded-xl text-xs z-30 border border-purple-400/50">
+                      <div className="text-purple-300 font-bold mb-1">📜 Navigation</div>
+                      <div>Scroll to explore timeline</div>
+                      <div>Click Start Mission to practice</div>
+                      <div>Unlock new chapters with StarPower</div>
+                    </div>
                   </div>
                 </div>
-
-                {/* Enhanced Legend */}
-                <div className="absolute top-6 right-6 bg-black/90 text-white p-4 rounded-xl text-sm z-30 border border-purple-400/30 backdrop-blur-sm">
-                  <div className="text-purple-300 mb-2 font-bold">Galaxy Guide</div>
-                  <div className="text-xs text-gray-300 space-y-1">
-                    <div>🏠 Origin Point</div>
-                    <div>🏫 Learning Hub</div>
-                    <div>🎵 Musical World</div>
-                    <div>🤖 Tech Station</div>
-                    <div>🏰 Boss Fortress</div>
-                    <div>♾️ Infinite Realm</div>
-                    <div className="text-yellow-300 mt-2">Click locations to explore!</div>
-                  </div>
-                </div>
-
-                {/* Mission Status */}
-                {unlockedChapters.length > 0 && (
-                  <div className="absolute bottom-6 left-6 bg-black/90 text-white p-4 rounded-xl text-sm z-30 border border-green-400/30 backdrop-blur-sm">
-                    <div className="text-green-300 mb-2 font-bold">⚡ Current Mission</div>
-                    <div className="text-xs text-gray-300">
-                      <div className="font-medium">{STORY_CHAPTERS[Math.min(unlockedChapters.length, STORY_CHAPTERS.length - 1)]?.title}</div>
-                      <div className="mt-1">{STORY_CHAPTERS[Math.min(unlockedChapters.length, STORY_CHAPTERS.length - 1)]?.mission}</div>
-                    </div>
-                  </div>
-                )}
               </div>
             </CardContent>
           </Card>
