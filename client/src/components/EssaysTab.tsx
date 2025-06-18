@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+
 import { Clock, FileText, Star, CheckCircle, RotateCcw, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -32,7 +32,7 @@ interface EssaySubmission {
   submittedAt: string;
 }
 
-export default function EssaysTab() {
+function EssaysTab() {
   const [selectedGrade, setSelectedGrade] = useState<number>(3);
   const [selectedPrompt, setSelectedPrompt] = useState<WritingPrompt | null>(null);
   const [essayContent, setEssayContent] = useState("");
@@ -362,10 +362,14 @@ export default function EssaysTab() {
                   <h4 className="font-semibold text-gray-900">Your Essay</h4>
                   <div className="flex items-center space-x-4 text-sm text-gray-600">
                     <span>Words: {getWordCount()}</span>
-                    <Progress 
-                      value={(getWordCount() / selectedPrompt.wordCountMax) * 100} 
-                      className="w-24"
-                    />
+                    <div className="w-24 bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                        style={{
+                          width: `${Math.min((getWordCount() / selectedPrompt.wordCountMax) * 100, 100)}%`
+                        }}
+                      ></div>
+                    </div>
                   </div>
                 </div>
                 
@@ -522,3 +526,5 @@ export default function EssaysTab() {
     </div>
   );
 }
+
+export default EssaysTab;
