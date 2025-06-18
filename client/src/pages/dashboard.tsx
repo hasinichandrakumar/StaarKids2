@@ -11,6 +11,7 @@ import MockExamsTab from "@/components/MockExamsTab";
 import EnhancedMockExamsTab from "@/components/EnhancedMockExamsTab";
 import UnlimitedPracticeTab from "@/components/UnlimitedPracticeTab";
 import StarSpaceTab from "@/components/StarSpaceTab";
+import StarSpaceStoryTab from "@/components/StarSpaceStoryTab";
 import AIStudyPlanTab from "@/components/AIStudyPlanTab";
 import EssaysTab from "@/components/EssaysTab";
 import PerformanceTab from "@/components/PerformanceTab";
@@ -152,6 +153,13 @@ export default function Dashboard() {
           <StarSpaceTab 
             user={currentUser as any}
             onOpenAvatarModal={() => setShowAvatarModal(true)}
+          />
+        )}
+
+        {activeTab === "starspace-story" && (
+          <StarSpaceStoryTab 
+            user={currentUser as any}
+            starPower={currentUser?.starPower || 1250}
           />
         )}
 
