@@ -246,34 +246,73 @@ const STORY_CHAPTERS = [
 ];
 
 const SPACE_FRIENDS = [
-  { name: "Zara the Alien", unlockStars: 100, description: "A friendly purple alien who loves math puzzles", emoji: "👽" },
-  { name: "Rocket the Robot", unlockStars: 300, description: "A helpful robot who assists with reading comprehension", emoji: "🤖" },
-  { name: "Stella Stardust", unlockStars: 600, description: "A magical space fairy who grants bonus StarPower", emoji: "🧚‍♀️" },
-  { name: "Captain Cosmos", unlockStars: 1200, description: "A brave space captain who teaches test-taking strategies", emoji: "👨‍🚀" },
-  { name: "Luna the Space Cat", unlockStars: 2500, description: "A curious space cat who finds hidden treasures", emoji: "🐱‍🚀" }
+  { name: "Zara the Alien", unlockStars: 300, description: "A friendly purple alien who speaks in mathematical riddles", emoji: "👽", planet: "Zephyr" },
+  { name: "Rocket the Robot", unlockStars: 800, description: "A helpful robot from Techno Station who loves fixing problems", emoji: "🤖", planet: "Techno Station" },
+  { name: "Melody the Song-Keeper", unlockStars: 1500, description: "A mystical being who remembers the songs of knowledge", emoji: "🎵", planet: "Whale Nebula" },
+  { name: "Professor Chronos", unlockStars: 2200, description: "Guardian of time who teaches history through adventures", emoji: "⏰", planet: "Time Rift Station" },
+  { name: "Captain Stellar", unlockStars: 3000, description: "Brave pilot who navigates asteroid fields and danger", emoji: "👩‍🚀", planet: "Academy Station" },
+  { name: "The Luminoids", unlockStars: 4000, description: "Crystal beings who sing the melodies of mathematics", emoji: "💎", planet: "Planet Lumina" },
+  { name: "Elder Cosmos", unlockStars: 5500, description: "Wise space whale who shares ancient pattern wisdom", emoji: "🐋", planet: "Deep Space" },
+  { name: "Ringmaster Cosmos", unlockStars: 7500, description: "Leader of the Cosmic Circus with mathematical secrets", emoji: "🎪", planet: "Mobile Circus Ship" },
+  { name: "Weather Wizard Nimbus", unlockStars: 9000, description: "Controls cosmic storms and teaches data analysis", emoji: "⛈️", planet: "Cloud City" },
+  { name: "Captain Starbones", unlockStars: 12000, description: "Space pirate who guards ancient treasure maps", emoji: "🏴‍☠️", planet: "Treasure Cove" },
+  { name: "Chief Engineer Bolt", unlockStars: 15000, description: "Brilliant inventor who builds amazing crystal detectors", emoji: "⚙️", planet: "Innovation Hub" },
+  { name: "Maestro Harmony", unlockStars: 18000, description: "Musical genius who creates mathematical symphonies", emoji: "🎼", planet: "Harmonia" },
+  { name: "Commander Nova", unlockStars: 25000, description: "Your mentor and guide through the academy adventures", emoji: "⭐", planet: "Academy Station" },
+  { name: "Librarian Luna", unlockStars: 30000, description: "Guardian of the Story Library where books come alive", emoji: "📚", planet: "Story Library Dimension" },
+  { name: "Lord Confusion (Reformed)", unlockStars: 40000, description: "Former enemy who now helps students overcome doubt", emoji: "🌑", planet: "Shadow Fortress" }
+];
+
+const GALAXY_LOCATIONS = [
+  { name: "Academy Station", unlockChapter: 1, x: 50, y: 50, emoji: "🏫", description: "Where your adventure begins" },
+  { name: "Planet Lumina", unlockChapter: 4, x: 20, y: 30, emoji: "💎", description: "Crystal caves sing with knowledge" },
+  { name: "Asteroid Belt", unlockChapter: 3, x: 75, y: 25, emoji: "☄️", description: "Dangerous meteors to navigate" },
+  { name: "Zephyr", unlockChapter: 4, x: 30, y: 70, emoji: "👽", description: "Home of the friendly aliens" },
+  { name: "Techno Station", unlockChapter: 5, x: 80, y: 60, emoji: "🤖", description: "Robot factory in space" },
+  { name: "Whale Nebula", unlockChapter: 6, x: 15, y: 80, emoji: "🐋", description: "Where space whales sing" },
+  { name: "Time Rift Station", unlockChapter: 7, x: 60, y: 15, emoji: "⏰", description: "Portal through time itself" },
+  { name: "Planet Bounce", unlockChapter: 8, x: 85, y: 40, emoji: "🏃‍♂️", description: "Low gravity sports world" },
+  { name: "Story Library", unlockChapter: 9, x: 40, y: 85, emoji: "📚", description: "Where books come alive" },
+  { name: "Mobile Circus Ship", unlockChapter: 11, x: 70, y: 75, emoji: "🎪", description: "Traveling cosmic circus" },
+  { name: "Cloud City", unlockChapter: 12, x: 25, y: 20, emoji: "⛈️", description: "City floating in storms" },
+  { name: "Treasure Cove", unlockChapter: 13, x: 90, y: 80, emoji: "🏴‍☠️", description: "Secret pirate hideout" },
+  { name: "Innovation Hub", unlockChapter: 14, x: 55, y: 35, emoji: "⚙️", description: "Galaxy's invention center" },
+  { name: "Harmonia", unlockChapter: 15, x: 35, y: 55, emoji: "🎼", description: "Planet of musical mathematics" },
+  { name: "Shadow Fortress", unlockChapter: 16, x: 10, y: 10, emoji: "🌑", description: "Lord Confusion's dark domain" },
+  { name: "Council of Planets", unlockChapter: 19, x: 65, y: 90, emoji: "🏛️", description: "Government of the galaxy" },
+  { name: "Infinity Realm", unlockChapter: 21, x: 50, y: 5, emoji: "♾️", description: "Beyond all understanding" }
 ];
 
 const SPACE_ACHIEVEMENTS = [
-  { name: "Asteroid Miner", description: "Find 10 hidden knowledge gems", emoji: "💎", unlockStars: 200 },
-  { name: "Comet Rider", description: "Complete 5 speed challenges", emoji: "☄️", unlockStars: 400 },
-  { name: "Planet Discoverer", description: "Explore all 8 knowledge planets", emoji: "🌍", unlockStars: 800 },
-  { name: "Star Collector", description: "Gather 1000 StarPower in one week", emoji: "⭐", unlockStars: 1500 },
-  { name: "Galaxy Guardian", description: "Help 3 space friends with their missions", emoji: "🛡️", unlockStars: 3000 }
+  { name: "Asteroid Miner", description: "Find 10 hidden knowledge gems", emoji: "💎", unlockStars: 2000 },
+  { name: "Comet Rider", description: "Complete 5 speed challenges", emoji: "☄️", unlockStars: 5000 },
+  { name: "Planet Discoverer", description: "Explore all story locations", emoji: "🌍", unlockStars: 15000 },
+  { name: "Star Collector", description: "Gather 10,000 StarPower total", emoji: "⭐", unlockStars: 10000 },
+  { name: "Galaxy Guardian", description: "Help all space friends with their missions", emoji: "🛡️", unlockStars: 50000 }
 ];
 
 export default function StarSpaceStoryTab({ user, starPower }: StarSpaceStoryTabProps) {
   const [currentChapter, setCurrentChapter] = useState(1);
   const [discoveredFriends, setDiscoveredFriends] = useState<string[]>([]);
   const [completedMissions, setCompletedMissions] = useState<number[]>([]);
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
 
   // Unlock logic based on StarPower
   const unlockedChapters = STORY_CHAPTERS.filter(chapter => starPower >= chapter.unlockStars);
   const unlockedFriends = SPACE_FRIENDS.filter(friend => starPower >= friend.unlockStars);
   const unlockedAchievements = SPACE_ACHIEVEMENTS.filter(achievement => starPower >= achievement.unlockStars);
+  const unlockedLocations = GALAXY_LOCATIONS.filter(location => 
+    unlockedChapters.some(chapter => chapter.id >= location.unlockChapter)
+  );
 
   const handleStartMission = (chapterId: number) => {
-    // This would integrate with the main practice system
-    console.log(`Starting mission for chapter ${chapterId}`);
+    // Redirect to practice questions based on chapter requirements
+    const chapter = STORY_CHAPTERS.find(c => c.id === chapterId);
+    if (chapter) {
+      // This would trigger opening the practice modal with specific requirements
+      window.location.hash = 'practice-mode';
+      console.log(`Starting mission: ${chapter.mission}`);
+    }
   };
 
   return (
