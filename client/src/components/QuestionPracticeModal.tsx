@@ -165,30 +165,221 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
     },
   });
 
-  const getNovaExplanation = async (question: any, userAnswer: string, correctAnswer: string, isCorrect: boolean) => {
+  const getDetailedExplanation = async (question: any, userAnswer: string, correctAnswer: string, isCorrect: boolean) => {
     setLoadingExplanation(true);
     try {
+      // First try to get Nova's detailed explanation
       const response = await fetch("/api/nova-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: `I just answered a ${subject} question: "${question.questionText}" I chose "${userAnswer}" and the correct answer is "${correctAnswer}". ${isCorrect ? 'I got it right!' : 'I got it wrong.'} Can you explain this to me?`,
+          message: `Please provide a detailed, step-by-step explanation for this ${subject} question: "${question.questionText}" 
+
+The correct answer is "${correctAnswer}" and I selected "${userAnswer}". ${isCorrect ? 'I got it right!' : 'I got it wrong.'}
+
+Please explain:
+1. What concept this question tests
+2. Step-by-step solution process
+3. Why the correct answer is right
+4. Common mistakes to avoid
+5. Tips for similar problems
+
+Make it appropriate for a Grade ${grade} student.`,
           grade
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to get Nova's explanation");
+      if (response.ok) {
+        const data = await response.json();
+        setAiExplanation(data.response);
+      } else {
+        // Fallback to detailed built-in explanations
+        const detailedExplanation = generateDetailedExplanation(question, userAnswer, correctAnswer, isCorrect);
+        setAiExplanation(detailedExplanation);
       }
-
-      const data = await response.json();
-      setAiExplanation(data.response || "Great job working on this question! Keep practicing and you'll do amazing!");
     } catch (error) {
-      console.error("Error getting Nova's explanation:", error);
-      setAiExplanation("Great job working on this question! I'm here to help you learn. Keep practicing and you'll do amazing!");
+      console.error("Error getting explanation:", error);
+      // Generate comprehensive fallback explanation
+      const detailedExplanation = generateDetailedExplanation(question, userAnswer, correctAnswer, isCorrect);
+      setAiExplanation(detailedExplanation);
     } finally {
       setLoadingExplanation(false);
     }
+  };
+
+  const generateDetailedExplanation = (question: any, userAnswer: string, correctAnswer: string, isCorrect: boolean) => {
+    const questionText = question.questionText.toLowerCase();
+    const category = question.category?.toLowerCase() || '';
+    const teks = question.teksStandard || '';
+
+    // Math explanations
+    if (subject === 'math') {
+      // Fraction problems
+      if (questionText.includes('fraction') && questionText.includes('equivalent')) {
+        return `**Understanding Equivalent Fractions**
+
+**What this tests:** TEKS ${teks} - Understanding that fractions can represent the same amount even with different denominators.
+
+**Step-by-Step Solution:**
+1. **Identify what each fraction represents:** Look at each fraction model carefully
+2. **Count the shaded parts:** In each model, count how many parts are shaded
+3. **Count the total parts:** Count how many equal parts each model is divided into
+4. **Compare the fractions:** 
+   - 1/4 means 1 out of 4 equal parts
+   - 2/8 means 2 out of 8 equal parts (same as 1/4)
+   - 3/12 means 3 out of 12 equal parts (same as 1/4)
+
+**Why "${correctAnswer}" is correct:** All three fractions represent exactly the same amount - one quarter of the whole shape.
+
+**Visual Check:** If you color in 1/4, 2/8, and 3/12 of identical shapes, they will have the same amount of coloring.
+
+**Common Mistakes to Avoid:**
+- Don't just look at the numbers - visualize the actual amounts
+- Remember that bigger denominators don't always mean bigger fractions
+
+**Tips for Success:** Always think "What part of the whole does this represent?" when working with fractions.`;
+      }
+
+      // Area problems
+      if (questionText.includes('area') && (questionText.includes('rectangle') || questionText.includes('garden'))) {
+        const dimensions = questionText.match(/(\d+)\s*feet?\s*.*?(\d+)\s*feet?/);
+        const length = dimensions ? dimensions[1] : '';
+        const width = dimensions ? dimensions[2] : '';
+        
+        return `**Calculating Rectangular Area**
+
+**What this tests:** TEKS ${teks} - Finding the area of rectangles using length × width.
+
+**Step-by-Step Solution:**
+1. **Identify the formula:** Area of rectangle = Length × Width
+2. **Find the measurements:** 
+   - Length = ${length} feet
+   - Width = ${width} feet
+3. **Multiply the dimensions:** ${length} × ${width} = ${parseInt(length) * parseInt(width)} square feet
+4. **Include proper units:** Always write "square feet" for area
+
+**Why "${correctAnswer}" is correct:** ${length} × ${width} = ${parseInt(length) * parseInt(width)} square feet
+
+**Visual Understanding:** Imagine covering the garden with 1-foot square tiles. You'd need ${parseInt(length) * parseInt(width)} tiles total.
+
+**Common Mistakes to Avoid:**
+- Don't add length + width (that gives perimeter, not area)
+- Don't forget to include "square" in your units
+- Make sure you multiply, not add
+
+**Memory Tip:** "Area = Length × Width" - think of it as "how many square units fit inside?"`;
+      }
+
+      // Pattern problems
+      if (questionText.includes('pattern') || questionText.includes('sequence')) {
+        return `**Understanding Number Patterns**
+
+**What this tests:** TEKS ${teks} - Identifying and extending arithmetic patterns.
+
+**Step-by-Step Solution:**
+1. **Look for the pattern rule:** Compare each number to the next
+2. **Find the difference:** What number is being added each time?
+3. **Check your rule:** Apply the same difference throughout the sequence
+4. **Extend the pattern:** Add the same difference to the last given number
+
+**Pattern Analysis:**
+- Look at the sequence in the question
+- Find what's being added (or subtracted) each step
+- Apply that same rule to find the next number
+
+**Why "${correctAnswer}" is correct:** Following the established pattern rule gives us this answer.
+
+**Common Mistakes to Avoid:**
+- Don't assume it's always +1 or +2
+- Check that your rule works for ALL numbers in the sequence
+- Make sure you're adding the right amount
+
+**Success Strategy:** Always verify your pattern rule works for every step before finding the next number.`;
+      }
+
+      // Bar graph problems
+      if (questionText.includes('bar graph') || questionText.includes('graph')) {
+        return `**Reading and Interpreting Bar Graphs**
+
+**What this tests:** TEKS ${teks} - Analyzing data presented in bar graphs.
+
+**Step-by-Step Solution:**
+1. **Read the graph title and labels:** Understand what data is being shown
+2. **Identify the scale:** Look at the numbers on the y-axis
+3. **Read each bar height:** Find the value for each category
+4. **Compare the data:** Look for differences between specific bars
+5. **Calculate the answer:** Subtract to find "how many more"
+
+**Graph Reading Skills:**
+- Always start with the axis labels
+- Match each bar to its category
+- Read the height where the bar ends
+- Double-check your reading
+
+**Why "${correctAnswer}" is correct:** By comparing the specific bars mentioned in the question.
+
+**Common Mistakes to Avoid:**
+- Don't guess at bar heights - read them carefully
+- Make sure you're comparing the right categories
+- Remember "how many more" means subtract
+
+**Pro Tip:** Always trace from the top of each bar down to the scale to get accurate readings.`;
+      }
+    }
+
+    // Reading comprehension explanations
+    if (subject === 'reading') {
+      return `**Reading Comprehension Strategy**
+
+**What this tests:** TEKS ${teks} - ${category || 'Reading comprehension and analysis'}
+
+**Step-by-Step Approach:**
+1. **Read the passage carefully:** Look for key details and main ideas
+2. **Identify the question type:** What kind of information is being asked?
+3. **Find text evidence:** Look back at the passage for supporting details
+4. **Eliminate wrong answers:** Cross out choices that don't match the text
+5. **Choose the best answer:** Select the option most supported by the passage
+
+**Reading Strategies:**
+- Underline or highlight important information
+- Pay attention to character thoughts and actions
+- Look for cause and effect relationships
+- Notice the author's purpose and tone
+
+**Why "${correctAnswer}" is correct:** This answer is best supported by specific evidence in the text.
+
+**Common Mistakes to Avoid:**
+- Don't rely on outside knowledge - stick to what's in the passage
+- Don't choose answers just because they sound good
+- Always look for text evidence to support your choice
+
+**Success Tips:** 
+- Read the question first, then read the passage with that question in mind
+- Always go back to the text to verify your answer choice`;
+    }
+
+    // General fallback explanation
+    return `**Detailed Problem Analysis**
+
+**What this tests:** TEKS ${teks} - ${category || 'Core academic skills'}
+
+**Your Answer:** You selected "${userAnswer}"
+**Correct Answer:** "${correctAnswer}"
+
+**Step-by-Step Approach:**
+1. **Understand the question:** Break down what's being asked
+2. **Identify key information:** Find the important details
+3. **Apply the right strategy:** Use the appropriate method or formula
+4. **Check your work:** Verify your answer makes sense
+
+**Why "${correctAnswer}" is correct:** This answer follows the proper solution method and matches the question requirements.
+
+**Learning Strategy:**
+- Practice similar problems to build confidence
+- Always read questions carefully before answering
+- Take your time and double-check your work
+
+${isCorrect ? '**Great job!** You demonstrated strong understanding of this concept.' : '**Keep practicing!** Understanding these concepts takes time and effort.'}`;
   };
 
   const handleSubmitAnswer = async () => {
@@ -232,11 +423,11 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
         }
       }, 1500);
     } else {
-      // Show Nova's explanation for incorrect answer
+      // Show detailed explanation for incorrect answer
       setShowExplanation(true);
       const userAnswerChoice = currentQuestion.answerChoices.find((choice: any) => (choice.id || choice) === selectedAnswer);
       const userAnswerText = userAnswerChoice?.text || userAnswerChoice || selectedAnswer;
-      await getNovaExplanation(currentQuestion, userAnswerText, currentQuestion.correctAnswer, false);
+      await getDetailedExplanation(currentQuestion, userAnswerText, currentQuestion.correctAnswer, false);
     }
   };
 

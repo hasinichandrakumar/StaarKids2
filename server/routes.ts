@@ -237,8 +237,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // If not found by exact ID, check with string conversion or use fallback
         if (!question) {
           // Try finding by converting to string (database might store as string)
-          const questionResultString = await db.select().from(questions).where(eq(questions.id, questionId.toString()));
-          question = questionResultString[0];
+          const questionResults = await db.select().from(questions);
+          question = questionResults.find(q => q.id === questionId || q.id.toString() === questionId.toString());
         }
         
         // Create authentic fallback questions for testing
