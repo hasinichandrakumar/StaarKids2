@@ -1,15 +1,78 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ClipboardDocumentListIcon, ClockIcon } from "@heroicons/react/24/outline";
-import { Calculator, BookOpen } from "lucide-react";
+import { Calculator, BookOpen, Calendar, Target, Trophy, History, Download, Eye, FileText, CheckCircle, XCircle, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface MockExamsTabProps {
   grade: number;
 }
 
+// Mock exam data with comprehensive year coverage (2013-2025)
+const MOCK_EXAMS_BY_YEAR = {
+  2013: { math: true, reading: true, total: 45 },
+  2014: { math: true, reading: true, total: 45 },
+  2015: { math: true, reading: true, total: 45 },
+  2016: { math: true, reading: true, total: 45 },
+  2017: { math: true, reading: true, total: 45 },
+  2018: { math: true, reading: true, total: 45 },
+  2019: { math: true, reading: true, total: 45 },
+  2021: { math: true, reading: true, total: 45 },
+  2022: { math: true, reading: true, total: 45 },
+  2023: { math: true, reading: true, total: 45 },
+  2024: { math: true, reading: true, total: 45 },
+  2025: { math: true, reading: true, total: 45 }
+};
+
+const EXAM_HISTORY = [
+  {
+    id: 1,
+    year: 2024,
+    subject: "math",
+    score: 85,
+    totalQuestions: 45,
+    correctAnswers: 38,
+    timeSpent: 180,
+    dateTaken: "2024-12-15",
+    difficulty: "Approaching Grade Level"
+  },
+  {
+    id: 2,
+    year: 2023,
+    subject: "reading",
+    score: 78,
+    totalQuestions: 45,
+    correctAnswers: 35,
+    timeSpent: 195,
+    dateTaken: "2024-12-10",
+    difficulty: "Meets Grade Level"
+  },
+  {
+    id: 3,
+    year: 2024,
+    subject: "reading",
+    score: 92,
+    totalQuestions: 45,
+    correctAnswers: 41,
+    timeSpent: 170,
+    dateTaken: "2024-12-08",
+    difficulty: "Masters Grade Level"
+  }
+];
+
 export default function MockExamsTab({ grade }: MockExamsTabProps) {
+  const [selectedTab, setSelectedTab] = useState("available");
+  const [selectedYear, setSelectedYear] = useState<string>("2024");
+  const [selectedSubject, setSelectedSubject] = useState<string>("both");
+  const [showFormulaSheet, setShowFormulaSheet] = useState(false);
+  const [showDictionary, setShowDictionary] = useState(false);
+
   const { data: allExams } = useQuery({
     queryKey: ["/api/exams", grade],
     queryFn: () => fetch(`/api/exams/${grade}`).then(res => res.json())
