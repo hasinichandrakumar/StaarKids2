@@ -1295,6 +1295,76 @@ Respond as Nova would, being helpful and encouraging while staying in character.
     }
   });
 
+  // Parent dashboard routes
+  app.get('/api/parent/students', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims?.sub || req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (user?.role !== 'parent') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const students = await storage.getChildrenByParent(userId);
+      res.json(students);
+    } catch (error) {
+      console.error("Error fetching parent students:", error);
+      res.status(500).json({ message: "Failed to fetch students" });
+    }
+  });
+
+  app.get('/api/parent/dashboard', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims?.sub || req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (user?.role !== 'parent') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const dashboardData = await storage.getParentDashboardData(userId);
+      res.json(dashboardData);
+    } catch (error) {
+      console.error("Error fetching parent dashboard:", error);
+      res.status(500).json({ message: "Failed to fetch dashboard data" });
+    }
+  });
+
+  // Teacher student management routes
+  app.get('/api/teacher/students', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims?.sub || req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (user?.role !== 'teacher') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const students = await storage.getStudentsByTeacher(userId);
+      res.json(students);
+    } catch (error) {
+      console.error("Error fetching teacher students:", error);
+      res.status(500).json({ message: "Failed to fetch students" });
+    }
+  });
+
+  app.get('/api/teacher/dashboard', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims?.sub || req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (user?.role !== 'teacher') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const dashboardData = await storage.getTeacherDashboardData(userId);
+      res.json(dashboardData);
+    } catch (error) {
+      console.error("Error fetching teacher dashboard:", error);
+      res.status(500).json({ message: "Failed to fetch dashboard data" });
+    }
+  });
+
   // Legacy classroom route - keeping for compatibility
   app.get('/api/classroom/teacher', isAuthenticated, async (req: any, res) => {
     try {

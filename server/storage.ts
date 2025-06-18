@@ -162,6 +162,15 @@ export interface IStorage {
     overallStats: any;
     recentActivity: any[];
   }>;
+  
+  // Teacher dashboard operations
+  getStudentsByTeacher(teacherId: string): Promise<User[]>;
+  getTeacherDashboardData(teacherId: string): Promise<{
+    students: User[];
+    classrooms: ClassroomCode[];
+    overallStats: any;
+    recentActivity: any[];
+  }>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1093,6 +1102,85 @@ export class DatabaseStorage implements IStorage {
       attempt,
       exam,
       answers,
+    };
+  }
+
+  // Teacher dashboard methods
+  async getStudentsByTeacher(teacherId: string): Promise<User[]> {
+    const students = await db
+      .select()
+      .from(users)
+      .innerJoin(classroomEnrollments, eq(users.id, classroomEnrollments.studentId))
+      .innerJoin(classroomCodes, eq(classroomEnrollments.classroomId, classroomCodes.id))
+      .where(
+        and(
+          eq(classroomCodes.teacherId, teacherId),
+          eq(classroomCodes.isActive, true),
+          eq(classroomEnrollments.isActive, true)
+        )
+      );
+    return students.map(result => result.users);
+  }
+
+  async getTeacherDashboardData(teacherId: string): Promise<{
+    students: User[];
+    classrooms: ClassroomCode[];
+    overallStats: any;
+    recentActivity: any[];
+  }> {
+    const students = await this.getStudentsByTeacher(teacherId);
+    const classrooms = await this.getClassroomsByTeacher(teacherId);
+    
+    const studentIds = students.map(student => student.id);
+    if (studentIds.length === 0) {
+      return {
+        students: [],
+        classrooms,
+        overallStats: { totalStudents: 0, totalAttempts: 0, averageScore: 0 },
+        recentActivity: []
+      };
+    }
+
+    // Get aggregate stats for all students
+    const overallStats = await db
+      .select({
+        totalAttempts: count(),
+        correctAttempts: sql<number>`SUM(CASE WHEN ${practiceAttempts.isCorrect} = true THEN 1 ELSE 0 END)`,
+      })
+      .from(practiceAttempts)
+      .where(sql`${practiceAttempts.userId} IN (${sql.join(studentIds.map(id => sql`${id}`), sql`, `)})`);
+
+    // Get recent activity across all students
+    const recentActivity = await db
+      .select({
+        userId: practiceAttempts.userId,
+        questionId: practiceAttempts.questionId,
+        isCorrect: practiceAttempts.isCorrect,
+        createdAt: practiceAttempts.createdAt,
+        subject: questions.subject,
+        grade: questions.grade,
+        studentName: users.fullName
+      })
+      .from(practiceAttempts)
+      .innerJoin(questions, eq(practiceAttempts.questionId, questions.id))
+      .innerJoin(users, eq(practiceAttempts.userId, users.id))
+      .where(sql`${practiceAttempts.userId} IN (${sql.join(studentIds.map(id => sql`${id}`), sql`, `)})`)
+      .orderBy(desc(practiceAttempts.createdAt))
+      .limit(50);
+
+    const stats = overallStats[0] || { totalAttempts: 0, correctAttempts: 0 };
+    const averageScore = stats.totalAttempts > 0 ? (stats.correctAttempts / stats.totalAttempts) * 100 : 0;
+
+    return {
+      students,
+      classrooms,
+      overallStats: { 
+        totalStudents: students.length, 
+        totalAttempts: stats.totalAttempts, 
+        correctAttempts: stats.correctAttempts,
+        averageScore 
+      },
+      recentActivity
     };
   }
 }
