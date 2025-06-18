@@ -7,6 +7,71 @@ import { useToast } from "@/hooks/use-toast";
 import { Lightbulb, X, Clock, CheckCircle, XCircle } from "lucide-react";
 import { StarIcon, SparklesIcon } from "@heroicons/react/24/solid";
 
+// SVG Display Component
+function SvgDisplay({ questionId, description }: { questionId: number; description: string }) {
+  const [svgContent, setSvgContent] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    setError(false);
+    
+    fetch(`/api/question-svg/${questionId}`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.text();
+      })
+      .then(content => {
+        // Ensure the SVG has proper dimensions and styling
+        const enhancedSvg = content
+          .replace('<svg', '<svg style="width: 100%; height: 100%; max-width: 500px; max-height: 300px;"')
+          .replace(/width="\d+"/, 'width="100%"')
+          .replace(/height="\d+"/, 'height="100%"');
+        
+        setSvgContent(enhancedSvg);
+        setLoading(false);
+        setError(false);
+      })
+      .catch((err) => {
+        console.error('SVG loading error:', err);
+        setError(true);
+        setLoading(false);
+      });
+  }, [questionId]);
+
+  if (loading) {
+    return (
+      <div className="w-full h-64 flex items-center justify-center bg-gray-50 rounded">
+        <div className="text-center">
+          <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2"></div>
+          <span className="text-gray-500 text-sm">Loading diagram...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center p-6 bg-blue-50 border border-blue-200 rounded">
+        <div className="text-blue-800">
+          <strong>📊 Visual Element</strong><br/>
+          <span className="text-sm mt-1 block">{description}</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div 
+      className="w-full h-64 flex items-center justify-center bg-white"
+      dangerouslySetInnerHTML={{ __html: svgContent }}
+    />
+  );
+}
+
 interface QuestionPracticeModalProps {
   grade: number;
   subject: "math" | "reading";
@@ -256,9 +321,25 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
 
           {/* Question */}
           <div className="mb-8">
-            <h3 className="text-xl font-semibold text-gray-800 mb-6 leading-relaxed">
-              {currentQuestion.questionText}
-            </h3>
+            {/* Enhanced Reading Question Display */}
+            {subject === 'reading' ? (
+              <div className="prose prose-lg max-w-none mb-6">
+                <div 
+                  className="text-lg leading-relaxed text-gray-800"
+                  dangerouslySetInnerHTML={{
+                    __html: currentQuestion.questionText
+                      .replace(/\n\n/g, '</p><p class="mb-4">')
+                      .replace(/\n/g, '<br/>')
+                      .replace(/^/, '<p class="mb-4">')
+                      .replace(/$/, '</p>')
+                  }}
+                />
+              </div>
+            ) : (
+              <h3 className="text-xl font-semibold text-gray-800 mb-6 leading-relaxed">
+                {currentQuestion.questionText}
+              </h3>
+            )}
 
             {/* Question Image/Diagram */}
             {currentQuestion.hasImage && (
@@ -268,29 +349,9 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
                     className="max-w-full rounded shadow-sm bg-white p-3 border"
                     style={{ maxHeight: '320px', maxWidth: '600px' }}
                   >
-                    <iframe
-                      src={`/api/question-svg/${currentQuestion.id}`}
-                      className="w-full border-0"
-                      style={{ height: '280px', minHeight: '200px' }}
-                      title={currentQuestion.imageDescription || "Question diagram"}
-                      onLoad={(e) => {
-                        console.log('SVG iframe loaded successfully');
-                      }}
-                      onError={(e) => {
-                        console.error('SVG iframe failed to load');
-                        const target = e.target as HTMLIFrameElement;
-                        const container = target.parentElement;
-                        if (container) {
-                          container.innerHTML = `
-                            <div class="text-center p-4 bg-blue-50 border border-blue-200 rounded">
-                              <div class="text-blue-800">
-                                <strong>📊 Visual Element</strong><br/>
-                                <span class="text-sm">${currentQuestion.imageDescription || "Diagram for this question"}</span>
-                              </div>
-                            </div>
-                          `;
-                        }
-                      }}
+                    <SvgDisplay 
+                      questionId={currentQuestion.id} 
+                      description={currentQuestion.imageDescription || "Question diagram"}
                     />
                   </div>
                 </div>
