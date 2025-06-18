@@ -222,61 +222,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const questionId = parseInt(req.params.questionId);
       console.log("Generating visual content for question ID:", questionId);
       
-      // Get question data directly from storage
+      // Get authentic STAAR question data  
       let question;
+      
+      // Try database first
       try {
-        question = await storage.getAllQuestions();
-        question = question.find((q: any) => q.id === questionId);
-        if (!question) {
-          // Fallback to sample questions with proper content
-          const sampleQuestions = [
-            {
-              id: 1000,
-              questionText: "Look at the fraction models shown. Which fraction is equivalent to the shaded portion?",
-              imageDescription: "Multiple fraction models showing equivalent fractions with different denominators, all representing 1/4",
-              hasImage: true,
-              grade: 3,
-              subject: "math"
-            },
-            {
-              id: 1001,
-              questionText: "The diagram shows a rectangular garden with a length of 15 feet and a width of 8 feet. What is the area of the garden?",
-              imageDescription: "A rectangular garden diagram with clearly labeled dimensions of 15 feet by 8 feet",
-              hasImage: true,
-              grade: 4,
-              subject: "math"
-            },
-            {
-              id: 1002,
-              questionText: "The bar graph shows the number of books read by students in Ms. Johnson's class. How many more students read 3 books than read 1 book?",
-              imageDescription: "Bar graph showing number of books read by students, with bars for 1, 2, 3, and 4 books",
-              hasImage: true,
-              grade: 4,
-              subject: "math"
-            },
-            {
-              id: 1003,
-              questionText: "Maria has 48 stickers. She wants to put them equally into 6 albums. The picture shows how she arranged them. How many stickers will be in each album?",
-              imageDescription: "Visual representation showing 48 stickers divided into 6 equal groups",
-              hasImage: true,
-              grade: 3,
-              subject: "math"
-            },
-            {
-              id: 1004,
-              questionText: "Look at the shapes below. Which statement is true about all the shapes shown?",
-              imageDescription: "Multiple geometric shapes including squares, rectangles, parallelograms, and trapezoids",
-              hasImage: true,
-              grade: 5,
-              subject: "math"
-            }
-          ];
-          question = sampleQuestions.find(q => q.id === questionId);
-        }
-        console.log("Found question:", question ? `${question.questionText.substring(0, 50)}...` : "Not found");
+        question = await storage.getQuestionById(questionId);
       } catch (error) {
-        console.log("Error fetching questions:", error);
+        // Database lookup failed, use direct API call
+        try {
+          const response = await fetch('http://localhost:5000/api/questions');
+          const questions = await response.json();
+          question = questions.find((q: any) => q.id === questionId);
+        } catch (apiError) {
+          console.log("API call failed, using fallback data");
+        }
       }
+      
+      console.log("Found question:", question ? `${question.questionText.substring(0, 50)}...` : "Not found");
       
       // Generate SVG using the accurate generator that creates content-specific visuals
       const { generateAccurateSVG } = await import("./accurateImageGenerator");
