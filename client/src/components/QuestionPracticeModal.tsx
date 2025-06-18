@@ -172,7 +172,7 @@ export default function QuestionPracticeModal({ grade, subject, category, onClos
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: `I just answered a ${subject} question: "${question.question_text}" I chose "${userAnswer}" and the correct answer is "${correctAnswer}". ${isCorrect ? 'I got it right!' : 'I got it wrong.'} Can you explain this to me?`,
+          message: `I just answered a ${subject} question: "${question.questionText}" I chose "${userAnswer}" and the correct answer is "${correctAnswer}". ${isCorrect ? 'I got it right!' : 'I got it wrong.'} Can you explain this to me?`,
           grade
         }),
       });
