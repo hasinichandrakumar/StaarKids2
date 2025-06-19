@@ -97,7 +97,14 @@ QUALITY CONTROL:
         explanation: questionData.explanation || null
       };
 
-      questions.push(question);
+      // Validate question accuracy before adding
+      if (validateQuestionAccuracy(question)) {
+        questions.push(question);
+      } else {
+        // Generate fallback question if validation fails
+        console.warn(`Generated question failed validation, using fallback for grade ${grade} ${subject}`);
+        questions.push(generateFallbackQuestion(grade, subject, selectedTeks, category));
+      }
 
     } catch (error) {
       console.error(`Error generating question ${i + 1}:`, error);
@@ -193,7 +200,7 @@ QUALITY VERIFICATION:
 
     const questionData = JSON.parse(response.choices[0].message.content!);
 
-    return {
+    const question: InsertQuestion = {
       grade,
       subject: "math",
       questionText: questionData.questionText,
@@ -208,6 +215,14 @@ QUALITY VERIFICATION:
       imageDescription: questionData.imageDescription,
       explanation: questionData.explanation
     };
+
+    // Validate question accuracy before returning
+    if (validateQuestionAccuracy(question)) {
+      return question;
+    } else {
+      console.warn(`Visual math question failed validation, using fallback for grade ${grade}`);
+      return generateFallbackQuestion(grade, "math", teksStandard, category);
+    }
 
   } catch (error) {
     console.error("Error generating visual math question:", error);
@@ -305,7 +320,7 @@ QUALITY VERIFICATION:
 
     const questionData = JSON.parse(response.choices[0].message.content!);
 
-    return {
+    const question: InsertQuestion = {
       grade,
       subject: "reading",
       questionText: questionData.questionText,
@@ -320,6 +335,14 @@ QUALITY VERIFICATION:
       imageDescription: null,
       explanation: questionData.explanation
     };
+
+    // Validate question accuracy before returning
+    if (validateQuestionAccuracy(question)) {
+      return question;
+    } else {
+      console.warn(`Reading passage question failed validation, using fallback for grade ${grade}`);
+      return generateFallbackQuestion(grade, "reading", teksStandard, category);
+    }
 
   } catch (error) {
     console.error("Error generating reading passage question:", error);
@@ -580,7 +603,7 @@ function generateFallbackQuestion(grade: number, subject: "math" | "reading", te
       },
       4: {
         questionText: "There are 27 teams in a hockey league. Each team has 16 players. How many players are in the league altogether?",
-        answerChoices: ["A. 432 players", "B. 43 players", "C. 432 players", "D. 422 players"],
+        answerChoices: ["A. 432 players", "B. 43 players", "C. 272 players", "D. 422 players"],
         correctAnswer: "A",
         explanation: "Multiply 27 × 16 = 432 players total."
       },
@@ -628,7 +651,7 @@ function generateFallbackQuestion(grade: number, subject: "math" | "reading", te
     year: new Date().getFullYear(),
     hasImage: false,
     imageDescription: null,
-    explanation: "This is a fallback question."
+    explanation: fallback.explanation
   };
 }
 
