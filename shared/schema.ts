@@ -55,6 +55,21 @@ export const users = pgTable("users", {
   lastActiveAt: timestamp("last_active_at")
 });
 
+// Reading passages table for authentic STAAR reading comprehension
+export const readingPassages = pgTable("reading_passages", {
+  id: serial("id").primaryKey(),
+  title: varchar("title").notNull(),
+  passageText: text("passage_text").notNull(),
+  grade: integer("grade").notNull(),
+  genre: varchar("genre").notNull(), // fiction, nonfiction, poetry, drama
+  teksStandards: jsonb("teks_standards").notNull(), // Array of standards covered
+  year: integer("year"), // STAAR test year
+  isFromRealSTAAR: boolean("is_from_real_staar").default(false),
+  wordCount: integer("word_count"),
+  readingLevel: varchar("reading_level"), // grade level complexity
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const questions = pgTable("questions", {
   id: serial("id").primaryKey(),
   grade: integer("grade").notNull(),
@@ -70,6 +85,7 @@ export const questions = pgTable("questions", {
   isFromRealSTAAR: boolean("is_from_real_staar").default(false),
   hasImage: boolean("has_image").default(false),
   imageDescription: text("image_description"),
+  passageId: integer("passage_id").references(() => readingPassages.id), // For reading questions
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -227,9 +243,17 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   }),
 }));
 
-export const questionsRelations = relations(questions, ({ many }) => ({
+export const readingPassagesRelations = relations(readingPassages, ({ many }) => ({
+  questions: many(questions),
+}));
+
+export const questionsRelations = relations(questions, ({ many, one }) => ({
   practiceAttempts: many(practiceAttempts),
   mockExamQuestions: many(mockExamQuestions),
+  passage: one(readingPassages, {
+    fields: [questions.passageId],
+    references: [readingPassages.id],
+  }),
 }));
 
 export const practiceAttemptsRelations = relations(practiceAttempts, ({ one }) => ({
@@ -335,6 +359,11 @@ export const insertUserSchema = createInsertSchema(users).omit({
   updatedAt: true,
 });
 
+export const insertReadingPassageSchema = createInsertSchema(readingPassages).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertQuestionSchema = createInsertSchema(questions).omit({
   id: true,
   createdAt: true,
@@ -410,6 +439,8 @@ export const updateUserSchema = createInsertSchema(users).pick({
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
+export type ReadingPassage = typeof readingPassages.$inferSelect;
+export type InsertReadingPassage = z.infer<typeof insertReadingPassageSchema>;
 export type Question = typeof questions.$inferSelect;
 export type InsertQuestion = z.infer<typeof insertQuestionSchema>;
 export type PracticeAttempt = typeof practiceAttempts.$inferSelect;
