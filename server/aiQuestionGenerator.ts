@@ -2,6 +2,7 @@ import OpenAI from "openai";
 import { InsertQuestion } from "../shared/schema";
 import { AUTHENTIC_TEKS_STANDARDS } from "./staarAnalysis";
 import { getDifficultyLevel } from "./staarTraining";
+import { getTrainingExamples, getCommonMathErrors, getReadingPatterns } from "./authenticeTrainingData";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -362,22 +363,24 @@ function createEnhancedQuestionPrompt(
   const visualPrompt = includeVisual ? 
     `Include a visual element (diagram, chart, graph, or geometric figure) that requires students to interpret visual information. Provide detailed description of the visual.` : '';
 
-  // Get authentic STAAR examples for this grade and subject
-  const mathExamples = {
-    3: "Maria has 24 stickers. She wants to put them equally into 6 albums. How many stickers will be in each album?",
-    4: "There are 27 teams in a hockey league. Each team has 16 players. How many players are in the league altogether?",
-    5: "A rectangular garden has a length of 12 feet and a width of 8 feet. What is the area of the garden?"
-  };
+  // Get authentic STAAR training examples for this grade and subject
+  const trainingData = getTrainingExamples(grade, subject);
+  const exampleQuestions = trainingData?.examples || [];
+  
+  const randomExample = exampleQuestions[Math.floor(Math.random() * exampleQuestions.length)];
+  const exampleQuestion = randomExample?.questionText || 
+    (subject === "math" ? 
+      "Maria has 24 stickers. She wants to put them equally into 6 albums. How many stickers will be in each album?" :
+      "Based on the story, what is the main problem the character faces?");
 
-  const readingExamples = {
-    3: "Based on the story, what is the main problem the character faces?",
-    4: "According to the passage, why are butterflies important for nature?",
-    5: "What is the central conflict in this story?"
-  };
+  // Get common error patterns to include as distractors
+  const commonErrors = subject === "math" ? 
+    getCommonMathErrors(grade).join(", ") :
+    getReadingPatterns(grade).join(", ");
 
-  const exampleQuestion = subject === "math" ? 
-    mathExamples[grade as keyof typeof mathExamples] || mathExamples[4] :
-    readingExamples[grade as keyof typeof readingExamples] || readingExamples[4];
+  const trainingExamples = exampleQuestions.slice(0, 2).map(ex => 
+    `Example: ${ex.questionText} - Correct Answer: ${ex.correctAnswer}`
+  ).join("\n");
 
   return `Generate an authentic Grade ${grade} STAAR ${subject} question based on official test patterns:
 
@@ -386,28 +389,37 @@ Category: ${category || (subject === "math" ? "Number & Operations" : "Comprehen
 Difficulty: ${difficulty || "medium"}
 ${visualPrompt}
 
-AUTHENTIC STAAR PATTERNS TO FOLLOW:
-Example from actual STAAR tests: "${exampleQuestion}"
+AUTHENTIC STAAR TRAINING EXAMPLES:
+${trainingExamples}
 
-CRITICAL REQUIREMENTS:
-1. Use EXACT STAAR test language and formatting
-2. For math: Ensure ALL calculations are mathematically correct
-3. Answer choices must include realistic numbers that students might calculate incorrectly
+MODEL QUESTION PATTERN:
+"${exampleQuestion}"
+
+CRITICAL REQUIREMENTS - MATHEMATICAL ACCURACY:
+1. Use EXACT STAAR test language and formatting from training examples
+2. For math: ALL calculations must be 100% mathematically correct
+3. Include realistic distractors based on common student errors: ${commonErrors}
 4. Use authentic Texas contexts (schools, students, everyday scenarios)
 5. Follow grade ${grade} cognitive complexity and vocabulary levels
-6. ${subject === "math" ? "Double-check all arithmetic - calculations must be 100% accurate" : "Create original passages that sound like authentic STAAR reading selections"}
+6. ${subject === "math" ? "Verify arithmetic multiple times before finalizing" : "Create original passages that match authentic STAAR reading selections"}
 
-MATH ACCURACY VERIFICATION:
-- Show your work for all calculations
-- Verify each answer choice is mathematically sound
-- Include common student errors as distractors
+MATH VALIDATION CHECKLIST:
+- Show step-by-step mathematical work
+- Verify each calculation twice
+- Include answer choices that reflect common calculation mistakes
+- Ensure correct answer is mathematically accurate
+
+READING VALIDATION CHECKLIST:
+- Use authentic question stems from training examples
+- Ensure text evidence supports correct answer
+- Include plausible distractors based on common comprehension errors
 
 Return JSON with this exact structure:
 {
-  "questionText": "Complete question text matching STAAR style",
+  "questionText": "Complete question text matching STAAR style from training examples",
   "answerChoices": ["A. First option", "B. Second option", "C. Third option", "D. Fourth option"],
   "correctAnswer": "A",
-  "explanation": "Step-by-step solution showing mathematical work",
+  "explanation": "Detailed explanation with mathematical work or text evidence",
   "category": "${category || (subject === "math" ? "Number & Operations" : "Comprehension")}",
   "hasImage": ${includeVisual || false},
   "imageDescription": ${includeVisual ? '"Detailed visual description"' : 'null'}
