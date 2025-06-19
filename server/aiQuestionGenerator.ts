@@ -430,40 +430,185 @@ function getDefaultCategory(subject: "math" | "reading"): string {
   return subject === "math" ? "Number & Operations" : "Comprehension";
 }
 
+/**
+ * Validate generated question accuracy and authenticity
+ */
+function validateQuestionAccuracy(question: InsertQuestion): boolean {
+  // Basic structure validation
+  if (!question.questionText || typeof question.questionText !== 'string' || question.questionText.length === 0) {
+    return false;
+  }
+
+  if (!question.answerChoices || !Array.isArray(question.answerChoices) || question.answerChoices.length !== 4) {
+    return false;
+  }
+
+  // Correct answer validation
+  const validAnswers = ['A', 'B', 'C', 'D'];
+  if (!validAnswers.includes(question.correctAnswer)) {
+    return false;
+  }
+
+  // Math-specific validation
+  if (question.subject === "math") {
+    return validateMathQuestion(question);
+  }
+
+  // Reading-specific validation
+  if (question.subject === "reading") {
+    return validateReadingQuestion(question);
+  }
+
+  return true;
+}
+
+/**
+ * Validate math question calculations and answer choices
+ */
+function validateMathQuestion(question: InsertQuestion): boolean {
+  if (typeof question.questionText !== 'string') return false;
+  
+  const questionText = question.questionText.toLowerCase();
+  
+  // Extract numbers from question text for basic calculation validation
+  const numbers = questionText.match(/\d+(?:\.\d+)?/g)?.map(Number) || [];
+  
+  // Ensure answer choices are properly formatted strings
+  if (!Array.isArray(question.answerChoices)) return false;
+  
+  // Check for common math operations and validate calculations
+  if (questionText.includes('multiply') || questionText.includes('×') || questionText.includes('times')) {
+    if (numbers.length >= 2) {
+      const product = numbers[0] * numbers[1];
+      // Verify the correct answer appears in choices
+      const answerNumbers = question.answerChoices.map((choice: any) => {
+        const choiceText = typeof choice === 'string' ? choice : choice.text || '';
+        return choiceText.match(/\d+(?:\.\d+)?/)?.[0];
+      }).filter(Boolean).map(Number);
+      
+      if (!answerNumbers.includes(product)) {
+        console.warn(`Math validation failed: expected product ${product} not found in choices`);
+        return false;
+      }
+    }
+  }
+
+  if (questionText.includes('add') || questionText.includes('+') || questionText.includes('total')) {
+    if (numbers.length >= 2) {
+      const sum = numbers[0] + numbers[1];
+      const answerNumbers = question.answerChoices.map((choice: any) => {
+        const choiceText = typeof choice === 'string' ? choice : choice.text || '';
+        return choiceText.match(/\d+(?:\.\d+)?/)?.[0];
+      }).filter(Boolean).map(Number);
+      
+      if (!answerNumbers.includes(sum)) {
+        console.warn(`Math validation failed: expected sum ${sum} not found in choices`);
+        return false;
+      }
+    }
+  }
+
+  if (questionText.includes('area') && questionText.includes('rectangle')) {
+    if (numbers.length >= 2) {
+      const area = numbers[0] * numbers[1];
+      const answerNumbers = question.answerChoices.map((choice: any) => {
+        const choiceText = typeof choice === 'string' ? choice : choice.text || '';
+        return choiceText.match(/\d+(?:\.\d+)?/)?.[0];
+      }).filter(Boolean).map(Number);
+      
+      if (!answerNumbers.includes(area)) {
+        console.warn(`Math validation failed: expected area ${area} not found in choices`);
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Validate reading question structure and answer support
+ */
+function validateReadingQuestion(question: InsertQuestion): boolean {
+  if (typeof question.questionText !== 'string') return false;
+  
+  const questionText = question.questionText;
+  
+  // Ensure question has sufficient text for comprehension
+  if (questionText.length < 50) {
+    console.warn('Reading question too short for comprehension');
+    return false;
+  }
+
+  // Check for question indicators
+  const hasQuestionIndicators = questionText.includes('?') || 
+    questionText.toLowerCase().includes('what') ||
+    questionText.toLowerCase().includes('why') ||
+    questionText.toLowerCase().includes('how') ||
+    questionText.toLowerCase().includes('which');
+
+  if (!hasQuestionIndicators) {
+    console.warn('Reading question lacks clear question structure');
+    return false;
+  }
+
+  // Verify answer choices are distinct and properly formatted
+  if (!question.answerChoices || !Array.isArray(question.answerChoices)) return false;
+  
+  const choiceTexts = question.answerChoices.map((c: any) => {
+    const choiceText = typeof c === 'string' ? c : c.text || '';
+    return choiceText.toLowerCase();
+  });
+  
+  const uniqueChoices = new Set(choiceTexts);
+  if (uniqueChoices.size !== choiceTexts.length) {
+    console.warn('Reading question has duplicate answer choices');
+    return false;
+  }
+
+  return true;
+}
+
 function generateFallbackQuestion(grade: number, subject: "math" | "reading", teksStandard?: string, category?: string): InsertQuestion {
   const fallbackQuestions = {
     math: {
       3: {
-        questionText: "Sarah has 24 stickers. She gives 8 stickers to her friend. How many stickers does Sarah have left?",
-        answerChoices: ["A. 16", "B. 32", "C. 8", "D. 18"],
-        correctAnswer: "A"
+        questionText: "Maria has 24 stickers. She wants to put them equally into 6 albums. How many stickers will be in each album?",
+        answerChoices: ["A. 4 stickers", "B. 6 stickers", "C. 5 stickers", "D. 3 stickers"],
+        correctAnswer: "A",
+        explanation: "Divide 24 ÷ 6 = 4 stickers in each album."
       },
       4: {
-        questionText: "A rectangle has a length of 8 cm and a width of 5 cm. What is the area of the rectangle?",
-        answerChoices: ["A. 13 cm²", "B. 26 cm²", "C. 40 cm²", "D. 45 cm²"],
-        correctAnswer: "C"
+        questionText: "There are 27 teams in a hockey league. Each team has 16 players. How many players are in the league altogether?",
+        answerChoices: ["A. 432 players", "B. 43 players", "C. 432 players", "D. 422 players"],
+        correctAnswer: "A",
+        explanation: "Multiply 27 × 16 = 432 players total."
       },
       5: {
-        questionText: "What is 3/4 written as a decimal?",
-        answerChoices: ["A. 0.34", "B. 0.75", "C. 0.43", "D. 1.75"],
-        correctAnswer: "B"
+        questionText: "A rectangular garden has a length of 12 feet and a width of 8 feet. What is the area of the garden?",
+        answerChoices: ["A. 20 square feet", "B. 40 square feet", "C. 96 square feet", "D. 48 square feet"],
+        correctAnswer: "C",
+        explanation: "Area = length × width = 12 × 8 = 96 square feet."
       }
     },
     reading: {
       3: {
-        questionText: "Based on the story, what is the main character's problem?",
-        answerChoices: ["A. He lost his book", "B. He forgot his lunch", "C. He missed the bus", "D. He broke his toy"],
-        correctAnswer: "A"
+        questionText: "Based on the story 'Lizard Problems', what is Amy's main problem at the beginning?",
+        answerChoices: ["A. She doesn't like her new teacher", "B. She is afraid of the classroom lizard", "C. She doesn't want to sit near Trent", "D. She wants to change classes"],
+        correctAnswer: "B",
+        explanation: "The story shows that Amy is specifically afraid of the classroom lizard."
       },
       4: {
-        questionText: "What is the main idea of this passage?",
-        answerChoices: ["A. Animals need food", "B. Plants grow in soil", "C. Weather changes daily", "D. People help animals"],
-        correctAnswer: "D"
+        questionText: "According to the passage 'The Puppy Bowl', why was the Puppy Bowl created?",
+        answerChoices: ["A. To train puppies for television", "B. To compete with the Super Bowl", "C. To provide entertainment during the Super Bowl", "D. To help animals find homes"],
+        correctAnswer: "C",
+        explanation: "The passage explains that the Puppy Bowl provides entertainment during the Super Bowl."
       },
       5: {
-        questionText: "Which sentence best describes the author's purpose?",
-        answerChoices: ["A. To entertain readers", "B. To give information", "C. To persuade readers", "D. To tell a story"],
-        correctAnswer: "B"
+        questionText: "In 'Princess for a Week', what does Roddy want to prove to his mother?",
+        answerChoices: ["A. That he can build a doghouse", "B. That he is responsible enough to care for a dog", "C. That he can make friends easily", "D. That he deserves a reward"],
+        correctAnswer: "B",
+        explanation: "Roddy wants to demonstrate his responsibility to convince his mother he can care for a dog."
       }
     }
   };
