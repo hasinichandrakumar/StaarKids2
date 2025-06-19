@@ -49,17 +49,25 @@ export async function generateAuthenticSTAARQuestion(
         messages: [
           {
             role: "system",
-            content: `You are an expert Texas educator and STAAR test designer with access to complete STAAR test archives from 2013-2024. You create questions that are indistinguishable from official STAAR test questions.
+            content: `You are an expert STAAR test creator with access to authentic Texas state assessment data from 2013-2024. You generate questions that perfectly match official STAAR test formats.
 
-Key Requirements:
-1. Match exact STAAR formatting and style patterns
-2. Use authentic Texas curriculum contexts and vocabulary
-3. Follow grade-appropriate cognitive complexity
-4. Include visual elements when specified (geometry, data analysis, measurement)
-5. Generate original content that maintains STAAR authenticity
-6. Ensure educational soundness and curriculum alignment
+MATHEMATICAL ACCURACY REQUIREMENTS:
+- All calculations must be 100% mathematically correct
+- Answer choices include common student calculation errors as distractors
+- Show explicit mathematical work in explanations
+- Verify arithmetic multiple times before finalizing
 
-For visual questions, describe diagrams that would appear in official STAAR tests - geometric shapes, charts, graphs, measurement tools, etc.`
+AUTHENTIC STAAR PATTERNS:
+- Use exact language patterns from real STAAR tests
+- Follow official Texas Education Agency question structures
+- Include authentic Texas contexts (schools, students, everyday scenarios)
+- Match cognitive complexity levels for each grade
+
+QUALITY CONTROL:
+- Double-check all numerical answers
+- Ensure distractors are mathematically plausible but incorrect
+- Use grade-appropriate vocabulary and contexts
+- Follow official TEKS alignment requirements`
           },
           {
             role: "user",
@@ -67,7 +75,7 @@ For visual questions, describe diagrams that would appear in official STAAR test
           }
         ],
         response_format: { type: "json_object" },
-        temperature: 0.8,
+        temperature: 0.5, // Lower temperature for more consistent, accurate generation
         max_tokens: 1200
       });
 
@@ -155,7 +163,24 @@ Return JSON format:
       messages: [
         {
           role: "system",
-          content: "You are a STAAR test visual question specialist. Create questions that require diagram interpretation, matching official Texas state test standards."
+          content: `You are a STAAR test visual question specialist trained on authentic Texas assessment data. Create questions requiring diagram interpretation that match official STAAR standards.
+
+MATHEMATICAL ACCURACY REQUIREMENTS:
+- All calculations must be 100% mathematically correct
+- Verify area, perimeter, volume, and other measurements
+- Answer choices include realistic student calculation errors
+- Double-check all arithmetic operations
+
+VISUAL ELEMENT REQUIREMENTS:
+- Describe diagrams that appear in real STAAR tests
+- Include specific measurements, labels, and scales
+- Match authentic STAAR visual formatting
+- Ensure diagrams support the mathematical question
+
+QUALITY VERIFICATION:
+- Show mathematical work in explanations
+- Use authentic Texas contexts and vocabulary
+- Follow grade-appropriate complexity levels`
         },
         {
           role: "user",
@@ -163,7 +188,7 @@ Return JSON format:
         }
       ],
       response_format: { type: "json_object" },
-      temperature: 0.7
+      temperature: 0.4 // Lower temperature for mathematical accuracy
     });
 
     const questionData = JSON.parse(response.choices[0].message.content!);
@@ -243,7 +268,30 @@ Return JSON format:
       messages: [
         {
           role: "system",
-          content: "You are a STAAR reading specialist who creates authentic reading comprehension assessments with original passages that match Texas state test standards."
+          content: `You are a STAAR reading specialist trained on authentic Texas assessment data from 2013-2024. Create reading comprehension assessments that match official STAAR test patterns.
+
+AUTHENTIC STAAR READING PATTERNS:
+- Use exact question formats from real STAAR tests
+- Include original passages that sound like authentic STAAR selections
+- Follow official Texas reading standards and complexity levels
+- Match authentic vocabulary and sentence structures
+
+PASSAGE REQUIREMENTS:
+- Create grade-appropriate fiction, nonfiction, or poetry
+- Use authentic Texas contexts and themes
+- Include clear text evidence for all questions
+- Match official STAAR passage length and complexity
+
+QUESTION ACCURACY:
+- Questions must have clear, text-based answers
+- Include realistic distractors based on common student errors
+- Follow authentic STAAR question stems and formats
+- Provide detailed explanations with text evidence
+
+QUALITY VERIFICATION:
+- Ensure all answer choices are plausible
+- Verify correct answers are clearly supported by text
+- Use grade-appropriate reading levels and vocabulary`
         },
         {
           role: "user",
@@ -251,7 +299,7 @@ Return JSON format:
         }
       ],
       response_format: { type: "json_object" },
-      temperature: 0.8,
+      temperature: 0.6, // Balanced for creativity with accuracy
       max_tokens: 1500
     });
 
@@ -291,27 +339,52 @@ function createEnhancedQuestionPrompt(
   const visualPrompt = includeVisual ? 
     `Include a visual element (diagram, chart, graph, or geometric figure) that requires students to interpret visual information. Provide detailed description of the visual.` : '';
 
-  return `Generate an authentic Grade ${grade} STAAR ${subject} question:
+  // Get authentic STAAR examples for this grade and subject
+  const mathExamples = {
+    3: "Maria has 24 stickers. She wants to put them equally into 6 albums. How many stickers will be in each album?",
+    4: "There are 27 teams in a hockey league. Each team has 16 players. How many players are in the league altogether?",
+    5: "A rectangular garden has a length of 12 feet and a width of 8 feet. What is the area of the garden?"
+  };
+
+  const readingExamples = {
+    3: "Based on the story, what is the main problem the character faces?",
+    4: "According to the passage, why are butterflies important for nature?",
+    5: "What is the central conflict in this story?"
+  };
+
+  const exampleQuestion = subject === "math" ? 
+    mathExamples[grade as keyof typeof mathExamples] || mathExamples[4] :
+    readingExamples[grade as keyof typeof readingExamples] || readingExamples[4];
+
+  return `Generate an authentic Grade ${grade} STAAR ${subject} question based on official test patterns:
 
 TEKS Standard: ${teksStandard}
 Category: ${category || (subject === "math" ? "Number & Operations" : "Comprehension")}
 Difficulty: ${difficulty || "medium"}
 ${visualPrompt}
 
-Requirements:
-1. Match exact STAAR test formatting and style
-2. Use authentic Texas curriculum contexts
-3. Follow grade ${grade} cognitive complexity levels
-4. Include 4 multiple choice answers (A, B, C, D)
-5. Provide clear explanation for correct answer
-6. ${subject === "math" ? "Use real-world mathematical contexts" : "Include original reading passage if needed"}
+AUTHENTIC STAAR PATTERNS TO FOLLOW:
+Example from actual STAAR tests: "${exampleQuestion}"
+
+CRITICAL REQUIREMENTS:
+1. Use EXACT STAAR test language and formatting
+2. For math: Ensure ALL calculations are mathematically correct
+3. Answer choices must include realistic numbers that students might calculate incorrectly
+4. Use authentic Texas contexts (schools, students, everyday scenarios)
+5. Follow grade ${grade} cognitive complexity and vocabulary levels
+6. ${subject === "math" ? "Double-check all arithmetic - calculations must be 100% accurate" : "Create original passages that sound like authentic STAAR reading selections"}
+
+MATH ACCURACY VERIFICATION:
+- Show your work for all calculations
+- Verify each answer choice is mathematically sound
+- Include common student errors as distractors
 
 Return JSON with this exact structure:
 {
-  "questionText": "Complete question text",
+  "questionText": "Complete question text matching STAAR style",
   "answerChoices": ["A. First option", "B. Second option", "C. Third option", "D. Fourth option"],
   "correctAnswer": "A",
-  "explanation": "Clear explanation with reasoning",
+  "explanation": "Step-by-step solution showing mathematical work",
   "category": "${category || (subject === "math" ? "Number & Operations" : "Comprehension")}",
   "hasImage": ${includeVisual || false},
   "imageDescription": ${includeVisual ? '"Detailed visual description"' : 'null'}
