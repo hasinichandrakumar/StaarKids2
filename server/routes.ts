@@ -176,7 +176,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { grade, subject, category, limit = "10" } = req.query;
       const { db } = await import("./db");
-      const { questions } = await import("@shared/schema");
+      const { questions, readingPassages } = await import("@shared/schema");
       const { eq, and } = await import("drizzle-orm");
       
       const conditions = [];
@@ -193,14 +193,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
         conditions.push(eq(questions.category, category as string));
       }
       
-      const result = await db.select().from(questions)
+      const result = await db.select({
+        question: questions,
+        passage: readingPassages
+      }).from(questions)
+        .leftJoin(readingPassages, eq(questions.passageId, readingPassages.id))
         .where(conditions.length > 0 ? (conditions.length === 1 ? conditions[0] : and(...conditions)) : undefined)
         .limit(parseInt(limit as string)) as any;
-      res.json(result);
+      
+      res.json(result.map((row: any) => ({
+        ...row.question,
+        passage: row.passage
+      })));
       
     } catch (error) {
       console.error("Error fetching questions from database:", error);
       res.status(500).json({ message: "Failed to fetch questions" });
+    }
+  });
+
+  // Get reading passages with their questions
+  app.get("/api/reading-passages", async (req, res) => {
+    try {
+      const { grade } = req.query;
+      const { db } = await import("./db");
+      const { readingPassages, questions } = await import("@shared/schema");
+      const { eq } = await import("drizzle-orm");
+      
+      const conditions = grade ? eq(readingPassages.grade, parseInt(grade as string)) : undefined;
+      
+      const passages = await db.select().from(readingPassages)
+        .where(conditions);
+      
+      // Get questions for each passage
+      const passagesWithQuestions = await Promise.all(
+        passages.map(async (passage) => {
+          const passageQuestions = await db.select().from(questions)
+            .where(eq(questions.passageId, passage.id));
+          
+          return {
+            ...passage,
+            questions: passageQuestions
+          };
+        })
+      );
+      
+      res.json(passagesWithQuestions);
+      
+    } catch (error) {
+      console.error("Error fetching reading passages:", error);
+      res.status(500).json({ message: "Failed to fetch reading passages" });
     }
   });
 

@@ -518,13 +518,15 @@ ${isCorrect ? '**Great job!** You demonstrated strong understanding of this conc
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Reading Passage on Left */}
                 <div className="lg:border-r lg:pr-8">
-                  <h4 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Reading Passage</h4>
+                  <h4 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
+                    {currentQuestion.passage?.title || 'Reading Passage'}
+                  </h4>
                   <div className="prose prose-lg max-w-none">
                     <div 
                       className="text-base leading-relaxed text-gray-800 bg-gray-50 p-6 rounded-lg border"
                       style={{ maxHeight: '500px', overflowY: 'auto' }}
                       dangerouslySetInnerHTML={{
-                        __html: currentQuestion.questionText
+                        __html: (currentQuestion.passage?.passageText || currentQuestion.questionText)
                           .replace(/\n\n/g, '</p><p class="mb-3">')
                           .replace(/\n/g, '<br/>')
                           .replace(/^/, '<p class="mb-3">')
@@ -541,8 +543,7 @@ ${isCorrect ? '**Great job!** You demonstrated strong understanding of this conc
                   {/* Extract and display the actual question */}
                   <div className="mb-6">
                     <p className="text-lg font-medium text-gray-800 leading-relaxed">
-                      {/* Extract question from passage text or use a default reading question */}
-                      Based on the passage, which statement is most accurate?
+                      {currentQuestion.questionText}
                     </p>
                   </div>
 
