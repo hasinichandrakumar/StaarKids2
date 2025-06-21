@@ -190,6 +190,7 @@ export function generateEfficientQuestion(
   const imageDescription = hasImage ? "Mathematical diagram showing the problem visually" : null;
   
   return {
+    id: Math.floor(Math.random() * 9000) + 1000, // Generate random ID
     grade,
     subject,
     questionText,

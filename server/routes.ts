@@ -378,6 +378,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Generate questions instantly using templates
       for (let i = 0; i < count; i++) {
         const question = generateEfficientQuestion(grade, subject, category);
+        // Assign incremental IDs starting from 2000 to avoid conflicts
+        (question as any).id = 2000 + questions.length;
         questions.push(question);
       }
       
@@ -386,6 +388,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error generating fast questions:", error);
       res.status(500).json({ message: "Failed to generate questions" });
+    }
+  });
+
+  // Fast SVG generation for template-based questions
+  app.get("/api/questions/:id/svg-fast", async (req, res) => {
+    try {
+      const questionId = parseInt(req.params.id);
+      
+      // Generate question to get SVG config
+      const { generateEfficientQuestion } = await import("./efficientQuestionGenerator");
+      const { generateStreamlinedSVG } = await import("./streamlinedSVG");
+      
+      // Map question ID to generation parameters
+      const grade = 3 + (questionId % 3);
+      const subject = questionId % 2 === 0 ? "math" : "reading";
+      
+      const question = generateEfficientQuestion(grade, subject);
+      
+      let svg = "";
+      
+      if (question.hasImage && question.imageDescription?.includes("rectangular")) {
+        // Rectangle area problem
+        const lengthMatch = question.questionText.match(/(\d+)\s*(?:feet|meters)/g);
+        if (lengthMatch && lengthMatch.length >= 2) {
+          const length = parseInt(lengthMatch[0]);
+          const width = parseInt(lengthMatch[1]);
+          const unit = question.questionText.includes("meters") ? "meters" : "feet";
+          
+          svg = generateStreamlinedSVG({
+            type: 'rectangle_area',
+            data: { length, width, unit }
+          });
+        }
+      } else if (question.hasImage && question.imageDescription?.includes("stickers")) {
+        // Sticker division problem
+        const stickerMatch = question.questionText.match(/(\d+)\s*stickers/);
+        const albumMatch = question.questionText.match(/(\d+)\s*albums?/);
+        
+        if (stickerMatch && albumMatch) {
+          const total = parseInt(stickerMatch[1]);
+          const groups = parseInt(albumMatch[1]);
+          
+          svg = generateStreamlinedSVG({
+            type: 'sticker_division',
+            data: { total, groups }
+          });
+        }
+      } else if (question.hasImage && question.questionText.includes("bar graph")) {
+        // Bar graph
+        svg = generateStreamlinedSVG({
+          type: 'bar_graph',
+          data: {
+            categories: ['1 book', '2 books', '3 books', '4 books'],
+            values: [3, 5, 7, 4],
+            title: 'Books Read by Students'
+          }
+        });
+      } else {
+        // Default mathematical diagram
+        svg = generateStreamlinedSVG({
+          type: 'default',
+          data: {}
+        });
+      }
+      
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.setHeader('Cache-Control', 'public, max-age=3600');
+      res.send(svg);
+      
+    } catch (error) {
+      console.error("Error generating fast SVG:", error);
+      
+      const fallbackSVG = `<svg width="400" height="200" xmlns="http://www.w3.org/2000/svg">
+        <rect width="400" height="200" fill="#f8f9fa" stroke="#dee2e6"/>
+        <text x="200" y="100" text-anchor="middle" font-family="Arial" font-size="14" fill="#6c757d">
+          Mathematical Diagram
+        </text>
+      </svg>`;
+      
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.send(fallbackSVG);
     }
   });
 
