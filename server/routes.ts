@@ -363,6 +363,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Fast question generation using templates (no AI calls)
+  app.post("/api/questions/generate-fast", async (req, res) => {
+    try {
+      const { grade, subject, count = 5, category } = req.body;
+      
+      if (!grade || !subject) {
+        return res.status(400).json({ message: "Grade and subject are required" });
+      }
+      
+      const { generateEfficientQuestion } = await import("./efficientQuestionGenerator");
+      const questions = [];
+      
+      // Generate questions instantly using templates
+      for (let i = 0; i < count; i++) {
+        const question = generateEfficientQuestion(grade, subject, category);
+        questions.push(question);
+      }
+      
+      res.json(questions);
+      
+    } catch (error) {
+      console.error("Error generating fast questions:", error);
+      res.status(500).json({ message: "Failed to generate questions" });
+    }
+  });
+
   // Demo mode routes - provide sample data without authentication
   app.get("/api/demo/stats", (req, res) => {
     res.json({
