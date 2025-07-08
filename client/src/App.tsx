@@ -1,17 +1,11 @@
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { MantineProvider } from '@mantine/core';
-import { Notifications } from '@mantine/notifications';
 import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import ExamPage from "@/pages/exam";
 import NotFound from "@/pages/not-found";
-
-// Import Mantine styles
-import '@mantine/core/styles.css';
-import '@mantine/notifications/styles.css';
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -40,12 +34,9 @@ function Router() {
 
 function App() {
   return (
-    <MantineProvider>
-      <QueryClientProvider client={queryClient}>
-        <Notifications position="top-right" />
-        <Router />
-      </QueryClientProvider>
-    </MantineProvider>
+    <QueryClientProvider client={queryClient}>
+      <Router />
+    </QueryClientProvider>
   );
 }
 
