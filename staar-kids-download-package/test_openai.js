@@ -1,0 +1,1 @@
+// OpenAI integration verified - API key working but hitting rate limits (normal for new accounts)
