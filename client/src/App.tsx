@@ -6,6 +6,7 @@ import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import ExamPage from "@/pages/exam";
 import NotFound from "@/pages/not-found";
+import QualityDashboard from "@/components/QualityDashboard";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -25,6 +26,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/dashboard" component={Dashboard} />
+      <Route path="/quality-dashboard" component={QualityDashboard} />
       <Route path="/exam/:examId" component={ExamPage} />
       <Route path="/" component={Dashboard} />
       <Route component={NotFound} />

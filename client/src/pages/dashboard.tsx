@@ -117,6 +117,32 @@ export default function Dashboard() {
           )}
         </div>
 
+        {/* Enhanced Quality Features */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">✨ Enhanced Quality Features</h2>
+          <p className="text-gray-600 mb-4">
+            Experience our new quality-controlled question generation with AI-powered validation and enhanced image generation.
+          </p>
+          <div className="flex space-x-4">
+            <button
+              onClick={() => window.location.href = '/quality-dashboard'}
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+            >
+              View Quality Dashboard
+            </button>
+            <button
+              onClick={() => generateQuestionsMutation.mutate({
+                grade: selectedGrade,
+                subject: selectedSubject,
+                count: practiceCount
+              })}
+              className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
+            >
+              Try Enhanced Generation
+            </button>
+          </div>
+        </div>
+
         {/* Quick Practice */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="bg-white rounded-lg shadow p-6">

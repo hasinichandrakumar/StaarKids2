@@ -246,6 +246,138 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // NEW: Enhanced quality-controlled question generation
+  app.post("/api/questions/generate-quality", async (req, res) => {
+    try {
+      const { grade, subject, count = 5, category = "General", learnerContext } = req.body;
+      
+      // Import quality control systems
+      const { generateContextAwareQuestions } = await import("./contextAwareGenerator");
+      const { validateQuestionQuality, reviewSystem } = await import("./qualityControl");
+      
+      // Default learner context for new users
+      const defaultContext = {
+        userId: "demo",
+        grade: grade || 4,
+        currentLevel: 5,
+        strengths: ["visual", "step_by_step"],
+        weaknesses: [],
+        recentPerformance: [],
+        preferredDifficulty: "medium" as const,
+        timeSpentPerQuestion: 90,
+        errorPatterns: []
+      };
+      
+      const config = {
+        grade: parseInt(grade),
+        subject,
+        category,
+        targetDifficulty: 0.7, // 70% success rate target
+        learnerContext: learnerContext || defaultContext,
+        includeVisuals: true,
+        focusAreas: category !== "General" ? [category] : undefined
+      };
+      
+      // Generate context-aware questions
+      const questions = await generateContextAwareQuestions(config, parseInt(count));
+      
+      // Validate each question and add to review queue if needed
+      const validatedQuestions = await Promise.all(
+        questions.map(async (question) => {
+          const validation = await validateQuestionQuality(question);
+          
+          if (!validation.isValid) {
+            // Add to human review queue
+            reviewSystem.addToReviewQueue(question.id.toString(), question, validation);
+            console.log(`Question ${question.id} added to review queue - Score: ${validation.score}`);
+          }
+          
+          return {
+            ...question,
+            qualityScore: validation.score,
+            qualityMetrics: validation.metrics,
+            needsReview: !validation.isValid
+          };
+        })
+      );
+      
+      res.json({
+        questions: validatedQuestions,
+        generationMethod: "quality_controlled",
+        qualityStats: {
+          averageScore: validatedQuestions.reduce((sum, q) => sum + q.qualityScore, 0) / validatedQuestions.length,
+          questionsNeedingReview: validatedQuestions.filter(q => q.needsReview).length,
+          visualElements: validatedQuestions.filter(q => q.svgContent || q.imageUrl).length
+        }
+      });
+      
+    } catch (error) {
+      console.error("Quality-controlled generation error:", error);
+      res.status(500).json({ message: "Failed to generate quality questions" });
+    }
+  });
+
+  // NEW: Get quality review queue for human reviewers
+  app.get("/api/questions/review-queue", async (req, res) => {
+    try {
+      const { reviewSystem } = await import("./qualityControl");
+      const queue = reviewSystem.getReviewQueue();
+      
+      res.json({
+        pendingReviews: queue.length,
+        queue: queue.map(item => ({
+          questionId: item.questionId,
+          priority: item.priority,
+          issues: item.validationResult.issues,
+          suggestions: item.validationResult.suggestions,
+          timestamp: item.timestamp,
+          question: {
+            grade: item.question.grade,
+            subject: item.question.subject,
+            category: item.question.category,
+            questionText: item.question.questionText.substring(0, 100) + "..."
+          }
+        }))
+      });
+    } catch (error) {
+      console.error("Error fetching review queue:", error);
+      res.status(500).json({ message: "Failed to fetch review queue" });
+    }
+  });
+
+  // NEW: Enhanced image generation with quality validation
+  app.post("/api/questions/generate-image", async (req, res) => {
+    try {
+      const { questionId, questionText, grade, subject, imageType = "diagram" } = req.body;
+      
+      const { generateQualityImage } = await import("./enhancedImageGenerator");
+      
+      const config = {
+        questionId,
+        questionText,
+        grade: parseInt(grade),
+        subject,
+        imageType,
+        complexity: grade >= 5 ? "medium" : "simple",
+        requirements: ["accessibility", "labels", "measurements"]
+      };
+      
+      const result = await generateQualityImage(config);
+      
+      res.json({
+        success: true,
+        image: result,
+        validationScore: result.validationScore,
+        generationMethod: result.generationMethod,
+        hasAccessibility: !!result.accessibility
+      });
+      
+    } catch (error) {
+      console.error("Enhanced image generation error:", error);
+      res.status(500).json({ message: "Failed to generate enhanced image" });
+    }
+  });
+
   // Get question bank statistics
   app.get("/api/questions/stats", async (req, res) => {
     try {
