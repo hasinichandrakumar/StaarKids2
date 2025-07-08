@@ -1,40 +1,65 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Star, BookOpen, Calculator, Trophy, Target, Zap, ArrowRight, CheckCircle, CheckCircle2, Users, Award, Play, Brain, Lightbulb, TrendingUp, Eye } from "lucide-react";
+import { 
+  Container, 
+  Title, 
+  Text, 
+  Button, 
+  Card, 
+  Badge, 
+  Group, 
+  Stack, 
+  Grid, 
+  Center,
+  Paper,
+  Flex,
+  Image,
+  List,
+  ThemeIcon,
+  Overlay
+} from '@mantine/core';
+import { 
+  IconStar, 
+  IconBook, 
+  IconCalculator, 
+  IconTrophy, 
+  IconTarget, 
+  IconBolt, 
+  IconArrowRight, 
+  IconCheck, 
+  IconUsers, 
+  IconAward, 
+  IconPlayerPlay, 
+  IconBrain, 
+  IconBulb, 
+  IconTrendingUp,
+  IconEye,
+  IconBrandGoogle
+} from '@tabler/icons-react';
 import { useLocation } from "wouter";
-import InteractiveDemo from "@/components/InteractiveDemo";
-import AuthenticSTAARQuestions from "@/components/AuthenticSTAARQuestions";
-import { FaGoogle } from "react-icons/fa";
+import { notifications } from '@mantine/notifications';
 
 export default function Landing() {
   const { login, loginWithGoogle } = useAuth();
   const [_, setLocation] = useLocation();
   const [animatedCount, setAnimatedCount] = useState(0);
-  const [currentTestimonial, setCurrentTestimonial] = useState(0);
 
   const processGoogleOAuth = async (code: string) => {
     try {
-      console.log("Processing OAuth code with server...");
-      
-      // Store the code temporarily and redirect to trigger server processing
       localStorage.setItem('oauthCode', code);
-      
-      // Clean URL first
       window.history.replaceState({}, document.title, '/');
-      
-      // Redirect to special auth endpoint that forces server processing
       window.location.href = `/auth-process?code=${encodeURIComponent(code)}`;
-      
     } catch (error) {
       console.error("OAuth processing error:", error);
+      notifications.show({
+        title: 'Authentication Error',
+        message: 'Failed to process login. Please try again.',
+        color: 'red'
+      });
     }
   };
 
   useEffect(() => {
-    // Handle Google OAuth callback
     const urlParams = new URLSearchParams(window.location.search);
     const callback = urlParams.get('callback');
     const code = urlParams.get('code');
@@ -42,12 +67,14 @@ export default function Landing() {
     
     if (callback === 'google' && code) {
       console.log('Processing Google OAuth callback...');
-      
-      // Process OAuth code client-side due to Vite server interference
       processGoogleOAuth(code);
     } else if (callback === 'google' && error) {
       console.error('OAuth error:', error);
-      // Show error but stay on landing page
+      notifications.show({
+        title: 'Login Failed',
+        message: 'Google authentication was cancelled or failed.',
+        color: 'red'
+      });
     }
 
     // Animate student count
@@ -93,37 +120,37 @@ export default function Landing() {
 
   const features = [
     {
-      icon: Calculator,
+      icon: IconCalculator,
       title: "Math Mastery",
       description: "Practice authentic STAAR Math questions from grades 3-5 with step-by-step solutions and TEKS alignment.",
       color: "#FF5B00"
     },
     {
-      icon: BookOpen,
+      icon: IconBook,
       title: "Reading Excellence",
       description: "Master reading comprehension with real STAAR passages and questions designed to build critical thinking skills.",
       color: "#FCC201"
     },
     {
-      icon: Target,
+      icon: IconTarget,
       title: "Mock Exams",
       description: "Take full-length practice tests that mirror the actual STAAR format and timing for complete preparation.",
       color: "#FF5B00"
     },
     {
-      icon: TrendingUp,
+      icon: IconTrendingUp,
       title: "Progress Tracking",
       description: "Monitor improvement with detailed analytics, performance insights, and personalized learning recommendations.",
       color: "#DAA520"
     },
     {
-      icon: Trophy,
+      icon: IconTrophy,
       title: "StarPower Rewards",
       description: "Earn points and achievements as you master concepts, making learning engaging and motivational.",
       color: "#FF5B00"
     },
     {
-      icon: Brain,
+      icon: IconBrain,
       title: "AI-Powered Learning",
       description: "Get personalized question recommendations and adaptive learning paths powered by advanced AI technology.",
       color: "#FCC201"
@@ -159,7 +186,7 @@ export default function Landing() {
               <div className="w-8 h-8 rounded-lg flex items-center justify-center mr-3" style={{
                 background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)'
               }}>
-                <Star className="w-5 h-5 text-white" />
+                <IconStar className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-orange-600 to-yellow-600 bg-clip-text text-transparent">
                 StaarKids
@@ -217,7 +244,7 @@ export default function Landing() {
               <div className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-2xl transform rotate-12 hover:rotate-0 transition-transform duration-300" style={{
                 background: 'linear-gradient(135deg, #FF5B00 0%, #FCC201 100%)'
               }}>
-                <Star className="w-8 h-8 text-white" />
+                <IconStar className="w-8 h-8 text-white" />
               </div>
               <div className="ml-4">
                 <h1 className="text-5xl font-bold bg-clip-text text-transparent" style={{
