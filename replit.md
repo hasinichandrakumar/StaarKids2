@@ -120,6 +120,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### UI Framework Restoration (January 2025)
+- **Restored**: Mantine UI-based dashboard with Duolingo-style gamification
+- **Added**: GSAP animations, glass-morphism effects, and smooth transitions
+- **Features**: Hearts system, XP tracking, streak counters, level-up modals
+- **Design**: Purple gradient backgrounds with floating animations and modern cards
+- **Components**: Replaced Tailwind CSS with Mantine components for consistent styling
+
 ### Enhanced Quality Control Implementation (January 2025)
 - **Added**: Comprehensive quality validation pipeline with mathematical accuracy checks
 - **Added**: Human-in-the-loop review system for content that needs expert validation
