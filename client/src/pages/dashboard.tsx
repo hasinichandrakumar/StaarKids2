@@ -69,27 +69,42 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-yellow-50">
       {/* Header */}
-      <nav className="bg-white shadow-sm">
+      <nav className="bg-white shadow-lg border-b-4 border-orange-400">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <img src="/staarkids-logo.svg" alt="STAAR Kids" className="h-8 w-auto mr-3" />
-              <span className="text-xl font-bold text-gray-900">STAAR Kids</span>
-            </div>
+          <div className="flex justify-between items-center h-20">
             <div className="flex items-center space-x-4">
-              <span className="text-gray-700">
-                Welcome, {currentUser?.firstName || 'Student'}!
-              </span>
+              <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center shadow-lg">
+                <span className="text-white text-2xl font-bold">⭐</span>
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-orange-600">StaarKids</h1>
+                <p className="text-sm text-orange-500 font-medium">STAAR Test Mastery Platform</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-6">
+              <div className="text-right">
+                <div className="text-lg font-semibold text-gray-800">
+                  Welcome, {currentUser?.firstName || 'Student'}!
+                </div>
+                {currentUser?.starPower && (
+                  <div className="flex items-center justify-end space-x-2">
+                    <span className="text-xl">⭐</span>
+                    <span className="font-bold text-orange-600">
+                      {currentUser.starPower} Star Power
+                    </span>
+                  </div>
+                )}
+              </div>
               {isDemo && (
-                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
+                <span className="bg-orange-100 text-orange-800 px-3 py-2 rounded-lg text-sm font-medium">
                   Demo Mode
                 </span>
               )}
               <button
                 onClick={handleLogout}
-                className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700"
+                className="bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 font-medium shadow-md transition-colors"
               >
                 {isDemo ? 'Exit Demo' : 'Sign Out'}
               </button>
@@ -99,64 +114,36 @@ export default function Dashboard() {
       </nav>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            Welcome back, {currentUser?.firstName || 'Student'}!
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Hero Section */}
+        <div className="text-center mb-12">
+          <h1 className="text-6xl font-bold mb-4">
+            <span className="text-gray-800">Master the </span>
+            <span className="text-orange-600">STAAR Test</span>
           </h1>
-          <p className="text-gray-600">
-            Ready to continue your STAAR test preparation? Let's practice some questions.
+          <h2 className="text-4xl font-bold text-gray-800 mb-6">with Confidence</h2>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Ready to continue your STAAR test preparation? Let's practice some questions and build your confidence for test day.
           </p>
-          {currentUser?.starPower && (
-            <div className="mt-4">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-                ⭐ {currentUser.starPower} Star Power
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Enhanced Quality Features */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">✨ Enhanced Quality Features</h2>
-          <p className="text-gray-600 mb-4">
-            Experience our new quality-controlled question generation with AI-powered validation and enhanced image generation.
-          </p>
-          <div className="flex space-x-4">
-            <button
-              onClick={() => window.location.href = '/quality-dashboard'}
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-            >
-              View Quality Dashboard
-            </button>
-            <button
-              onClick={() => generateQuestionsMutation.mutate({
-                grade: selectedGrade,
-                subject: selectedSubject,
-                count: practiceCount
-              })}
-              className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
-            >
-              Try Enhanced Generation
-            </button>
-          </div>
         </div>
 
         {/* Quick Practice */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Practice</h2>
+          <div className="bg-white rounded-xl shadow-lg border-2 border-orange-200 p-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+              <span className="text-orange-500 mr-3">📚</span>
+              Quick Practice
+            </h2>
             
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-lg font-semibold text-gray-700 mb-3">
                   Grade Level
                 </label>
                 <select
                   value={selectedGrade}
                   onChange={(e) => setSelectedGrade(Number(e.target.value))}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full border-2 border-orange-200 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                 >
                   <option value={3}>Grade 3</option>
                   <option value={4}>Grade 4</option>
@@ -165,13 +152,13 @@ export default function Dashboard() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-lg font-semibold text-gray-700 mb-3">
                   Subject
                 </label>
                 <select
                   value={selectedSubject}
                   onChange={(e) => setSelectedSubject(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full border-2 border-orange-200 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                 >
                   <option value="math">Mathematics</option>
                   <option value="reading">Reading</option>
@@ -179,7 +166,7 @@ export default function Dashboard() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-lg font-semibold text-gray-700 mb-3">
                   Number of Questions
                 </label>
                 <input
@@ -188,21 +175,21 @@ export default function Dashboard() {
                   max="20"
                   value={practiceCount}
                   onChange={(e) => setPracticeCount(Number(e.target.value))}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full border-2 border-orange-200 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                 />
               </div>
 
               <button
                 onClick={handleStartPractice}
                 disabled={generateQuestionsMutation.isPending}
-                className="w-full bg-orange-600 text-white py-3 px-4 rounded-md hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-4 px-6 rounded-lg hover:from-orange-600 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg shadow-lg transition-all transform hover:scale-105"
               >
-                {generateQuestionsMutation.isPending ? 'Generating Questions...' : 'Start Practice'}
+                {generateQuestionsMutation.isPending ? 'Generating Questions...' : 'Start Practice Session'}
               </button>
             </div>
 
-            <div className="mt-4 p-3 bg-blue-50 rounded-md">
-              <p className="text-sm text-blue-800">
+            <div className="mt-6 p-4 bg-orange-50 rounded-lg border-l-4 border-orange-400">
+              <p className="text-sm text-orange-800">
                 <strong>⚡ Lightning Fast Generation:</strong> Our advanced system creates 
                 authentic STAAR questions 25,000x faster than traditional methods!
               </p>
@@ -210,42 +197,45 @@ export default function Dashboard() {
           </div>
 
           {/* Stats Overview */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Your Progress</h2>
+          <div className="bg-white rounded-xl shadow-lg border-2 border-orange-200 p-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+              <span className="text-orange-500 mr-3">📊</span>
+              Your Progress
+            </h2>
             
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center p-4 bg-gray-50 rounded-lg">
-                <div className="text-2xl font-bold text-green-600">85%</div>
-                <div className="text-sm text-gray-600">Math Accuracy</div>
+            <div className="grid grid-cols-2 gap-6">
+              <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border-2 border-green-200">
+                <div className="text-3xl font-bold text-green-600">85%</div>
+                <div className="text-sm font-medium text-gray-600">Math Accuracy</div>
               </div>
-              <div className="text-center p-4 bg-gray-50 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">78%</div>
-                <div className="text-sm text-gray-600">Reading Score</div>
+              <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border-2 border-blue-200">
+                <div className="text-3xl font-bold text-blue-600">78%</div>
+                <div className="text-sm font-medium text-gray-600">Reading Score</div>
               </div>
-              <div className="text-center p-4 bg-gray-50 rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">156</div>
-                <div className="text-sm text-gray-600">Questions Solved</div>
+              <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border-2 border-purple-200">
+                <div className="text-3xl font-bold text-purple-600">156</div>
+                <div className="text-sm font-medium text-gray-600">Questions Solved</div>
               </div>
-              <div className="text-center p-4 bg-gray-50 rounded-lg">
-                <div className="text-2xl font-bold text-yellow-600">Level 8</div>
-                <div className="text-sm text-gray-600">Current Level</div>
+              <div className="text-center p-6 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl border-2 border-orange-200">
+                <div className="text-3xl font-bold text-orange-600">Level 8</div>
+                <div className="text-sm font-medium text-gray-600">Current Level</div>
               </div>
             </div>
 
-            <div className="mt-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Recent Activity</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                  <span className="text-sm text-gray-700">Completed Math Practice</span>
-                  <span className="text-sm text-green-600">+50 points</span>
+            <div className="mt-8">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Recent Activity</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg border-l-4 border-green-400">
+                  <span className="font-medium text-gray-700">Completed Math Practice</span>
+                  <span className="font-bold text-green-600">+50 points</span>
                 </div>
-                <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                  <span className="text-sm text-gray-700">Reading Comprehension</span>
-                  <span className="text-sm text-blue-600">+35 points</span>
+                <div className="flex justify-between items-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg border-l-4 border-blue-400">
+                  <span className="font-medium text-gray-700">Reading Comprehension</span>
+                  <span className="font-bold text-blue-600">+35 points</span>
                 </div>
-                <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                  <span className="text-sm text-gray-700">Mock Exam Completed</span>
-                  <span className="text-sm text-purple-600">+100 points</span>
+                <div className="flex justify-between items-center p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg border-l-4 border-purple-400">
+                  <span className="font-medium text-gray-700">Mock Exam Completed</span>
+                  <span className="font-bold text-purple-600">+100 points</span>
                 </div>
               </div>
             </div>
