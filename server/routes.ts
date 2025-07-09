@@ -495,6 +495,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Analyze questions and identify missing visuals
+  app.get("/api/questions/analyze-visuals", async (req, res) => {
+    try {
+      const { db } = await import("./db");
+      const { questions } = await import("@shared/schema");
+      const { analyzeQuestionsForVisuals } = await import("./questionVisualDetector");
+      const { eq } = await import("drizzle-orm");
+      
+      // Get all math questions from database
+      const allQuestions = await db.select().from(questions).where(eq(questions.subject, "math"));
+      
+      const analysis = analyzeQuestionsForVisuals(allQuestions);
+      
+      res.json({
+        ...analysis,
+        message: `Found ${analysis.missingVisuals.length} math questions that need visual elements`
+      });
+      
+    } catch (error) {
+      console.error("Error analyzing question visuals:", error);
+      res.status(500).json({ message: "Failed to analyze question visuals" });
+    }
+  });
+
+  // Update database questions to mark which ones need visuals
+  app.post("/api/questions/update-visual-flags", async (req, res) => {
+    try {
+      const { db } = await import("./db");
+      const { questions } = await import("@shared/schema");
+      const { shouldQuestionHaveVisual } = await import("./questionVisualDetector");
+      const { eq } = await import("drizzle-orm");
+      
+      // Get all math questions from database
+      const allQuestions = await db.select().from(questions).where(eq(questions.subject, "math"));
+      
+      let updatedCount = 0;
+      
+      for (const question of allQuestions) {
+        const analysis = shouldQuestionHaveVisual(question.questionText, question.subject, question.grade);
+        
+        if (analysis.needsVisual && !question.hasImage) {
+          // Update the question to mark it as needing a visual
+          await db.update(questions)
+            .set({ 
+              hasImage: true,
+              imageDescription: analysis.description 
+            })
+            .where(eq(questions.id, question.id));
+          
+          updatedCount++;
+        }
+      }
+      
+      res.json({
+        message: `Updated ${updatedCount} questions to include visual elements`,
+        updatedCount
+      });
+      
+    } catch (error) {
+      console.error("Error updating question visual flags:", error);
+      res.status(500).json({ message: "Failed to update question visual flags" });
+    }
+  });
+
   // Fast SVG generation for template-based questions
   app.get("/api/questions/:id/svg-fast", async (req, res) => {
     try {
