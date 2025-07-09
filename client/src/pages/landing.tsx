@@ -278,16 +278,7 @@ export default function Landing() {
               <p className="text-sm text-gray-500">Free account • No credit card required</p>
             </div>
 
-            {/* Authentic STAAR Questions Preview */}
-            <div className="mt-16 mb-16">
-              <h3 className="text-2xl font-bold text-center text-gray-900 mb-8">
-                Try Authentic STAAR Questions
-              </h3>
-              <p className="text-center text-gray-600 mb-8">
-                Practice with real questions from official STAAR tests (2013-2019)
-              </p>
-              <AuthenticSTAARQuestions />
-            </div>
+
 
             {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 mt-16">
