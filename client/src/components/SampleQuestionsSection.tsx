@@ -160,7 +160,7 @@ export default function SampleQuestionsSection() {
   };
 
   return (
-    <section className="py-16 bg-gradient-to-br from-blue-50 to-indigo-100">
+    <section className="py-16 bg-gradient-to-br from-orange-50 to-yellow-50">
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
