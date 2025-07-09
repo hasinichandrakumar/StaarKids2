@@ -8,8 +8,22 @@ import { Lightbulb, X, Clock, CheckCircle, XCircle } from "lucide-react";
 import { StarIcon, SparklesIcon } from "@heroicons/react/24/solid";
 
 // SVG Display Component
-function SvgDisplay({ svgContent, description }: { svgContent?: string | null; description?: string }) {
-  if (!svgContent) {
+function SvgDisplay({ svgContent, description, questionId, hasImage, subject }: { 
+  svgContent?: string | null; 
+  description?: string; 
+  questionId?: number;
+  hasImage?: boolean;
+  subject?: string;
+}) {
+  // Don't show visuals for reading questions unless they have explicit SVG content
+  if (subject === "reading" && !svgContent) {
+    return null;
+  }
+
+  // For math questions, show visual if hasImage is true OR if svgContent exists
+  const shouldShowVisual = svgContent || (subject === "math" && hasImage);
+  
+  if (!shouldShowVisual) {
     return null;
   }
 
@@ -17,10 +31,19 @@ function SvgDisplay({ svgContent, description }: { svgContent?: string | null; d
     <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
       <div className="text-center">
         <div className="inline-block bg-white p-3 rounded border">
-          <div 
-            className="w-full h-64 flex items-center justify-center bg-white"
-            dangerouslySetInnerHTML={{ __html: svgContent }}
-          />
+          {svgContent ? (
+            <div 
+              className="w-full h-64 flex items-center justify-center bg-white"
+              dangerouslySetInnerHTML={{ __html: svgContent }}
+            />
+          ) : (
+            <img 
+              src={`/api/question-svg/${questionId}`}
+              alt={description || "Question diagram"}
+              className="w-full h-64 object-contain bg-white"
+              style={{ maxWidth: '600px' }}
+            />
+          )}
         </div>
         {description && (
           <p className="text-sm text-gray-600 mt-2">{description}</p>
@@ -565,6 +588,9 @@ ${isCorrect ? '**Great job!** You demonstrated strong understanding of this conc
                 <SvgDisplay 
                   svgContent={currentQuestion.svgContent} 
                   description={currentQuestion.imageDescription || "Question diagram"}
+                  questionId={currentQuestion.id}
+                  hasImage={currentQuestion.hasImage}
+                  subject={subject}
                 />
 
                 {/* Answer Choices for Math */}

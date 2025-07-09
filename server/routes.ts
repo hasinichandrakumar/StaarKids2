@@ -428,19 +428,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log("Error retrieving question data:", error);
       }
       
-      // Generate SVG using the accurate generator that creates content-specific visuals
-      const { generateAccurateSVG } = await import("./accurateImageGenerator");
+      // Use the universal visual generator for database questions that need visuals
+      const { generateQuestionVisual } = await import("./universalVisualGenerator");
       
       const imageConfig = {
         questionId,
         questionText: question?.questionText || "Mathematical diagram",
-        imageDescription: question?.imageDescription || "Visual element matching question content",
+        imageDescription: question?.imageDescription || "Visual element for math problem",
         grade: question?.grade || Math.floor((questionId % 3) + 3),
-        subject: (question?.subject as "math" | "reading") || "math"
+        subject: (question?.subject as "math" | "reading") || "math",
+        category: question?.category || "Number & Operations",
+        teksStandard: question?.teksStandard || "4.3A",
+        answerChoices: question?.answerChoices || [],
+        correctAnswer: question?.correctAnswer || "A"
       };
       
-      console.log("Generating accurate SVG with config:", imageConfig);
-      const svg = generateAccurateSVG(imageConfig);
+      console.log("Generating universal visual with config:", imageConfig);
+      const visualResult = generateQuestionVisual(imageConfig);
+      const svg = visualResult.svgContent || visualResult.generatedSVG;
       console.log("Generated SVG length:", svg.length);
       
       res.setHeader('Content-Type', 'image/svg+xml');
