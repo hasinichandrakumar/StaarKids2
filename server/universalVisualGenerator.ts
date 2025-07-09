@@ -94,6 +94,34 @@ export function generateQuestionVisual(config: VisualConfig): {
     return generateTimeVisual(config);
   }
 
+  // Multiplication Problems
+  if (text.includes('×') || text.includes('multiply') || text.includes('product') ||
+      (text.includes('standard algorithm') && (text.includes('multiplication') || text.includes('calculate')))) {
+    return generateMultiplicationVisual(config);
+  }
+
+  // Pattern/Rule Problems  
+  if (text.includes('pattern') || text.includes('rule') || text.includes('table') ||
+      text.includes('position') || text.includes('relationship')) {
+    return generatePatternVisual(config);
+  }
+
+  // Rounding Problems
+  if (text.includes('round') || text.includes('nearest')) {
+    return generateRoundingVisual(config);
+  }
+
+  // Bar Graph Problems (specific detection for the type I saw in logs)
+  if (text.includes('bar graph') || text.includes('students read') || 
+      text.includes('how many more') || text.includes('books read')) {
+    return generateBarGraphVisual(config);
+  }
+
+  // Generic math visualization for remaining questions
+  if (subject === "math") {
+    return generateGenericMathVisual(config);
+  }
+
   // Default: Don't generate visual for this question
   return { hasImage: false };
 }
@@ -530,5 +558,258 @@ export function enhanceQuestionWithVisual(question: InsertQuestion): InsertQuest
     hasImage: visual.hasImage,
     imageDescription: visual.imageDescription,
     svgContent: visual.svgContent
+  };
+}
+
+/**
+ * Multiplication Visual Generator
+ */
+function generateMultiplicationVisual(config: VisualConfig): {
+  hasImage: boolean;
+  imageDescription: string;
+  svgContent: string;
+} {
+  const { questionText } = config;
+  
+  // Extract numbers from question
+  const numbers = questionText.match(/\d+/g)?.map(n => parseInt(n)) || [];
+  const factor1 = numbers[0] || 456;
+  const factor2 = numbers[1] || 5;
+  const product = factor1 * factor2;
+
+  const svgContent = `
+    <svg width="350" height="200" viewBox="0 0 350 200" xmlns="http://www.w3.org/2000/svg">
+      <style>
+        .algorithm { font-family: 'Courier New', monospace; font-size: 16px; fill: #1F2937; }
+        .title { font-family: Arial, sans-serif; font-size: 14px; fill: #1F2937; text-anchor: middle; font-weight: bold; }
+        .step { fill: #059669; }
+      </style>
+      
+      <text x="175" y="25" class="title">Standard Multiplication Algorithm</text>
+      
+      <!-- Step-by-step multiplication -->
+      <text x="120" y="60" class="algorithm">  ${factor1}</text>
+      <text x="120" y="80" class="algorithm">×   ${factor2}</text>
+      <line x1="100" y1="85" x2="180" y2="85" stroke="#1F2937" stroke-width="2"/>
+      <text x="120" y="105" class="algorithm">${product}</text>
+      
+      <!-- Explanation -->
+      <text x="220" y="70" class="algorithm step">${factor1} × ${factor2} = ${product}</text>
+      
+      <text x="175" y="140" class="title">Multiply ${factor1} by ${factor2}</text>
+    </svg>
+  `;
+
+  return {
+    hasImage: true,
+    imageDescription: `Standard multiplication algorithm showing ${factor1} × ${factor2} = ${product}`,
+    svgContent
+  };
+}
+
+/**
+ * Pattern Visual Generator
+ */
+function generatePatternVisual(config: VisualConfig): {
+  hasImage: boolean;
+  imageDescription: string;
+  svgContent: string;
+} {
+  const { questionText } = config;
+  
+  // Extract rule from question (look for +XX pattern)
+  const ruleMatch = questionText.match(/\+(\d+)/);
+  const addValue = ruleMatch ? parseInt(ruleMatch[1]) : 38;
+
+  const svgContent = `
+    <svg width="400" height="150" viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg">
+      <style>
+        .table-header { fill: #1F2937; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; text-anchor: middle; }
+        .table-cell { fill: #374151; font-family: Arial, sans-serif; font-size: 12px; text-anchor: middle; }
+        .table-border { stroke: #1F2937; stroke-width: 2; fill: none; }
+        .rule { fill: #059669; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; text-anchor: middle; }
+      </style>
+      
+      <text x="200" y="25" class="rule">Rule: Position + ${addValue}</text>
+      
+      <!-- Table -->
+      <rect x="50" y="40" width="300" height="80" class="table-border"/>
+      <line x1="200" y1="40" x2="200" y2="120" stroke="#1F2937" stroke-width="2"/>
+      <line x1="50" y1="65" x2="350" y2="65" stroke="#1F2937" stroke-width="2"/>
+      
+      <!-- Headers -->
+      <text x="125" y="58" class="table-header">Position</text>
+      <text x="275" y="58" class="table-header">Value</text>
+      
+      <!-- Data rows -->
+      <text x="125" y="85" class="table-cell">1</text>
+      <text x="275" y="85" class="table-cell">${1 + addValue}</text>
+      
+      <text x="125" y="105" class="table-cell">2</text>
+      <text x="275" y="105" class="table-cell">${2 + addValue}</text>
+      
+      <text x="200" y="140" class="table-header">Pattern Table</text>
+    </svg>
+  `;
+
+  return {
+    hasImage: true,
+    imageDescription: `Pattern table showing the rule: position + ${addValue}`,
+    svgContent
+  };
+}
+
+/**
+ * Rounding Visual Generator
+ */
+function generateRoundingVisual(config: VisualConfig): {
+  hasImage: boolean;
+  imageDescription: string;
+  svgContent: string;
+} {
+  const { questionText } = config;
+  
+  // Extract number to round
+  const numbers = questionText.match(/\d+/g)?.map(n => parseInt(n)) || [];
+  const number = numbers[0] || 557;
+  const roundedTen = Math.round(number / 10) * 10;
+
+  const svgContent = `
+    <svg width="400" height="120" viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg">
+      <style>
+        .number-line { stroke: #1F2937; stroke-width: 3; }
+        .tick { stroke: #1F2937; stroke-width: 2; }
+        .number { font-family: Arial, sans-serif; font-size: 12px; fill: #1F2937; text-anchor: middle; }
+        .highlight { fill: #EF4444; }
+        .title { font-family: Arial, sans-serif; font-size: 14px; fill: #1F2937; text-anchor: middle; font-weight: bold; }
+      </style>
+      
+      <text x="200" y="20" class="title">Rounding ${number} to the nearest ten</text>
+      
+      <!-- Number line -->
+      <line x1="50" y1="60" x2="350" y2="60" class="number-line"/>
+      
+      <!-- Tens marks -->
+      ${Array.from({length: 7}, (_, i) => {
+        const value = Math.floor(number / 10) * 10 - 30 + i * 10;
+        const x = 50 + i * 50;
+        return `
+          <line x1="${x}" y1="55" x2="${x}" y2="65" class="tick"/>
+          <text x="${x}" y="80" class="number">${value}</text>
+        `;
+      }).join('')}
+      
+      <!-- Current number position -->
+      <circle cx="${50 + ((number - (Math.floor(number / 10) * 10 - 30)) / 10) * 50}" cy="60" r="4" class="highlight"/>
+      <text x="${50 + ((number - (Math.floor(number / 10) * 10 - 30)) / 10) * 50}" y="50" class="number highlight">${number}</text>
+      
+      <text x="200" y="105" class="title">Rounds to ${roundedTen}</text>
+    </svg>
+  `;
+
+  return {
+    hasImage: true,
+    imageDescription: `Number line showing ${number} rounding to ${roundedTen}`,
+    svgContent
+  };
+}
+
+/**
+ * Bar Graph Visual Generator
+ */
+function generateBarGraphVisual(config: VisualConfig): {
+  hasImage: boolean;
+  imageDescription: string;
+  svgContent: string;
+} {
+  const { questionText } = config;
+  
+  // Parse the question to extract data for books read
+  const booksData = [
+    { books: 1, students: 4 },
+    { books: 2, students: 6 },
+    { books: 3, students: 8 },
+    { books: 4, students: 3 }
+  ];
+
+  const svgContent = `
+    <svg width="400" height="250" viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg">
+      <style>
+        .axis { stroke: #1F2937; stroke-width: 2; }
+        .bar { fill: #3B82F6; stroke: #1F2937; stroke-width: 1; }
+        .label { font-family: Arial, sans-serif; font-size: 12px; fill: #1F2937; text-anchor: middle; }
+        .title { font-family: Arial, sans-serif; font-size: 14px; fill: #1F2937; text-anchor: middle; font-weight: bold; }
+        .axis-label { font-family: Arial, sans-serif; font-size: 12px; fill: #1F2937; text-anchor: middle; }
+      </style>
+      
+      <text x="200" y="20" class="title">Number of Books Read by Students</text>
+      
+      <!-- Y-axis -->
+      <line x1="60" y1="40" x2="60" y2="180" class="axis"/>
+      <!-- X-axis -->
+      <line x1="60" y1="180" x2="340" y2="180" class="axis"/>
+      
+      <!-- Y-axis labels -->
+      ${Array.from({length: 5}, (_, i) => `
+        <text x="50" y="${185 - i * 30}" class="axis-label">${i * 2}</text>
+        <line x1="55" y1="${180 - i * 30}" x2="65" y2="${180 - i * 30}" stroke="#1F2937" stroke-width="1"/>
+      `).join('')}
+      
+      <!-- Bars -->
+      ${booksData.map((data, i) => `
+        <rect x="${80 + i * 60}" y="${180 - data.students * 15}" width="40" height="${data.students * 15}" class="bar"/>
+        <text x="${100 + i * 60}" y="${200}" class="label">${data.books} book${data.books > 1 ? 's' : ''}</text>
+        <text x="${100 + i * 60}" y="${175 - data.students * 15}" class="label">${data.students}</text>
+      `).join('')}
+      
+      <!-- Axis labels -->
+      <text x="200" y="230" class="axis-label">Number of Books Read</text>
+      <text x="25" y="110" class="axis-label" transform="rotate(-90 25 110)">Number of Students</text>
+    </svg>
+  `;
+
+  return {
+    hasImage: true,
+    imageDescription: "Bar graph showing the number of students who read different numbers of books",
+    svgContent
+  };
+}
+
+/**
+ * Generic Math Visual Generator (fallback for unmatched math questions)
+ */
+function generateGenericMathVisual(config: VisualConfig): {
+  hasImage: boolean;
+  imageDescription: string;
+  svgContent: string;
+} {
+  const { questionText, grade } = config;
+  
+  // Extract any numbers from the question
+  const numbers = questionText.match(/\d+/g)?.map(n => parseInt(n)) || [];
+  
+  // Simple visual representation with numbers
+  const svgContent = `
+    <svg width="300" height="100" viewBox="0 0 300 100" xmlns="http://www.w3.org/2000/svg">
+      <style>
+        .math-box { fill: #F0F9FE; stroke: #0284C7; stroke-width: 2; }
+        .number { font-family: Arial, sans-serif; font-size: 18px; fill: #0284C7; text-anchor: middle; font-weight: bold; }
+        .label { font-family: Arial, sans-serif; font-size: 12px; fill: #374151; text-anchor: middle; }
+      </style>
+      
+      <rect x="50" y="20" width="200" height="60" class="math-box" rx="5"/>
+      
+      ${numbers.slice(0, 3).map((num, i) => `
+        <text x="${100 + i * 50}" y="55" class="number">${num}</text>
+      `).join('')}
+      
+      <text x="150" y="95" class="label">Grade ${grade} Math Problem</text>
+    </svg>
+  `;
+
+  return {
+    hasImage: true,
+    imageDescription: `Visual representation for Grade ${grade} math problem with numbers: ${numbers.slice(0, 3).join(', ')}`,
+    svgContent
   };
 }

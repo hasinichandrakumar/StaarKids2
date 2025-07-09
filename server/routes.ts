@@ -476,7 +476,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Generate questions instantly using templates
       for (let i = 0; i < count; i++) {
-        const question = generateEfficientQuestion(grade, subject, category);
+        const question = await generateEfficientQuestion(grade, subject, category);
         // Assign incremental IDs starting from 2000 to avoid conflicts
         (question as any).id = 2000 + questions.length;
         questions.push(question);
@@ -503,7 +503,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const grade = 3 + (questionId % 3);
       const subject = questionId % 2 === 0 ? "math" : "reading";
       
-      const question = generateEfficientQuestion(grade, subject);
+      const question = await generateEfficientQuestion(grade, subject);
       
       let svg = "";
       

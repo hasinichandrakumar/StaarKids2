@@ -279,16 +279,41 @@ Return JSON with: questionText, answerChoices, correctAnswer, explanation, hasIm
 
   const questionData = JSON.parse(response.choices[0].message.content);
   
-  // Enhance with visual content if needed
+  // ALWAYS enhance math questions with visual content using the universal system
   let svgContent = questionData.svgContent || null;
   let hasImage = questionData.hasImage || false;
   let imageDescription = questionData.imageDescription || null;
   
-  if (options.includeVisual && selectedPattern.hasVisual && !svgContent) {
-    const visualResult = await generateAuthenticVisual(questionData, selectedPattern);
-    svgContent = visualResult.svgContent;
-    hasImage = visualResult.hasImage;
-    imageDescription = visualResult.imageDescription;
+  if (subject === "math") {
+    // Use the universal visual generator for all math questions
+    const { generateQuestionVisual } = await import("./universalVisualGenerator");
+    
+    const visualConfig = {
+      grade,
+      subject,
+      questionText: questionData.questionText,
+      category: options.category || selectedPattern.questionType || "General",
+      teksStandard: options.teksStandard || selectedPattern.teksStandard,
+      answerChoices: Array.isArray(questionData.answerChoices) 
+        ? questionData.answerChoices 
+        : [questionData.answerChoices?.A, questionData.answerChoices?.B, questionData.answerChoices?.C, questionData.answerChoices?.D].filter(Boolean),
+      correctAnswer: questionData.correctAnswer
+    };
+    
+    const visualResult = generateQuestionVisual(visualConfig);
+    
+    if (visualResult.hasImage) {
+      hasImage = true;
+      imageDescription = visualResult.imageDescription;
+      svgContent = visualResult.svgContent;
+      console.log(`✅ Generated visual for authentic STAAR ${grade} math question`);
+    } else if (options.includeVisual && selectedPattern.hasVisual) {
+      // Fallback to AI-generated authentic visual
+      const authVisualResult = await generateAuthenticVisual(questionData, selectedPattern);
+      svgContent = authVisualResult.svgContent;
+      hasImage = authVisualResult.hasImage;
+      imageDescription = authVisualResult.imageDescription;
+    }
   }
   
   const question: InsertQuestion = {

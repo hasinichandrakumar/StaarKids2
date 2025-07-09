@@ -150,11 +150,11 @@ export const EFFICIENT_QUESTION_TEMPLATES = {
 /**
  * Generate question instantly using templates - no AI calls needed
  */
-export function generateEfficientQuestion(
+export async function generateEfficientQuestion(
   grade: number,
   subject: "math" | "reading",
   category?: string
-): InsertQuestion {
+): Promise<InsertQuestion> {
   const templates = EFFICIENT_QUESTION_TEMPLATES[subject][grade as keyof typeof EFFICIENT_QUESTION_TEMPLATES[typeof subject]];
   
   if (!templates) {
@@ -185,9 +185,32 @@ export function generateEfficientQuestion(
   const answerChoices = randomTemplate.answerChoices.map(choice => replaceVariables(choice, vars));
   const explanation = replaceVariables(randomTemplate.explanation, vars);
   
-  // Generate SVG if needed
-  const hasImage = !!randomTemplate.imageGenerator;
-  const imageDescription = hasImage ? "Mathematical diagram showing the problem visually" : null;
+  // Generate SVG using the universal visual generator for math questions
+  let hasImage = false;
+  let imageDescription: string | null = null;
+  let svgContent: string | null = null;
+  
+  if (subject === "math") {
+    const { generateQuestionVisual } = await import("./universalVisualGenerator");
+    
+    const visualConfig = {
+      grade,
+      subject,
+      questionText,
+      category: category || "Number & Operations",
+      teksStandard: `${grade}.3A`,
+      answerChoices,
+      correctAnswer: randomTemplate.correctAnswer
+    };
+    
+    const visualResult = generateQuestionVisual(visualConfig);
+    
+    if (visualResult.hasImage) {
+      hasImage = true;
+      imageDescription = visualResult.imageDescription;
+      svgContent = visualResult.svgContent;
+    }
+  }
   
   return {
     id: Math.floor(Math.random() * 9000) + 1000, // Generate random ID
@@ -203,6 +226,7 @@ export function generateEfficientQuestion(
     year: new Date().getFullYear(),
     hasImage,
     imageDescription,
+    svgContent,
     explanation
   };
 }
@@ -283,6 +307,7 @@ function generateFallbackQuestion(grade: number, subject: "math" | "reading"): I
       year: new Date().getFullYear(),
       hasImage: false,
       imageDescription: null,
+      svgContent: null,
       explanation: "Add 8 + 6 = 14."
     };
   } else {
@@ -304,6 +329,7 @@ function generateFallbackQuestion(grade: number, subject: "math" | "reading"): I
       year: new Date().getFullYear(),
       hasImage: false,
       imageDescription: null,
+      svgContent: null,
       explanation: "The main idea is the central message of the story."
     };
   }

@@ -122,13 +122,58 @@ QUALITY CONTROL:
 
       // Validate question accuracy before adding
       if (validateQuestionAccuracy(question)) {
-        // Enhance with visual elements if math question
-        const enhancedQuestion = enhanceQuestionWithVisual(question);
-        questions.push(enhancedQuestion);
+        // ALWAYS enhance math questions with visual elements using universal generator
+        if (subject === "math") {
+          const { generateQuestionVisual } = await import("./universalVisualGenerator");
+          const visualConfig = {
+            grade: question.grade,
+            subject: question.subject,
+            questionText: question.questionText,
+            category: question.category || "General",
+            teksStandard: question.teksStandard,
+            answerChoices: question.answerChoices,
+            correctAnswer: question.correctAnswer
+          };
+          
+          const visualResult = generateQuestionVisual(visualConfig);
+          
+          if (visualResult.hasImage) {
+            question.hasImage = true;
+            question.imageDescription = visualResult.imageDescription;
+            question.svgContent = visualResult.svgContent;
+            console.log(`✅ Enhanced ${grade} math question with visual diagram`);
+          }
+        }
+        
+        questions.push(question);
       } else {
         // Generate fallback question if validation fails
         console.warn(`Generated question failed validation, using fallback for grade ${grade} ${subject}`);
-        questions.push(generateFallbackQuestion(grade, subject, selectedTeks, category));
+        const fallback = generateFallbackQuestion(grade, subject, selectedTeks, category);
+        
+        // Enhance fallback with visual if math
+        if (subject === "math") {
+          const { generateQuestionVisual } = await import("./universalVisualGenerator");
+          const visualConfig = {
+            grade: fallback.grade,
+            subject: fallback.subject,
+            questionText: fallback.questionText,
+            category: fallback.category || "General",
+            teksStandard: fallback.teksStandard,
+            answerChoices: fallback.answerChoices,
+            correctAnswer: fallback.correctAnswer
+          };
+          
+          const visualResult = generateQuestionVisual(visualConfig);
+          
+          if (visualResult.hasImage) {
+            fallback.hasImage = true;
+            fallback.imageDescription = visualResult.imageDescription;
+            fallback.svgContent = visualResult.svgContent;
+          }
+        }
+        
+        questions.push(fallback);
       }
 
     } catch (error) {
