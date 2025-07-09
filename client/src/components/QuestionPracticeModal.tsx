@@ -15,6 +15,9 @@ function SvgDisplay({ svgContent, description, questionId, hasImage, subject }: 
   hasImage?: boolean;
   subject?: string;
 }) {
+  const [imageError, setImageError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   // Don't show visuals for reading questions unless they have explicit SVG content
   if (subject === "reading" && !svgContent) {
     return null;
@@ -27,6 +30,8 @@ function SvgDisplay({ svgContent, description, questionId, hasImage, subject }: 
     return null;
   }
 
+  console.log('SvgDisplay rendering:', { questionId, hasImage, svgContent: !!svgContent, shouldShowVisual });
+
   return (
     <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
       <div className="text-center">
@@ -37,12 +42,45 @@ function SvgDisplay({ svgContent, description, questionId, hasImage, subject }: 
               dangerouslySetInnerHTML={{ __html: svgContent }}
             />
           ) : (
-            <img 
-              src={`/api/question-svg/${questionId}`}
-              alt={description || "Question diagram"}
-              className="w-full h-64 object-contain bg-white"
-              style={{ maxWidth: '600px' }}
-            />
+            <div className="relative">
+              {!imageLoaded && !imageError && (
+                <div className="w-full h-64 flex items-center justify-center bg-gray-100">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                  <span className="ml-2 text-gray-600">Loading visual...</span>
+                </div>
+              )}
+              <img 
+                src={`/api/question-svg/${questionId}`}
+                alt={description || "Question diagram"}
+                className={`w-full h-64 object-contain bg-white ${!imageLoaded ? 'hidden' : ''}`}
+                style={{ maxWidth: '600px' }}
+                onLoad={() => {
+                  console.log('Image loaded successfully for question', questionId);
+                  setImageLoaded(true);
+                }}
+                onError={(e) => {
+                  console.error('Image failed to load for question', questionId, e);
+                  setImageError(true);
+                }}
+              />
+              {imageError && (
+                <div className="w-full h-64 flex items-center justify-center bg-red-50 border-2 border-red-200 rounded">
+                  <div className="text-center">
+                    <div className="text-red-600 text-lg mb-2">⚠️ Visual loading failed</div>
+                    <div className="text-sm text-red-500">Question ID: {questionId}</div>
+                    <button 
+                      onClick={() => {
+                        setImageError(false);
+                        setImageLoaded(false);
+                      }}
+                      className="mt-2 px-3 py-1 bg-red-100 text-red-700 rounded text-sm hover:bg-red-200"
+                    >
+                      Retry
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </div>
         {description && (
