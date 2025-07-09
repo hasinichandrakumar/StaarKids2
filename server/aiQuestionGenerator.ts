@@ -4,12 +4,14 @@ import { AUTHENTIC_TEKS_STANDARDS } from "./staarAnalysis";
 import { getDifficultyLevel } from "./staarTraining";
 import { getTrainingExamples, getCommonMathErrors, getReadingPatterns } from "./authenticeTrainingData";
 import { enhanceQuestionWithVisual } from "./universalVisualGenerator";
+import { generateAuthenticSTAARQuestionFromPatterns, analyzeAuthenticSTAARImages } from "./authenticSTAARLearner";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 /**
  * Generate unlimited authentic STAAR questions using AI
  * Supports both text-only and visual questions with diagrams
+ * NOW USES LEARNED PATTERNS FROM AUTHENTIC STAAR DOCUMENTS
  */
 export async function generateAuthenticSTAARQuestion(
   grade: number,
@@ -20,6 +22,7 @@ export async function generateAuthenticSTAARQuestion(
     includeVisual?: boolean;
     difficulty?: "easy" | "medium" | "hard";
     count?: number;
+    useAuthenticPatterns?: boolean;
   } = {}
 ): Promise<InsertQuestion[]> {
   const {
@@ -27,9 +30,26 @@ export async function generateAuthenticSTAARQuestion(
     category,
     includeVisual = false,
     difficulty,
-    count = 1
+    count = 1,
+    useAuthenticPatterns = true
   } = options;
 
+  // Use authentic STAAR patterns learned from real test documents
+  if (useAuthenticPatterns) {
+    console.log("📖 Using authentic STAAR patterns learned from real test documents...");
+    try {
+      return await generateAuthenticSTAARQuestionFromPatterns(grade, subject, {
+        teksStandard,
+        category,
+        includeVisual,
+        count
+      });
+    } catch (error) {
+      console.warn("Failed to use authentic patterns, falling back to enhanced AI generation:", error);
+    }
+  }
+
+  // Fallback to enhanced AI generation
   const questions: InsertQuestion[] = [];
 
   for (let i = 0; i < count; i++) {

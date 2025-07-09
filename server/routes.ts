@@ -125,19 +125,118 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // AUTHENTIC STAAR PATTERN ANALYSIS - NEW ENDPOINT
+  app.get("/api/analyze-authentic-staar", async (req, res) => {
+    try {
+      console.log("🔍 Analyzing authentic STAAR documents...");
+      const { analyzeAuthenticSTAARImages } = await import("./authenticSTAARLearner");
+      
+      const patterns = await analyzeAuthenticSTAARImages();
+      
+      res.json({
+        success: true,
+        patternCount: patterns.length,
+        patterns: patterns.slice(0, 5), // Return first 5 patterns for demo
+        message: `Successfully analyzed authentic STAAR documents and extracted ${patterns.length} patterns`
+      });
+      
+    } catch (error) {
+      console.error("Error analyzing authentic STAAR:", error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message,
+        message: "Failed to analyze authentic STAAR documents"
+      });
+    }
+  });
+
+  // GENERATE QUESTIONS USING AUTHENTIC PATTERNS - NEW ENDPOINT
+  app.post("/api/generate-authentic-questions", async (req, res) => {
+    try {
+      const { grade, subject, count = 1, includeVisual = false, teksStandard } = req.body;
+      
+      if (!grade || !subject) {
+        return res.status(400).json({ error: "Grade and subject are required" });
+      }
+
+      console.log(`🤖 Generating ${count} authentic STAAR ${grade} ${subject} questions using learned patterns...`);
+      
+      const { generateAuthenticSTAARQuestionFromPatterns } = await import("./authenticSTAARLearner");
+      
+      const questions = await generateAuthenticSTAARQuestionFromPatterns(grade, subject, {
+        count,
+        includeVisual,
+        teksStandard
+      });
+      
+      res.json({
+        success: true,
+        questions,
+        count: questions.length,
+        message: `Generated ${questions.length} authentic STAAR questions using learned patterns`
+      });
+      
+    } catch (error) {
+      console.error("Error generating authentic questions:", error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message,
+        message: "Failed to generate authentic STAAR questions"
+      });
+    }
+  });
+
   // Get authentic STAAR questions for homepage with diverse visual questions
   app.get("/api/sample-questions", async (req, res) => {
     try {
       const { getHomepageAuthenticQuestions } = await import("./populateAuthenticQuestions");
-      const { generateDiverseSTAARQuestions } = await import("./diverseQuestionGenerator");
       
-      // Get base authentic questions
-      const authenticQuestions = getHomepageAuthenticQuestions();
+      // Try to use authentic patterns first, fallback to existing questions
+      let authenticQuestions = getHomepageAuthenticQuestions();
+      
+      try {
+        console.log("🎯 Using authentic STAAR patterns for sample questions...");
+        const { generateAuthenticSTAARQuestionFromPatterns } = await import("./authenticSTAARLearner");
+        
+        // Generate sample questions using authentic patterns
+        const patternQuestions = [];
+        for (const grade of [3, 4, 5]) {
+          for (const subject of ["math", "reading"] as const) {
+            const questions = await generateAuthenticSTAARQuestionFromPatterns(grade, subject, {
+              count: 1,
+              includeVisual: subject === "math"
+            });
+            patternQuestions.push(...questions);
+          }
+        }
+        
+        // Convert to expected format
+        const formattedPatternQuestions = patternQuestions.map((q, index) => ({
+          id: 2000 + index, // Start from 2000 for authentic pattern questions
+          grade: q.grade,
+          subject: q.subject,
+          questionText: q.questionText,
+          answerChoices: q.answerChoices,
+          correctAnswer: q.correctAnswer,
+          explanation: q.explanation,
+          teksStandard: q.teksStandard,
+          hasImage: q.hasImage,
+          svgContent: q.svgContent,
+          category: q.category
+        }));
+        
+        // Combine authentic base questions with pattern-generated questions
+        authenticQuestions = [...authenticQuestions, ...formattedPatternQuestions];
+        
+      } catch (patternError) {
+        console.warn("Failed to use authentic patterns, using base questions:", patternError);
+      }
       
       // Generate additional diverse questions with visual elements
       const diverseQuestions = [];
       for (const grade of [3, 4, 5]) {
         for (const subject of ["math", "reading"] as const) {
+          const { generateDiverseSTAARQuestions } = await import("./diverseQuestionGenerator");
           const questions = await generateDiverseSTAARQuestions(grade, subject, 2);
           diverseQuestions.push(...questions);
         }

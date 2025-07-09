@@ -26,10 +26,12 @@ Preferred communication style: Simple, everyday language.
 - **Session Management**: Secure session handling with PostgreSQL-backed storage
 
 ### AI Integration
-- **OpenAI GPT-4**: Unlimited question generation using authentic STAAR patterns
+- **OpenAI GPT-4o with Vision**: Advanced question generation learning from authentic STAAR test documents
+- **Authentic Pattern Learning**: AI analyzes real STAAR test images (2013-2019) to extract question patterns, visual elements, and language structures
+- **Document-Based Generation**: Questions generated using learned patterns from actual Texas state assessments
+- **Universal Visual System**: SVG generation for ALL math questions with 15+ diagram types
 - **Template-Based Generation**: Fast, deterministic question creation for offline use
-- **SVG Image Generation**: Programmatic creation of math diagrams and visual elements
-- **Adaptive Learning**: AI-powered personalized learning paths
+- **Adaptive Learning**: AI-powered personalized learning paths based on authentic STAAR data
 
 ## Key Components
 
@@ -40,11 +42,12 @@ Preferred communication style: Simple, everyday language.
 - **COPPA/FERPA Compliance**: Meets educational privacy requirements
 
 ### Question Management
-- **Authentic STAAR Archive**: Complete collection of questions from 2013-2025
-- **AI Question Generator**: Creates unlimited practice questions using OpenAI
+- **Authentic STAAR Archive**: Complete collection of questions from 2013-2025 including PDF documents and extracted images
+- **AI Document Analyzer**: Uses OpenAI Vision to analyze authentic STAAR test images and extract patterns
+- **Pattern-Based Generation**: Creates unlimited practice questions using learned patterns from real STAAR tests
 - **Template System**: Fast, offline question generation using predefined patterns
 - **TEKS Standards Alignment**: All questions mapped to Texas Essential Knowledge and Skills
-- **Visual Question Support**: SVG diagrams for geometry, fractions, and measurement problems
+- **Universal Visual Support**: SVG diagrams for ALL math questions with authentic STAAR styling
 
 ### Assessment Engine
 - **Practice Mode**: Unlimited question practice with immediate feedback
