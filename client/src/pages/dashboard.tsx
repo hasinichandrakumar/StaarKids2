@@ -1,274 +1,247 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import Header from "@/components/Header";
+import WelcomeSection from "@/components/WelcomeSection";
+import StarPowerDashboard from "@/components/StarPowerDashboard";
+import QuickStatsOverview from "@/components/QuickStatsOverview";
+import DailyChallenges from "@/components/DailyChallenges";
+import NavigationTabs from "@/components/NavigationTabs";
+import PracticeTab from "@/components/PracticeTab";
+import MockExamsTab from "@/components/MockExamsTab";
+import EnhancedMockExamsTab from "@/components/EnhancedMockExamsTab";
+import UnlimitedPracticeTab from "@/components/UnlimitedPracticeTab";
+import StarSpaceStoryTab from "@/components/StarSpaceStoryTab";
+import AIStudyPlanTab from "@/components/AIStudyPlanTab";
+import EssaysTab from "@/components/EssaysTab";
+import PerformanceTab from "@/components/PerformanceTab";
+import AICoachTab from "@/components/AICoachTab";
+import AvatarCustomizationModal from "@/components/AvatarCustomizationModal";
+import QuestionPracticeModal from "@/components/QuestionPracticeModal";
+import NovaChat from "@/components/NovaChat";
+import SettingsModal from "@/components/SettingsModal";
+import RoleSelector from "@/components/RoleSelector";
+import ParentDashboard from "@/components/ParentDashboard";
+import TeacherDashboard from "@/components/TeacherDashboard";
 
 export default function Dashboard() {
-  const { user, isLoading, logout } = useAuth();
-  const [selectedGrade, setSelectedGrade] = useState(4);
-  const [selectedSubject, setSelectedSubject] = useState('math');
-  const [practiceCount, setPracticeCount] = useState(5);
+  const { user, isLoading } = useAuth();
   
-  // Check if demo mode is enabled
+  // Check if demo mode is enabled via localStorage
   const isDemo = typeof window !== 'undefined' && localStorage.getItem('demoMode') === 'true';
   
-  // Demo user data
+  // Get demo role from localStorage, default to student
+  const demoRole = typeof window !== 'undefined' ? localStorage.getItem('demoRole') || 'student' : 'student';
+  
+  // Demo user data when in demo mode
   const demoUser = {
+    id: "demo-user",
+    email: "demo@staarkids.org",
     firstName: "Demo",
-    lastName: "Student",
+    lastName: demoRole === 'parent' ? "Parent" : demoRole === 'teacher' ? "Teacher" : "Student",
+    profileImageUrl: null,
     starPower: 1250,
-    grade: 4
+    role: demoRole,
+    grade: 4,
+    rank: "Explorer"
   };
+  const [selectedGrade, setSelectedGrade] = useState(4);
+  const [activeTab, setActiveTab] = useState("starspace");
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const [showNovaChat, setShowNovaChat] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showQuestionModal, setShowQuestionModal] = useState(false);
+  const [practiceSubject, setPracticeSubject] = useState<"math" | "reading">("math");
+  const [practiceCategory, setPracticeCategory] = useState<string | undefined>(undefined);
+  const [missionContext, setMissionContext] = useState<any>(null);
 
+  // Use demo data when in demo mode, otherwise use authenticated user data
   const currentUser = isDemo ? demoUser : user;
 
-  // Generate questions mutation
-  const generateQuestionsMutation = useMutation({
-    mutationFn: async ({ grade, subject, count }: { grade: number, subject: string, count: number }) => {
-      return apiRequest(`/api/questions/generate-fast`, {
-        method: 'POST',
-        body: { grade, subject, count, category: 'General' }
-      });
-    },
-    onSuccess: (data) => {
-      alert(`Generated ${data.length} questions successfully! Starting practice session...`);
-    },
-    onError: (error) => {
-      alert('Failed to generate questions. Please try again.');
-      console.error('Generation error:', error);
-    }
-  });
+  // Listen for StarSpace mission events
+  useEffect(() => {
+    const handleStartPractice = (event: any) => {
+      const { subject, category, missionContext } = event.detail;
+      setPracticeSubject(subject);
+      setPracticeCategory(category);
+      setMissionContext(missionContext);
+      setShowQuestionModal(true);
+    };
 
-  const handleStartPractice = () => {
-    generateQuestionsMutation.mutate({
-      grade: selectedGrade,
-      subject: selectedSubject,
-      count: practiceCount
-    });
-  };
-
-  const handleLogout = () => {
-    if (isDemo) {
-      localStorage.removeItem('demoMode');
-      localStorage.removeItem('demoRole');
-      window.location.href = '/';
-    } else {
-      logout();
-    }
-  };
-
-  if (isLoading && !isDemo) {
+    window.addEventListener('startPractice', handleStartPractice);
+    return () => window.removeEventListener('startPractice', handleStartPractice);
+  }, []);
+  
+  // In demo mode, skip loading state
+  if (!isDemo && isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading your dashboard...</p>
+          <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading dashboard...</p>
         </div>
       </div>
     );
   }
+  
+  // If not in demo mode and not authenticated, show loading or redirect
+  if (!isDemo && (!user && !isLoading)) {
+    window.location.href = '/';
+    return null;
+  }
+
+  // Handle role-based dashboard routing - default to student if no role specified
+  const userRole = currentUser && typeof currentUser === 'object' && 'role' in currentUser ? (currentUser as any).role : 'student';
+  
+  if (!userRole || userRole === 'new') {
+    // Skip role selection in demo mode
+    if (isDemo) {
+      // Continue with student dashboard
+    } else {
+      return (
+        <RoleSelector 
+          onRoleSelected={() => window.location.reload()} 
+          currentUser={user as any} 
+        />
+      );
+    }
+  }
+
+  // Parent dashboard
+  if (userRole === 'parent' && !isDemo) {
+    return <ParentDashboard user={user as any} />;
+  }
+
+  // Teacher dashboard
+  if (userRole === 'teacher' && !isDemo) {
+    return <TeacherDashboard user={user as any} />;
+  }
+
+  // Default to student dashboard for 'student' role or undefined
+
+  const startPractice = (subject: "math" | "reading", category?: string) => {
+    setPracticeSubject(subject);
+    setPracticeCategory(category);
+    setShowQuestionModal(true);
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center">
-              <img src="/staarkids-logo.svg" alt="STAAR Kids" className="h-8 w-auto mr-3" />
-              <h1 className="text-2xl font-bold text-gray-900">STAAR Kids Dashboard</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              {currentUser && (
-                <div className="flex items-center space-x-3">
-                  <div className="text-right">
-                    <p className="text-sm font-medium text-gray-900">
-                      {currentUser.firstName} {currentUser.lastName}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      Grade {currentUser.grade} • {currentUser.starPower} Star Power
-                    </p>
-                  </div>
-                  <div className="h-8 w-8 bg-blue-500 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm font-medium">
-                      {currentUser.firstName?.[0]}{currentUser.lastName?.[0]}
-                    </span>
-                  </div>
-                </div>
-              )}
-              <button
-                onClick={handleLogout}
-                className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700"
-              >
-                {isDemo ? 'Exit Demo' : 'Sign Out'}
-              </button>
-            </div>
-          </div>
+    <div className="min-h-screen">
+      {/* Demo mode indicator */}
+      {isDemo && (
+        <div className="bg-gradient-to-r from-orange-400 to-yellow-500 text-white px-4 py-2 text-center text-sm font-semibold">
+          🎯 Demo Mode - Exploring StaarKids Platform
+          <button 
+            className="ml-4 underline hover:no-underline"
+            onClick={() => {
+              localStorage.removeItem('demoMode');
+              window.location.href = '/';
+            }}
+          >
+            Exit Demo
+          </button>
         </div>
-      </header>
+      )}
+      
+      <Header 
+        user={currentUser as any} 
+        onOpenAvatarModal={() => setShowAvatarModal(true)}
+        onOpenNovaChat={() => setShowNovaChat(true)}
+        onOpenSettings={() => setShowSettingsModal(true)}
+      />
+      
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <WelcomeSection user={currentUser as any} />
+        
+        <QuickStatsOverview grade={selectedGrade} />
+        
+        <DailyChallenges grade={selectedGrade} onStartPractice={startPractice} />
+        
+        <StarPowerDashboard />
+        
+        <NavigationTabs 
+          activeTab={activeTab} 
+          onTabChange={setActiveTab} 
+        />
+        
+        {activeTab === "starspace" && (
+          <StarSpaceStoryTab 
+            user={currentUser as any}
+            starPower={currentUser?.starPower || 1250}
+          />
+        )}
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          {/* Welcome Section */}
-          <div className="bg-white overflow-hidden shadow rounded-lg mb-6">
-            <div className="px-4 py-5 sm:p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-2">
-                Welcome back, {currentUser?.firstName || 'Student'}!
-              </h2>
-              <p className="text-gray-600">
-                Ready to practice STAAR questions? Select your preferences below and start learning.
-              </p>
-            </div>
-          </div>
+        {activeTab === "unlimited-practice" && (
+          <UnlimitedPracticeTab 
+            grade={selectedGrade} 
+            onStartPractice={startPractice}
+          />
+        )}
+        
+        {activeTab === "mock-exams" && (
+          <EnhancedMockExamsTab grade={selectedGrade} />
+        )}
 
-          {/* Quick Practice Section */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Practice</h3>
-              
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 mb-6">
-                <div>
-                  <label htmlFor="grade" className="block text-sm font-medium text-gray-700 mb-2">
-                    Grade Level
-                  </label>
-                  <select
-                    id="grade"
-                    value={selectedGrade}
-                    onChange={(e) => setSelectedGrade(Number(e.target.value))}
-                    className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option value={3}>Grade 3</option>
-                    <option value={4}>Grade 4</option>
-                    <option value={5}>Grade 5</option>
-                  </select>
-                </div>
+        {activeTab === "practice" && (
+          <PracticeTab 
+            grade={selectedGrade} 
+            onStartPractice={startPractice}
+          />
+        )}
+        
+        
+        {activeTab === "performance" && (
+          <PerformanceTab grade={selectedGrade} />
+        )}
 
-                <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-                    Subject
-                  </label>
-                  <select
-                    id="subject"
-                    value={selectedSubject}
-                    onChange={(e) => setSelectedSubject(e.target.value)}
-                    className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option value="math">Mathematics</option>
-                    <option value="reading">Reading</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label htmlFor="count" className="block text-sm font-medium text-gray-700 mb-2">
-                    Number of Questions
-                  </label>
-                  <select
-                    id="count"
-                    value={practiceCount}
-                    onChange={(e) => setPracticeCount(Number(e.target.value))}
-                    className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option value={5}>5 Questions</option>
-                    <option value={10}>10 Questions</option>
-                    <option value={15}>15 Questions</option>
-                    <option value={20}>20 Questions</option>
-                  </select>
-                </div>
-              </div>
-
-              <button
-                onClick={handleStartPractice}
-                disabled={generateQuestionsMutation.isPending}
-                className="w-full bg-blue-600 text-white px-4 py-3 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-              >
-                {generateQuestionsMutation.isPending ? 'Generating Questions...' : 'Start Practice Session'}
-              </button>
-
-              <div className="mt-4 p-4 bg-blue-50 rounded-md">
-                <p className="text-sm text-blue-800">
-                  <strong>Lightning Fast Generation:</strong> Our AI creates authentic STAAR questions instantly using advanced template-based generation - 25,000x faster than traditional methods!
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Stats Grid */}
-          <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
-                      <span className="text-white text-sm font-bold">📊</span>
-                    </div>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">Star Power</dt>
-                      <dd className="text-lg font-medium text-gray-900">{currentUser?.starPower || 0}</dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
-                      <span className="text-white text-sm font-bold">📚</span>
-                    </div>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">Grade Level</dt>
-                      <dd className="text-lg font-medium text-gray-900">Grade {currentUser?.grade || 4}</dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-yellow-500 rounded-md flex items-center justify-center">
-                      <span className="text-white text-sm font-bold">🎯</span>
-                    </div>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">Practice Sessions</dt>
-                      <dd className="text-lg font-medium text-gray-900">0</dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
-                      <span className="text-white text-sm font-bold">🏆</span>
-                    </div>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">Accuracy</dt>
-                      <dd className="text-lg font-medium text-gray-900">--%</dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        {activeTab === "ai-study-plan" && (
+          <AIStudyPlanTab 
+            grade={selectedGrade}
+            user={currentUser as any}
+          />
+        )}
+        
+        {activeTab === "ai-coach" && (
+          <AICoachTab grade={selectedGrade} />
+        )}
       </main>
+
+      {showAvatarModal && (
+        <AvatarCustomizationModal 
+          user={user as any}
+          onClose={() => setShowAvatarModal(false)} 
+        />
+      )}
+
+      {showQuestionModal && (
+        <QuestionPracticeModal
+          grade={selectedGrade}
+          subject={practiceSubject}
+          category={practiceCategory}
+          onClose={() => {
+            setShowQuestionModal(false);
+            setPracticeCategory(undefined);
+            setMissionContext(null);
+          }}
+          missionContext={missionContext}
+        />
+      )}
+
+      {showNovaChat && (
+        <NovaChat
+          grade={selectedGrade}
+          isOpen={showNovaChat}
+          onClose={() => setShowNovaChat(false)}
+        />
+      )}
+
+      {showSettingsModal && (
+        <SettingsModal
+          user={user as any}
+          selectedGrade={selectedGrade}
+          onGradeChange={setSelectedGrade}
+          onClose={() => setShowSettingsModal(false)}
+        />
+      )}
     </div>
   );
 }
