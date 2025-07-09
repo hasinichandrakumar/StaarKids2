@@ -7,6 +7,7 @@ import { Star, BookOpen, Calculator, Trophy, Target, Zap, ArrowRight, CheckCircl
 import { useLocation } from "wouter";
 import InteractiveDemo from "@/components/InteractiveDemo";
 import AuthenticSTAARQuestions from "@/components/AuthenticSTAARQuestions";
+import SampleQuestionsSection from "@/components/SampleQuestionsSection";
 import { FaGoogle } from "react-icons/fa";
 
 export default function Landing() {
@@ -592,6 +593,9 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* Sample Questions Section */}
+      <SampleQuestionsSection />
 
       {/* Testimonials Section */}
       <section className="py-20 bg-gradient-to-br from-orange-50 to-yellow-50">
