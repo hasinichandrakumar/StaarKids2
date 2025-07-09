@@ -523,7 +523,7 @@ ${isCorrect ? '**Great job!** You demonstrated strong understanding of this conc
                   </h4>
                   <div className="prose prose-lg max-w-none">
                     <div 
-                      className="text-base leading-relaxed text-gray-800 bg-gray-50 p-6 rounded-lg border"
+                      className="text-base leading-relaxed text-gray-800 bg-blue-50 p-6 rounded-lg border border-blue-200"
                       style={{ maxHeight: '500px', overflowY: 'auto' }}
                       dangerouslySetInnerHTML={{
                         __html: (currentQuestion.passage?.passageText || currentQuestion.questionText)
@@ -605,7 +605,7 @@ ${isCorrect ? '**Great job!** You demonstrated strong understanding of this conc
 
                 {/* Question Image/Diagram for Math */}
                 {currentQuestion.hasImage && (
-                  <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
+                  <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
                     <div className="flex justify-center">
                       <div 
                         className="max-w-full rounded shadow-sm bg-white p-3 border"
