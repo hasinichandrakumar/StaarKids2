@@ -379,12 +379,56 @@ export default function Landing() {
             {/* Reading Excellence Detail */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div className="bg-gradient-to-br from-yellow-100 to-orange-100 rounded-3xl p-8 shadow-xl">
-                <div className="text-center">
-                  <BookOpen className="w-24 h-24 mx-auto mb-6" style={{ color: '#FCC201' }} />
-                  <h5 className="text-2xl font-bold text-gray-900 mb-4">Reading Comprehension</h5>
-                  <p className="text-gray-600">
-                    Interactive passages with authentic STAAR questions to build critical reading skills
-                  </p>
+                {/* Sample Reading Question */}
+                <div className="bg-white rounded-xl p-6 shadow-lg">
+                  <div className="flex items-center mb-4">
+                    <BookOpen className="w-6 h-6 mr-2" style={{ color: '#FCC201' }} />
+                    <span className="text-sm font-semibold text-yellow-700">Grade 4 Reading • TEKS 4.6B</span>
+                  </div>
+                  
+                  {/* Reading Passage */}
+                  <div className="mb-4">
+                    <h6 className="font-semibold text-gray-800 mb-2">The School Garden</h6>
+                    <div className="bg-blue-50 p-4 rounded-lg text-sm text-gray-700 leading-relaxed border border-blue-200">
+                      Ms. Rodriguez's class decided to plant a school garden. They wanted to grow vegetables to share with the cafeteria. First, they researched which vegetables grow best in their climate. Then they prepared the soil by removing weeds and adding compost. The students planted tomatoes, carrots, and lettuce in neat rows. They watered the garden every day and watched their plants grow tall and strong.
+                    </div>
+                  </div>
+
+                  {/* Question */}
+                  <div className="mb-4">
+                    <p className="font-medium text-gray-800 mb-3">
+                      What was the first step the students took to start their garden?
+                    </p>
+                    
+                    {/* Answer Choices */}
+                    <div className="space-y-2">
+                      {[
+                        "A. They planted seeds in rows",
+                        "B. They researched which vegetables to grow", 
+                        "C. They watered the plants daily",
+                        "D. They shared vegetables with the cafeteria"
+                      ].map((choice, idx) => (
+                        <button 
+                          key={idx}
+                          className="w-full text-left p-2 rounded border border-yellow-200 hover:bg-yellow-50 transition-colors text-sm"
+                          onClick={handleLogin}
+                        >
+                          {choice}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="text-center">
+                    <p className="text-xs text-gray-500 mb-2">Authentic STAAR Reading Format</p>
+                    <Button 
+                      size="sm" 
+                      className="bg-yellow-600 hover:bg-yellow-700 text-white text-xs px-4 py-2"
+                      onClick={handleLogin}
+                    >
+                      Try Practice Questions
+                    </Button>
+                  </div>
                 </div>
               </div>
               <div>
