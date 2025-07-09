@@ -85,6 +85,7 @@ export const questions = pgTable("questions", {
   isFromRealSTAAR: boolean("is_from_real_staar").default(false),
   hasImage: boolean("has_image").default(false),
   imageDescription: text("image_description"),
+  svgContent: text("svg_content"), // Stores the actual SVG markup for visual questions
   passageId: integer("passage_id").references(() => readingPassages.id), // For reading questions
   createdAt: timestamp("created_at").defaultNow(),
 });

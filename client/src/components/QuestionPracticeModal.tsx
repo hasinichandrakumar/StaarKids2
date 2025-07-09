@@ -8,67 +8,25 @@ import { Lightbulb, X, Clock, CheckCircle, XCircle } from "lucide-react";
 import { StarIcon, SparklesIcon } from "@heroicons/react/24/solid";
 
 // SVG Display Component
-function SvgDisplay({ questionId, description }: { questionId: number; description: string }) {
-  const [svgContent, setSvgContent] = useState<string>("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    setLoading(true);
-    setError(false);
-    
-    fetch(`/api/question-svg/${questionId}`)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        return response.text();
-      })
-      .then(content => {
-        // Ensure the SVG has proper dimensions and styling
-        const enhancedSvg = content
-          .replace('<svg', '<svg style="width: 100%; height: 100%; max-width: 500px; max-height: 300px;"')
-          .replace(/width="\d+"/, 'width="100%"')
-          .replace(/height="\d+"/, 'height="100%"');
-        
-        setSvgContent(enhancedSvg);
-        setLoading(false);
-        setError(false);
-      })
-      .catch((err) => {
-        console.error('SVG loading error:', err);
-        setError(true);
-        setLoading(false);
-      });
-  }, [questionId]);
-
-  if (loading) {
-    return (
-      <div className="w-full h-64 flex items-center justify-center bg-gray-50 rounded">
-        <div className="text-center">
-          <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2"></div>
-          <span className="text-gray-500 text-sm">Loading diagram...</span>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-center p-6 bg-blue-50 border border-blue-200 rounded">
-        <div className="text-blue-800">
-          <strong>📊 Visual Element</strong><br/>
-          <span className="text-sm mt-1 block">{description}</span>
-        </div>
-      </div>
-    );
+function SvgDisplay({ svgContent, description }: { svgContent?: string | null; description?: string }) {
+  if (!svgContent) {
+    return null;
   }
 
   return (
-    <div 
-      className="w-full h-64 flex items-center justify-center bg-white"
-      dangerouslySetInnerHTML={{ __html: svgContent }}
-    />
+    <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+      <div className="text-center">
+        <div className="inline-block bg-white p-3 rounded border">
+          <div 
+            className="w-full h-64 flex items-center justify-center bg-white"
+            dangerouslySetInnerHTML={{ __html: svgContent }}
+          />
+        </div>
+        {description && (
+          <p className="text-sm text-gray-600 mt-2">{description}</p>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -604,21 +562,10 @@ ${isCorrect ? '**Great job!** You demonstrated strong understanding of this conc
                 </h3>
 
                 {/* Question Image/Diagram for Math */}
-                {currentQuestion.hasImage && (
-                  <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <div className="flex justify-center">
-                      <div 
-                        className="max-w-full rounded shadow-sm bg-white p-3 border"
-                        style={{ maxHeight: '320px', maxWidth: '600px' }}
-                      >
-                        <SvgDisplay 
-                          questionId={currentQuestion.id} 
-                          description={currentQuestion.imageDescription || "Question diagram"}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
+                <SvgDisplay 
+                  svgContent={currentQuestion.svgContent} 
+                  description={currentQuestion.imageDescription || "Question diagram"}
+                />
 
                 {/* Answer Choices for Math */}
                 <div className="space-y-3">

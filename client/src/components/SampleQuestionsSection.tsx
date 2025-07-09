@@ -148,6 +148,105 @@ const SAMPLE_QUESTIONS: SampleQuestion[] = [
   }
 ];
 
+// SVG generation function for sample questions
+function getQuestionSVG(questionId: number): string {
+  switch (questionId) {
+    case 1:
+      // Feather Division Diagram
+      return `
+        <svg width="300" height="140" viewBox="0 0 300 140" xmlns="http://www.w3.org/2000/svg">
+          <style>
+            .container { fill: #E0F2FE; stroke: #0891B2; stroke-width: 2; }
+            .item { fill: #FF5B00; opacity: 0.8; }
+            .label { font-family: Arial, sans-serif; font-size: 12px; fill: #374151; text-anchor: middle; }
+            .title { font-family: Arial, sans-serif; font-size: 14px; fill: #1F2937; text-anchor: middle; font-weight: bold; }
+          </style>
+          
+          <text x="150" y="20" class="title">42 feathers ÷ 7 cases = 6 feathers per case</text>
+          
+          ${Array.from({length: 7}, (_, i) => `
+            <g>
+              <rect x="${30 + i * 35}" y="40" width="30" height="50" class="container" rx="3"/>
+              ${Array.from({length: 6}, (_, j) => `
+                <circle cx="${35 + i * 35 + (j % 3) * 8}" cy="${50 + Math.floor(j / 3) * 15}" r="3" class="item"/>
+              `).join('')}
+              <text x="${45 + i * 35}" y="105" class="label">Case ${i + 1}</text>
+              <text x="${45 + i * 35}" y="120" class="label">6 items</text>
+            </g>
+          `).join('')}
+        </svg>
+      `;
+    
+    case 2:
+      // Quadrilaterals Diagram
+      return `
+        <svg width="280" height="120" viewBox="0 0 280 120" xmlns="http://www.w3.org/2000/svg">
+          <style>
+            .shape1 { fill: #FF5B00; opacity: 0.3; stroke: #FF5B00; stroke-width: 2; }
+            .shape2 { fill: #FCC201; opacity: 0.3; stroke: #FCC201; stroke-width: 2; }
+            .label { font-family: Arial, sans-serif; font-size: 11px; fill: #1F2937; text-anchor: middle; }
+          </style>
+          
+          <!-- Square -->
+          <rect x="20" y="20" width="40" height="40" class="shape1"/>
+          <text x="40" y="75" class="label">Square</text>
+          
+          <!-- Rectangle -->
+          <rect x="90" y="25" width="50" height="30" class="shape2"/>
+          <text x="115" y="75" class="label">Rectangle</text>
+          
+          <!-- Parallelogram -->
+          <path d="M170 35 L210 35 L200 55 L160 55 Z" class="shape1"/>
+          <text x="185" y="75" class="label">Parallelogram</text>
+          
+          <!-- Trapezoid -->
+          <path d="M240 30 L280 30 L290 55 L230 55 Z" class="shape2"/>
+          <text x="260" y="75" class="label">Trapezoid</text>
+          
+          <text x="140" y="100" class="label">All shapes have 4 sides (quadrilaterals)</text>
+        </svg>
+      `;
+    
+    case 3:
+      // Garden Rectangle Diagram
+      return `
+        <svg width="200" height="140" viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg">
+          <style>
+            .rectangle { fill: #4ADE80; opacity: 0.3; stroke: #16A34A; stroke-width: 2; }
+            .dimension { font-family: Arial, sans-serif; font-size: 14px; fill: #374151; text-anchor: middle; font-weight: bold; }
+            .grid { stroke: #16A34A; stroke-width: 0.5; opacity: 0.5; }
+          </style>
+          
+          <rect x="40" y="30" width="120" height="80" class="rectangle"/>
+          
+          <!-- Length dimension -->
+          <line x1="40" y1="20" x2="160" y2="20" stroke="#374151" stroke-width="1"/>
+          <line x1="40" y1="15" x2="40" y2="25" stroke="#374151" stroke-width="1"/>
+          <line x1="160" y1="15" x2="160" y2="25" stroke="#374151" stroke-width="1"/>
+          <text x="100" y="15" class="dimension">12 feet</text>
+          
+          <!-- Width dimension -->
+          <line x1="25" y1="30" x2="25" y2="110" stroke="#374151" stroke-width="1"/>
+          <line x1="20" y1="30" x2="30" y2="30" stroke="#374151" stroke-width="1"/>
+          <line x1="20" y1="110" x2="30" y2="110" stroke="#374151" stroke-width="1"/>
+          <text x="15" y="75" class="dimension" transform="rotate(-90 15 75)">8 feet</text>
+          
+          <!-- Garden details -->
+          <circle cx="60" cy="50" r="3" fill="#EF4444"/>
+          <circle cx="80" cy="60" r="3" fill="#EF4444"/>
+          <circle cx="100" cy="45" r="3" fill="#EF4444"/>
+          <circle cx="120" cy="55" r="3" fill="#EF4444"/>
+          <circle cx="140" cy="70" r="3" fill="#EF4444"/>
+          
+          <text x="100" y="130" class="dimension">Area = 12 × 8 = 96 square feet</text>
+        </svg>
+      `;
+    
+    default:
+      return "";
+  }
+}
+
 export default function SampleQuestionsSection() {
   const [selectedSubject, setSelectedSubject] = useState<"math" | "reading">("math");
   const [selectedGrade, setSelectedGrade] = useState(3);
@@ -315,87 +414,9 @@ export default function SampleQuestionsSection() {
                       <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
                         <div className="text-center">
                           <div className="inline-block bg-white p-3 rounded border">
-                            {question.id === 1 && (
-                              /* Feather Division Diagram */
-                              <svg width="300" height="140" viewBox="0 0 300 140" className="mx-auto">
-                                {/* Glass Cases */}
-                                {[0, 1, 2, 3, 4, 5, 6].map(i => (
-                                  <g key={i}>
-                                    {/* Glass case */}
-                                    <rect x={10 + i * 40} y="50" width="35" height="50" fill="#E0F2FE" stroke="#0891B2" strokeWidth="2" rx="3"/>
-                                    
-                                    {/* Feathers in each case (6 feathers per case) */}
-                                    {[0, 1, 2, 3, 4, 5].map(j => (
-                                      <circle 
-                                        key={j} 
-                                        cx={18 + i * 40 + (j % 3) * 8} 
-                                        cy={60 + Math.floor(j / 3) * 15} 
-                                        r="3" 
-                                        fill="#FF5B00" 
-                                        opacity="0.8"
-                                      />
-                                    ))}
-                                    
-                                    {/* Case number */}
-                                    <text x={27.5 + i * 40} y="115" textAnchor="middle" className="text-xs font-semibold">Case {i + 1}</text>
-                                    <text x={27.5 + i * 40} y="125" textAnchor="middle" className="text-xs">6 feathers</text>
-                                  </g>
-                                ))}
-                                
-                                {/* Title and equation */}
-                                <text x="150" y="20" textAnchor="middle" className="text-sm font-semibold">42 feathers ÷ 7 cases = 6 feathers per case</text>
-                                <text x="150" y="35" textAnchor="middle" className="text-xs text-gray-600">Equal distribution shown</text>
-                              </svg>
-                            )}
-                            
-                            {question.id === 2 && (
-                              /* Quadrilaterals Diagram */
-                              <svg width="280" height="120" viewBox="0 0 280 120" className="mx-auto">
-                                {/* Square */}
-                                <rect x="10" y="20" width="40" height="40" fill="#FF5B00" opacity="0.3" stroke="#FF5B00" strokeWidth="2"/>
-                                <text x="30" y="75" textAnchor="middle" className="text-xs">Square</text>
-                                
-                                {/* Rectangle */}
-                                <rect x="70" y="25" width="50" height="30" fill="#FCC201" opacity="0.3" stroke="#FCC201" strokeWidth="2"/>
-                                <text x="95" y="75" textAnchor="middle" className="text-xs">Rectangle</text>
-                                
-                                {/* Parallelogram */}
-                                <path d="M140 35 L180 35 L170 55 L130 55 Z" fill="#FF5B00" opacity="0.3" stroke="#FF5B00" strokeWidth="2"/>
-                                <text x="155" y="75" textAnchor="middle" className="text-xs">Parallelogram</text>
-                                
-                                {/* Trapezoid */}
-                                <path d="M200 30 L240 30 L250 55 L190 55 Z" fill="#FCC201" opacity="0.3" stroke="#FCC201" strokeWidth="2"/>
-                                <text x="220" y="75" textAnchor="middle" className="text-xs">Trapezoid</text>
-                              </svg>
-                            )}
-                            
-                            {question.id === 3 && (
-                              /* Garden Rectangle Diagram */
-                              <svg width="200" height="140" viewBox="0 0 200 140" className="mx-auto">
-                                <rect x="40" y="30" width="120" height="80" fill="#4ADE80" opacity="0.3" stroke="#16A34A" strokeWidth="2"/>
-                                
-                                {/* Length label */}
-                                <line x1="40" y1="20" x2="160" y2="20" stroke="#374151" strokeWidth="1"/>
-                                <line x1="40" y1="15" x2="40" y2="25" stroke="#374151" strokeWidth="1"/>
-                                <line x1="160" y1="15" x2="160" y2="25" stroke="#374151" strokeWidth="1"/>
-                                <text x="100" y="15" textAnchor="middle" className="text-sm font-semibold">12 feet</text>
-                                
-                                {/* Width label */}
-                                <line x1="25" y1="30" x2="25" y2="110" stroke="#374151" strokeWidth="1"/>
-                                <line x1="20" y1="30" x2="30" y2="30" stroke="#374151" strokeWidth="1"/>
-                                <line x1="20" y1="110" x2="30" y2="110" stroke="#374151" strokeWidth="1"/>
-                                <text x="15" y="75" textAnchor="middle" className="text-sm font-semibold" transform="rotate(-90 15 75)">8 feet</text>
-                                
-                                {/* Garden details */}
-                                <circle cx="60" cy="50" r="3" fill="#EF4444"/>
-                                <circle cx="80" cy="60" r="3" fill="#EF4444"/>
-                                <circle cx="100" cy="45" r="3" fill="#EF4444"/>
-                                <circle cx="120" cy="55" r="3" fill="#EF4444"/>
-                                <circle cx="140" cy="70" r="3" fill="#EF4444"/>
-                                
-                                <text x="100" y="130" textAnchor="middle" className="text-xs text-gray-600">Rectangular Garden</text>
-                              </svg>
-                            )}
+                            <div className="w-full h-64 flex items-center justify-center bg-white">
+                              <div dangerouslySetInnerHTML={{ __html: getQuestionSVG(question.id) }} />
+                            </div>
                           </div>
                         </div>
                       </div>

@@ -1,5 +1,6 @@
 import { InsertQuestion } from "../shared/schema";
 import { AUTHENTIC_TEKS_STANDARDS } from "./staarAnalysis";
+import { enhanceQuestionWithVisual } from "./universalVisualGenerator";
 
 /**
  * Generate unlimited questions using authentic STAAR patterns without API dependencies
@@ -17,7 +18,9 @@ export async function generateAuthenticPatternQuestions(
 
   for (let i = 0; i < count; i++) {
     const question = generateSinglePatternQuestion(grade, subject, options);
-    questions.push(question);
+    // Enhance with visual elements for math questions
+    const enhancedQuestion = enhanceQuestionWithVisual(question);
+    questions.push(enhancedQuestion);
   }
 
   return questions;

@@ -3,6 +3,7 @@ import { InsertQuestion } from "../shared/schema";
 import { AUTHENTIC_TEKS_STANDARDS } from "./staarAnalysis";
 import { getDifficultyLevel } from "./staarTraining";
 import { getTrainingExamples, getCommonMathErrors, getReadingPatterns } from "./authenticeTrainingData";
+import { enhanceQuestionWithVisual } from "./universalVisualGenerator";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -95,12 +96,15 @@ QUALITY CONTROL:
         year: new Date().getFullYear(),
         hasImage: questionData.hasImage || includeVisual || false,
         imageDescription: questionData.imageDescription || null,
+        svgContent: null, // Will be set by enhanceQuestionWithVisual
         explanation: questionData.explanation || null
       };
 
       // Validate question accuracy before adding
       if (validateQuestionAccuracy(question)) {
-        questions.push(question);
+        // Enhance with visual elements if math question
+        const enhancedQuestion = enhanceQuestionWithVisual(question);
+        questions.push(enhancedQuestion);
       } else {
         // Generate fallback question if validation fails
         console.warn(`Generated question failed validation, using fallback for grade ${grade} ${subject}`);
