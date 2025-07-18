@@ -1053,10 +1053,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Enhanced AI Question Generation API with Grade-Specific Models
+  // Enhanced Image Generation API
+  app.post("/api/images/generate", async (req, res) => {
+    try {
+      const { grade, subject, questionText, category, answerChoices, correctAnswer, visualType } = req.body;
+      
+      if (![3, 4, 5].includes(grade) || !["math", "reading"].includes(subject)) {
+        return res.status(400).json({ message: "Invalid grade or subject" });
+      }
+
+      const { generateQuestionImage } = await import('./enhancedImageGenerator');
+      
+      const result = generateQuestionImage({
+        grade,
+        subject,
+        questionText,
+        category: category || 'General',
+        answerChoices,
+        correctAnswer,
+        visualType
+      });
+
+      res.json({
+        success: true,
+        image: result,
+        generated: result.hasImage,
+        visualType: result.visualType,
+        authenticity: `${(result.authenticity * 100).toFixed(1)}%`
+      });
+    } catch (error) {
+      console.error("Error generating image:", error);
+      res.status(500).json({ 
+        success: false,
+        message: "Failed to generate image" 
+      });
+    }
+  });
+
+  // Enhanced AI Question Generation API with Grade-Specific Models + Image Generation
   app.post("/api/questions/generate", async (req, res) => {
     try {
-      const { grade, subject, count = 1, category, teksStandard, includeVisual = false, useNeural = false, useFineTuned = true } = req.body;
+      const { grade, subject, count = 1, category, teksStandard, includeVisual = true, useNeural = false, useFineTuned = true } = req.body;
       
       if (![3, 4, 5].includes(grade) || !["math", "reading"].includes(subject)) {
         return res.status(400).json({ message: "Invalid grade or subject" });
@@ -1121,13 +1158,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
         generationMethod = 'standard';
       }
 
+      // Enhance questions with visual elements if requested
+      if (includeVisual && questions.length > 0) {
+        try {
+          const { generateQuestionImage } = await import('./enhancedImageGenerator');
+          
+          questions = questions.map(question => {
+            try {
+              const imageResult = generateQuestionImage({
+                grade,
+                subject,
+                questionText: question.questionText,
+                category: question.category || category || 'General',
+                answerChoices: question.answerChoices,
+                correctAnswer: question.correctAnswer
+              });
+              
+              return {
+                ...question,
+                hasImage: imageResult.hasImage,
+                svgContent: imageResult.svgContent,
+                imageDescription: imageResult.imageDescription,
+                visualType: imageResult.visualType,
+                visualAuthenticity: imageResult.authenticity
+              };
+            } catch (error) {
+              console.log(`Image generation failed for question: ${error.message}`);
+              return question; // Return original question if image generation fails
+            }
+          });
+          
+          console.log(`Enhanced ${questions.filter(q => q.hasImage).length}/${questions.length} questions with visuals`);
+        } catch (error) {
+          console.log("Image generation module unavailable, returning questions without images");
+        }
+      }
+
       res.json({ 
         questions, 
         generated: questions.length, 
         method: generationMethod,
         gradeSpecific: generationMethod === 'fine-tuned-grade-specific',
         neural: useNeural,
-        fineTuned: useFineTuned
+        fineTuned: useFineTuned,
+        withImages: includeVisual && questions.some(q => q.hasImage)
       });
     } catch (error) {
       console.error("Error generating questions:", error);
