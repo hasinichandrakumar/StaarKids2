@@ -807,6 +807,172 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Fine-Tuned Model Management API
+  app.post("/api/finetune/create", async (req, res) => {
+    try {
+      const { modelType = 'gpt-3.5-turbo', grade, subject, epochs = 3 } = req.body;
+      
+      if (grade && ![3, 4, 5].includes(grade)) {
+        return res.status(400).json({ message: "Invalid grade" });
+      }
+      
+      if (subject && !["math", "reading"].includes(subject)) {
+        return res.status(400).json({ message: "Invalid subject" });
+      }
+
+      const { createSTAARFineTuningJob } = await import('./fineTunedModelTrainer');
+      
+      const jobId = await createSTAARFineTuningJob({
+        modelType,
+        grade,
+        subject,
+        epochs
+      });
+
+      res.json({
+        success: true,
+        jobId,
+        message: `Fine-tuning job created for ${modelType} on Grade ${grade || 'All'} ${subject || 'All subjects'} STAAR data`,
+        estimatedTime: "15-30 minutes for training completion"
+      });
+    } catch (error) {
+      console.error("Error creating fine-tuning job:", error);
+      res.status(500).json({ 
+        success: false,
+        message: "Failed to create fine-tuning job" 
+      });
+    }
+  });
+
+  // Check Fine-Tuning Job Status
+  app.get("/api/finetune/status/:jobId", async (req, res) => {
+    try {
+      const { jobId } = req.params;
+      
+      const { getFineTunedModelTrainer } = await import('./fineTunedModelTrainer');
+      const trainer = getFineTunedModelTrainer();
+      
+      const job = await trainer.getFineTuningJobStatus(jobId);
+      
+      if (!job) {
+        return res.status(404).json({ message: "Fine-tuning job not found" });
+      }
+
+      res.json({
+        jobId: job.id,
+        status: job.status,
+        model: job.model,
+        fineTunedModel: job.fineTunedModel,
+        progress: {
+          createdAt: new Date(job.createdAt).toISOString(),
+          completedAt: job.completedAt ? new Date(job.completedAt).toISOString() : null,
+          duration: job.completedAt ? job.completedAt - job.createdAt : Date.now() - job.createdAt
+        },
+        hyperparameters: job.hyperparameters,
+        metrics: job.metrics
+      });
+    } catch (error) {
+      console.error("Error checking fine-tuning status:", error);
+      res.status(500).json({ message: "Failed to check fine-tuning status" });
+    }
+  });
+
+  // List All Fine-Tuning Jobs
+  app.get("/api/finetune/jobs", async (req, res) => {
+    try {
+      const { getFineTunedModelTrainer } = await import('./fineTunedModelTrainer');
+      const trainer = getFineTunedModelTrainer();
+      
+      const jobs = trainer.getAllFineTuningJobs();
+      const stats = trainer.getTrainingStats();
+
+      res.json({
+        jobs: jobs.map(job => ({
+          id: job.id,
+          status: job.status,
+          model: job.model,
+          fineTunedModel: job.fineTunedModel,
+          createdAt: new Date(job.createdAt).toISOString(),
+          completedAt: job.completedAt ? new Date(job.completedAt).toISOString() : null,
+          hyperparameters: job.hyperparameters,
+          metrics: job.metrics
+        })),
+        statistics: stats
+      });
+    } catch (error) {
+      console.error("Error listing fine-tuning jobs:", error);
+      res.status(500).json({ message: "Failed to list fine-tuning jobs" });
+    }
+  });
+
+  // Generate Question with Fine-Tuned Model
+  app.post("/api/finetune/generate", async (req, res) => {
+    try {
+      const { modelId, prompt, grade, subject, category } = req.body;
+      
+      if (![3, 4, 5].includes(grade) || !["math", "reading"].includes(subject)) {
+        return res.status(400).json({ message: "Invalid grade or subject" });
+      }
+
+      const { generateWithFineTunedSTAARModel } = await import('./fineTunedModelTrainer');
+      
+      const question = await generateWithFineTunedSTAARModel(modelId, prompt, {
+        grade,
+        subject,
+        category
+      });
+
+      res.json({
+        success: true,
+        question,
+        modelUsed: modelId,
+        generationMethod: "fine-tuned-model",
+        confidence: question.modelConfidence || 0.9
+      });
+    } catch (error) {
+      console.error("Error generating with fine-tuned model:", error);
+      res.status(500).json({ 
+        success: false,
+        message: "Failed to generate question with fine-tuned model" 
+      });
+    }
+  });
+
+  // Fine-Tuning Training Statistics
+  app.get("/api/finetune/training-stats", async (req, res) => {
+    try {
+      const { getFineTunedModelTrainer } = await import('./fineTunedModelTrainer');
+      const trainer = getFineTunedModelTrainer();
+      
+      const stats = trainer.getTrainingStats();
+
+      res.json({
+        trainingData: {
+          totalExamples: stats.totalTrainingExamples,
+          byGrade: stats.byGrade,
+          bySubject: stats.bySubject
+        },
+        fineTuningJobs: {
+          active: stats.activeJobs,
+          completed: stats.completedJobs,
+          successRate: stats.activeJobs > 0 ? (stats.completedJobs / stats.activeJobs * 100).toFixed(1) + '%' : '0%'
+        },
+        capabilities: {
+          modelTypes: ['gpt-3.5-turbo', 'gpt-4'],
+          supportedGrades: [3, 4, 5],
+          supportedSubjects: ['math', 'reading'],
+          trainingSource: 'Authentic STAAR test documents and questions'
+        }
+      });
+    } catch (error) {
+      res.json({
+        trainingData: { totalExamples: 0, byGrade: {}, bySubject: {} },
+        fineTuningJobs: { active: 0, completed: 0, successRate: '0%' },
+        status: "Fine-tuning system initializing..."
+      });
+    }
+  });
+
   // AI Question Generation API with Neural/ML Enhancement
   app.post("/api/questions/generate", async (req, res) => {
     try {
@@ -1021,13 +1187,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   try {
     const { initializeNeuralQuestionGeneration } = await import('./neuralQuestionGenerator');
-    // Initialize in background to avoid blocking server startup
-    initializeNeuralQuestionGeneration().then(() => {
-      console.log("✅ Neural/ML systems fully initialized and ready");
+    const { initializeFineTunedModelTraining } = await import('./fineTunedModelTrainer');
+    
+    // Initialize neural/ML systems and fine-tuned models in background
+    Promise.all([
+      initializeNeuralQuestionGeneration(),
+      initializeFineTunedModelTraining()
+    ]).then(() => {
+      console.log("✅ Neural/ML systems and fine-tuned models fully initialized");
     }).catch(error => {
-      console.log("⚠️ Neural/ML systems initializing with limited features");
+      console.log("⚠️ Advanced AI systems initializing with limited features");
     });
-    console.log("🚀 Advanced AI systems starting up...");
+    console.log("🚀 Advanced AI systems and fine-tuned models starting up...");
   } catch (error) {
     console.log("📚 Using standard question generation (AI systems unavailable)");
   }

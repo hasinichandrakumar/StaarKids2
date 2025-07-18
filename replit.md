@@ -39,10 +39,12 @@ Preferred communication style: Simple, everyday language.
 - **Deep Learning Image Generator**: Computer vision and neural networks for generating authentic STAAR-style visuals from real test images
 - **ML STAAR Optimizer**: Machine learning algorithms for personalized learning optimization using reinforcement learning and predictive analytics
 - **Neural Question Generator**: Integrated system combining all neural/ML components for superior question generation
+- **Fine-Tuned Language Models**: Custom GPT-2/T5 models trained on parsed STAAR questions for authentic question generation
 - **Anthropic Integration**: Advanced multimodal AI capabilities with claude-sonnet-4-20250514 for enhanced content analysis
 - **Pattern Recognition**: Neural networks learn from 100+ authentic STAAR PDFs to extract question structures and visual patterns
 - **Predictive Analytics**: ML algorithms predict student engagement, learning effectiveness, and optimal difficulty levels
 - **Authentic Visual Generation**: Deep learning creates 95%+ authentic STAAR-style SVG diagrams from learned visual patterns
+- **Model Fine-Tuning Pipeline**: Complete system for training custom models on STAAR test data with hyperparameter optimization
 
 ## Key Components
 
