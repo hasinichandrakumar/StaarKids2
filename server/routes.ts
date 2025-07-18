@@ -973,22 +973,124 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // AI Question Generation API with Neural/ML Enhancement
-  app.post("/api/questions/generate", async (req, res) => {
+  // Model Manager Status API
+  app.get("/api/models/status", async (req, res) => {
     try {
-      const { grade, subject, count = 1, category, teksStandard, includeVisual = false, useNeural = false } = req.body;
+      const { getModelManager } = await import('./modelManager');
+      const manager = getModelManager();
+      
+      const status = manager.getAllModelStatus();
+      const stats = manager.getTrainingStatistics();
+
+      res.json({
+        models: status,
+        statistics: {
+          total: stats.totalModels,
+          ready: stats.byStatus.ready,
+          training: stats.byStatus.training,
+          pending: stats.byStatus.pending,
+          failed: stats.byStatus.failed,
+          averageAccuracy: `${(stats.averageAccuracy * 100).toFixed(1)}%`,
+          readyModels: stats.readyModels
+        },
+        gradeSubjectCoverage: {
+          grade3: {
+            math: status['grade_3_math']?.ready || false,
+            reading: status['grade_3_reading']?.ready || false
+          },
+          grade4: {
+            math: status['grade_4_math']?.ready || false,
+            reading: status['grade_4_reading']?.ready || false
+          },
+          grade5: {
+            math: status['grade_5_math']?.ready || false,
+            reading: status['grade_5_reading']?.ready || false
+          }
+        }
+      });
+    } catch (error) {
+      res.json({
+        models: {},
+        statistics: { total: 0, ready: 0, training: 0, pending: 0, failed: 0 },
+        status: "Model Manager initializing...",
+        gradeSubjectCoverage: {
+          grade3: { math: false, reading: false },
+          grade4: { math: false, reading: false },
+          grade5: { math: false, reading: false }
+        }
+      });
+    }
+  });
+
+  // Generate Question with Best Available Model
+  app.post("/api/models/generate", async (req, res) => {
+    try {
+      const { grade, subject, prompt, category } = req.body;
       
       if (![3, 4, 5].includes(grade) || !["math", "reading"].includes(subject)) {
         return res.status(400).json({ message: "Invalid grade or subject" });
       }
 
-      let questions;
+      const { generateQuestionWithBestModel } = await import('./modelManager');
       
-      if (useNeural) {
-        // Use advanced neural/ML generation
+      const question = await generateQuestionWithBestModel(grade, subject, prompt, {
+        category
+      });
+
+      res.json({
+        success: true,
+        question,
+        gradeSpecific: true,
+        modelType: question.fineTunedGenerated ? 'fine-tuned' : 
+                  question.neuralConfidence ? 'neural' : 'standard'
+      });
+    } catch (error) {
+      console.error("Error generating with model manager:", error);
+      res.status(500).json({ 
+        success: false,
+        message: "Failed to generate question with model manager" 
+      });
+    }
+  });
+
+  // Enhanced AI Question Generation API with Grade-Specific Models
+  app.post("/api/questions/generate", async (req, res) => {
+    try {
+      const { grade, subject, count = 1, category, teksStandard, includeVisual = false, useNeural = false, useFineTuned = true } = req.body;
+      
+      if (![3, 4, 5].includes(grade) || !["math", "reading"].includes(subject)) {
+        return res.status(400).json({ message: "Invalid grade or subject" });
+      }
+
+      let questions = [];
+      let generationMethod = 'standard';
+      
+      // Try fine-tuned model first (grade-specific)
+      if (useFineTuned) {
+        try {
+          const { generateQuestionWithBestModel } = await import('./modelManager');
+          
+          for (let i = 0; i < Math.min(count, 5); i++) {
+            const question = await generateQuestionWithBestModel(grade, subject, 
+              `Generate a ${category || 'general'} question for ${teksStandard || 'TEKS standards'}`, {
+                category,
+                teksStandard,
+                visualComplexity: includeVisual ? 'medium' : 'low'
+              });
+            questions.push(question);
+          }
+          
+          generationMethod = 'fine-tuned-grade-specific';
+          console.log(`Generated ${questions.length} questions using Grade ${grade} ${subject} fine-tuned model`);
+        } catch (error) {
+          console.log("Grade-specific fine-tuned model unavailable, trying neural generation");
+        }
+      }
+      
+      // Fallback to neural generation if fine-tuned failed
+      if (questions.length === 0 && useNeural) {
         try {
           const { generateNeuralQuestion } = await import('./neuralQuestionGenerator');
-          const neuralQuestions = [];
           
           for (let i = 0; i < Math.min(count, 5); i++) {
             const neuralQuestion = await generateNeuralQuestion({
@@ -999,39 +1101,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
               visualComplexity: includeVisual ? 'medium' : 'low',
               authenticityLevel: 0.9
             });
-            neuralQuestions.push(neuralQuestion);
+            questions.push(neuralQuestion);
           }
           
-          questions = neuralQuestions;
+          generationMethod = 'neural-enhanced';
           console.log(`Generated ${questions.length} neural-enhanced questions`);
         } catch (error) {
           console.log("Neural generation unavailable, using standard generation");
-          const { generateAuthenticPatternQuestions } = await import("./workingQuestionGenerator");
-          questions = await generateAuthenticPatternQuestions(grade, subject, Math.min(count, 20), {
-            category,
-            teksStandard
-          });
         }
-      } else {
-        // Use standard generation
+      }
+      
+      // Final fallback to standard generation
+      if (questions.length === 0) {
         const { generateAuthenticPatternQuestions } = await import("./workingQuestionGenerator");
         questions = await generateAuthenticPatternQuestions(grade, subject, Math.min(count, 20), {
           category,
           teksStandard
         });
+        generationMethod = 'standard';
       }
 
-      res.json({ questions, generated: questions.length, neural: useNeural });
+      res.json({ 
+        questions, 
+        generated: questions.length, 
+        method: generationMethod,
+        gradeSpecific: generationMethod === 'fine-tuned-grade-specific',
+        neural: useNeural,
+        fineTuned: useFineTuned
+      });
     } catch (error) {
       console.error("Error generating questions:", error);
       res.status(500).json({ message: "Failed to generate questions" });
     }
   });
 
-  // Generate practice set with mixed questions (Enhanced with Neural/ML)
+  // Enhanced Practice Set Generation with Grade-Specific Models
   app.post("/api/practice/generate", async (req, res) => {
     try {
-      const { grade, subject, count = 5, difficulty = "mixed", useNeural = false, studentPattern = null } = req.body;
+      const { grade, subject, count = 5, difficulty = "mixed", useNeural = false, useFineTuned = true, studentPattern = null } = req.body;
       
       if (![3, 4, 5].includes(grade) || !["math", "reading"].includes(subject)) {
         return res.status(400).json({ message: "Invalid grade or subject" });
@@ -1039,8 +1146,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       let result;
       
-      if (useNeural && count <= 3) {
-        // Use neural generation for smaller, high-quality sets
+      // Prioritize grade-specific fine-tuned models
+      if (useFineTuned && count <= 5) {
+        try {
+          const { generateQuestionWithBestModel } = await import('./modelManager');
+          const questions = [];
+          
+          for (let i = 0; i < count; i++) {
+            const question = await generateQuestionWithBestModel(grade, subject, 
+              `Generate a ${difficulty} difficulty practice question`, {
+                difficulty,
+                studentPattern
+              });
+            questions.push(question);
+          }
+          
+          result = {
+            questions,
+            generatedCount: questions.length,
+            source: 'grade-specific-fine-tuned',
+            gradeSpecific: true,
+            metrics: {
+              averageAuthenticity: Math.round(questions.reduce((sum, q) => 
+                sum + (q.modelConfidence || q.visualAuthenticityScore || 0.85), 0) / questions.length * 100),
+              averageEngagement: Math.round(questions.reduce((sum, q) => 
+                sum + (q.predictedEngagement || 0.8), 0) / questions.length * 100),
+              fineTuned: true,
+              gradeOptimized: true
+            }
+          };
+        } catch (error) {
+          console.log("Grade-specific fine-tuned models unavailable, trying neural generation");
+        }
+      }
+      
+      // Fallback to neural generation
+      if (!result && useNeural && count <= 3) {
         try {
           const { generateNeuralQuestion } = await import('./neuralQuestionGenerator');
           const questions = [];
@@ -1068,12 +1209,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           };
         } catch (error) {
           console.log("Neural generation unavailable, using standard generation");
-          const { generateMixedPracticeQuestions } = await import("./workingQuestionGenerator");
-          result = await generateMixedPracticeQuestions(grade, subject, count);
-          result.source = 'standard';
         }
-      } else {
-        // Use standard generation
+      }
+      
+      // Final fallback to standard generation
+      if (!result) {
         const { generateMixedPracticeQuestions } = await import("./workingQuestionGenerator");
         result = await generateMixedPracticeQuestions(grade, subject, count);
         result.source = 'standard';
@@ -1188,17 +1328,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   try {
     const { initializeNeuralQuestionGeneration } = await import('./neuralQuestionGenerator');
     const { initializeFineTunedModelTraining } = await import('./fineTunedModelTrainer');
+    const { initializeModelManager } = await import('./modelManager');
     
-    // Initialize neural/ML systems and fine-tuned models in background
+    // Initialize neural/ML systems, fine-tuned models, and model manager in background
     Promise.all([
       initializeNeuralQuestionGeneration(),
-      initializeFineTunedModelTraining()
+      initializeFineTunedModelTraining(),
+      initializeModelManager()
     ]).then(() => {
-      console.log("✅ Neural/ML systems and fine-tuned models fully initialized");
+      console.log("✅ All AI systems initialized: Neural/ML + Fine-tuned models + Model Manager");
     }).catch(error => {
       console.log("⚠️ Advanced AI systems initializing with limited features");
     });
-    console.log("🚀 Advanced AI systems and fine-tuned models starting up...");
+    console.log("🚀 Initializing comprehensive AI system with grade-specific models...");
   } catch (error) {
     console.log("📚 Using standard question generation (AI systems unavailable)");
   }
