@@ -1053,6 +1053,99 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // World-Class Model Manager API
+  app.post("/api/models/world-class/generate", async (req, res) => {
+    try {
+      const { grade, subject, category, teksStandard, difficulty, requireVisual } = req.body;
+      
+      if (![3, 4, 5].includes(grade) || !["math", "reading"].includes(subject)) {
+        return res.status(400).json({ message: "Invalid grade or subject" });
+      }
+
+      const { generateWorldClassQuestion } = await import('./worldClassModelManager');
+      
+      const result = await generateWorldClassQuestion({
+        grade,
+        subject,
+        category,
+        teksStandard,
+        difficulty,
+        requireVisual
+      });
+
+      res.json({
+        success: true,
+        question: result,
+        worldClass: true,
+        confidence: Math.round(result.confidence * 100),
+        modelUsed: result.modelUsed,
+        abTestGroup: result.abTestGroup || 'N/A'
+      });
+    } catch (error) {
+      console.error("Error with world-class generation:", error);
+      res.status(500).json({ 
+        success: false,
+        message: "Failed to generate world-class question" 
+      });
+    }
+  });
+
+  // Neural Optimization API
+  app.post("/api/models/neural-optimize", async (req, res) => {
+    try {
+      const { grade, subject, context } = req.body;
+      
+      if (![3, 4, 5].includes(grade) || !["math", "reading"].includes(subject)) {
+        return res.status(400).json({ message: "Invalid grade or subject" });
+      }
+
+      const { generateNeurallyOptimizedQuestion } = await import('./advancedNeuralOptimizer');
+      
+      const result = await generateNeurallyOptimizedQuestion(grade, subject, context || {});
+
+      res.json({
+        success: true,
+        question: result,
+        neuralOptimized: true,
+        optimizationScore: Math.round(result.optimizationScore * 100),
+        reinforcementAction: result.reinforcementAction,
+        performanceMetrics: result.performanceMetrics
+      });
+    } catch (error) {
+      console.error("Error with neural optimization:", error);
+      res.status(500).json({ 
+        success: false,
+        message: "Failed to generate neurally-optimized question" 
+      });
+    }
+  });
+
+  // Model System Statistics API
+  app.get("/api/models/stats", async (req, res) => {
+    try {
+      const { getWorldClassStats } = await import('./worldClassModelManager');
+      const { getNeuralOptimizationStats } = await import('./advancedNeuralOptimizer');
+      
+      const worldClassStats = getWorldClassStats();
+      const neuralStats = getNeuralOptimizationStats();
+
+      res.json({
+        success: true,
+        worldClassSystem: worldClassStats,
+        neuralOptimization: neuralStats,
+        systemStatus: 'World-Class Performance',
+        totalModels: worldClassStats.totalModels + neuralStats.neuralNetworks,
+        averageAccuracy: Math.max(worldClassStats.averageAccuracy, neuralStats.averageAccuracy)
+      });
+    } catch (error) {
+      console.error("Error getting model stats:", error);
+      res.status(500).json({ 
+        success: false,
+        message: "Failed to get model statistics" 
+      });
+    }
+  });
+
   // Enhanced Image Generation API
   app.post("/api/images/generate", async (req, res) => {
     try {
@@ -1090,10 +1183,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Enhanced AI Question Generation API with Grade-Specific Models + Image Generation
+  // Enhanced AI Question Generation API with World-Class Models + Neural Optimization
   app.post("/api/questions/generate", async (req, res) => {
     try {
-      const { grade, subject, count = 1, category, teksStandard, includeVisual = true, useNeural = false, useFineTuned = true } = req.body;
+      const { grade, subject, count = 1, category, teksStandard, includeVisual = true, useNeural = false, useFineTuned = true, useWorldClass = false, useNeuralOptimization = false } = req.body;
       
       if (![3, 4, 5].includes(grade) || !["math", "reading"].includes(subject)) {
         return res.status(400).json({ message: "Invalid grade or subject" });
@@ -1102,8 +1195,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let questions = [];
       let generationMethod = 'standard';
       
-      // Try fine-tuned model first (grade-specific)
-      if (useFineTuned) {
+      // Try world-class models first (highest priority)
+      if (useWorldClass) {
+        try {
+          const { generateWorldClassQuestion } = await import("./worldClassModelManager");
+          const worldClassQuestions = [];
+          
+          for (let i = 0; i < Math.min(count, 5); i++) {
+            const question = await generateWorldClassQuestion({
+              grade,
+              subject,
+              category,
+              teksStandard,
+              requireVisual: includeVisual
+            });
+            worldClassQuestions.push(question);
+          }
+          
+          questions = worldClassQuestions;
+          generationMethod = 'world-class-ensemble';
+        } catch (error) {
+          console.log("World-class generation unavailable, falling back to neural optimization");
+        }
+      }
+
+      // Try neural optimization (second priority)
+      if (questions.length === 0 && useNeuralOptimization) {
+        try {
+          const { generateNeurallyOptimizedQuestion } = await import("./advancedNeuralOptimizer");
+          const neuralQuestions = [];
+          
+          for (let i = 0; i < Math.min(count, 3); i++) {
+            const question = await generateNeurallyOptimizedQuestion(grade, subject, {
+              category,
+              teksStandard,
+              difficulty: 'medium'
+            });
+            neuralQuestions.push(question);
+          }
+          
+          questions = neuralQuestions;
+          generationMethod = 'neural-optimized';
+        } catch (error) {
+          console.log("Neural optimization unavailable, trying fine-tuned models");
+        }
+      }
+      
+      // Try fine-tuned model (third priority - grade-specific)
+      if (questions.length === 0 && useFineTuned) {
         try {
           const { generateQuestionWithBestModel } = await import('./modelManager');
           
@@ -1199,9 +1338,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         generated: questions.length, 
         method: generationMethod,
         gradeSpecific: generationMethod === 'fine-tuned-grade-specific',
+        worldClass: generationMethod === 'world-class-ensemble',
+        neuralOptimized: generationMethod === 'neural-optimized',
         neural: useNeural,
         fineTuned: useFineTuned,
-        withImages: includeVisual && questions.some(q => q.hasImage)
+        withImages: includeVisual && questions.some(q => q.hasImage),
+        averageConfidence: questions.length > 0 ? Math.round((questions.reduce((sum, q) => sum + (q.confidence || q.modelConfidence || 0.85), 0) / questions.length) * 100) : 0
       });
     } catch (error) {
       console.error("Error generating questions:", error);
