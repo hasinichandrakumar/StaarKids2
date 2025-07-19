@@ -357,167 +357,113 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get SVG diagrams for questions with visual elements
+  // Get SVG diagrams for questions with visual elements - COMPLETELY REWRITTEN
   app.get("/api/question-svg/:questionId", async (req, res) => {
+    const questionId = parseInt(req.params.questionId);
+    console.log("🎨 Generating educational visual for question ID:", questionId);
+    
+    // Try OpenAI Image API first if available
     try {
-      const questionId = parseInt(req.params.questionId);
-      console.log("Generating visual content for question ID:", questionId);
-      
-      // Get authentic STAAR question data directly from storage
-      let question;
-      
+      // Only attempt OpenAI if we have a valid question that needs visuals
+      let question = null;
       try {
-        // Get question directly from database
         const { db } = await import("./db");
         const { questions } = await import("@shared/schema");
         const { eq } = await import("drizzle-orm");
-        
         const questionResult = await db.select().from(questions).where(eq(questions.id, questionId));
         question = questionResult[0];
-        
-        // If not found by exact ID, check with string conversion or use fallback
-        if (!question) {
-          // Try finding by converting to string (database might store as string)
-          const questionResults = await db.select().from(questions);
-          question = questionResults.find(q => q.id === questionId || q.id.toString() === questionId.toString());
-        }
-        
-        // Create authentic fallback questions for testing
-        if (!question) {
-          const authenticQuestions = {
-            1005: {
-              id: 1005,
-              questionText: "The diagram shows a rectangular garden with a length of 15 feet and a width of 8 feet. What is the area of the garden?",
-              imageDescription: "A rectangular garden diagram with clearly labeled dimensions of 15 feet by 8 feet",
-              hasImage: true,
-              grade: 5,
-              subject: "math"
-            },
-            1000: {
-              id: 1000,
-              questionText: "Look at the fraction models shown. Which fraction is equivalent to the shaded portion?",
-              imageDescription: "Multiple fraction models showing equivalent fractions with different denominators, all representing 1/4",
-              hasImage: true,
-              grade: 3,
-              subject: "math"
-            },
-            1001: {
-              id: 1001,
-              questionText: "Look at the fraction models shown. Which fraction is equivalent to the shaded portion?",
-              imageDescription: "Multiple fraction models showing equivalent fractions with different denominators, all representing 1/4",
-              hasImage: true,
-              grade: 3,
-              subject: "math"
-            },
-            1004: {
-              id: 1004,
-              questionText: "The bar graph shows the number of books read by students in Ms. Johnson's class. How many more students read 3 books than read 1 book?",
-              imageDescription: "Bar graph showing number of books read by students, with bars for 1, 2, 3, and 4 books",
-              hasImage: true,
-              grade: 5,
-              subject: "math"
-            }
-          };
-          question = authenticQuestions[questionId as keyof typeof authenticQuestions];
-        }
-        
-        console.log("Found question:", question ? `${question.questionText.substring(0, 50)}...` : "Not found");
-        console.log("Question has image:", question?.hasImage);
-        console.log("Image description:", question?.imageDescription);
-      } catch (error) {
-        console.log("Error retrieving question data:", error);
+      } catch (dbError) {
+        console.log("Database lookup failed, using fallback");
       }
       
-      // Try to generate image using OpenAI Image API if question needs visuals
+      // If we have a question with image needs, try OpenAI
       if (question && question.hasImage) {
-        try {
-          const { imageGenerator } = await import('./enhancedImageGenerator');
-          
-          const shouldGenerate = imageGenerator.shouldGenerateImage({
-            id: question.id.toString(),
-            questionText: question.questionText,
-            subject: question.subject,
-            grade: question.grade,
-            category: question.category || 'general'
-          });
-          
-          if (shouldGenerate) {
-            const generatedImage = await imageGenerator.generateImageForQuestion({
-              id: question.id.toString(),
-              questionText: question.questionText,
-              subject: question.subject,
-              grade: question.grade,
-              category: question.category || 'general'
-            });
-            
-            if (generatedImage) {
-              // Redirect to the generated image URL
-              res.redirect(generatedImage.url);
-              return;
-            }
-          }
-        } catch (error) {
-          console.warn("Image generation failed, falling back to SVG:", error.message);
+        const { imageGenerator } = await import('./enhancedImageGenerator');
+        const generatedImage = await imageGenerator.generateImageForQuestion({
+          id: question.id.toString(),
+          questionText: question.questionText,
+          subject: question.subject || 'math',
+          grade: question.grade || 5,
+          category: question.category || 'general'
+        });
+        
+        if (generatedImage) {
+          console.log("✅ Using OpenAI generated image");
+          res.redirect(generatedImage.url);
+          return;
         }
       }
-      
-      // Generate educational fallback SVG when OpenAI is unavailable
-      console.log("Generating educational fallback visual with config:", imageConfig);
-      
-      // Create an informative educational diagram
-      const educationalSVG = `<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e0e0e0" stroke-width="1"/>
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="white"/>
-        <rect width="100%" height="100%" fill="url(#grid)" opacity="0.3"/>
-        
-        <!-- Mathematical diagram placeholder -->
-        <rect x="50" y="50" width="300" height="200" fill="#f8f9fa" stroke="#007bff" stroke-width="2" rx="10"/>
-        
-        <!-- Title -->
-        <text x="200" y="80" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#2c3e50">
-          Educational Diagram
-        </text>
-        
-        <!-- Content area -->
-        <circle cx="120" cy="140" r="25" fill="#3498db" stroke="#2980b9" stroke-width="2"/>
-        <rect x="170" y="115" width="50" height="50" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
-        <polygon points="280,115 305,165 255,165" fill="#f39c12" stroke="#e67e22" stroke-width="2"/>
-        
-        <!-- Labels -->
-        <text x="120" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#34495e">Circle</text>
-        <text x="195" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#34495e">Square</text>
-        <text x="280" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#34495e">Triangle</text>
-        
-        <!-- Note -->
-        <text x="200" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#7f8c8d">
-          ${question && question.subject === 'math' ? 'Math Visual Support' : 'Educational Diagram'}
-        </text>
-        <text x="200" y="235" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#95a5a6">
-          AI image generation ready when API quota available
-        </text>
-      </svg>`;
-      
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.setHeader('Cache-Control', 'public, max-age=3600');
-      res.send(educationalSVG);
-    } catch (error) {
-      console.error("Error generating question SVG:", error);
-      
-      // Generate emergency fallback SVG
-      const fallbackSVG = `<svg width="400" height="200" xmlns="http://www.w3.org/2000/svg">
-        <rect width="400" height="200" fill="#f8f9fa" stroke="#dee2e6"/>
-        <text x="200" y="100" text-anchor="middle" font-family="Arial" font-size="14" fill="#6c757d">
-          Visual Element
-        </text>
-      </svg>`;
-      
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.send(fallbackSVG);
+    } catch (openaiError) {
+      console.log("🔄 OpenAI unavailable, using educational SVG:", openaiError.message);
     }
+    
+    // Generate educational SVG directly - NO OLD SYSTEM DEPENDENCIES
+    console.log("📐 Creating educational diagram for question", questionId);
+    
+    const modernEducationalSVG = `<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="modernBg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#f8f9ff;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#e6f3ff;stop-opacity:1" />
+        </linearGradient>
+        <pattern id="mathGrid" width="15" height="15" patternUnits="userSpaceOnUse">
+          <path d="M 15 0 L 0 0 0 15" fill="none" stroke="#e3f2fd" stroke-width="0.5"/>
+        </pattern>
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <dropShadow dx="2" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.1"/>
+        </filter>
+      </defs>
+      
+      <!-- Background -->
+      <rect width="100%" height="100%" fill="url(#modernBg)"/>
+      <rect width="100%" height="100%" fill="url(#mathGrid)" opacity="0.3"/>
+      
+      <!-- Main container -->
+      <rect x="20" y="20" width="360" height="260" fill="white" stroke="#2196f3" stroke-width="2" rx="20" filter="url(#shadow)" opacity="0.95"/>
+      
+      <!-- Header -->
+      <rect x="30" y="30" width="340" height="50" fill="#1976d2" rx="15"/>
+      <text x="200" y="60" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white">
+        📊 Math Visual Support
+      </text>
+      
+      <!-- Content area -->
+      <g transform="translate(200, 160)">
+        <!-- Central focus element -->
+        <circle cx="0" cy="0" r="25" fill="#4caf50" stroke="#2e7d32" stroke-width="3" filter="url(#shadow)"/>
+        <text x="0" y="6" text-anchor="middle" font-family="Arial" font-size="16" fill="white" font-weight="bold">✓</text>
+        
+        <!-- Mathematical elements -->
+        <rect x="-60" y="-15" width="30" height="30" fill="#ff5722" stroke="#d84315" stroke-width="2" rx="5"/>
+        <text x="-45" y="5" text-anchor="middle" font-family="Arial" font-size="12" fill="white" font-weight="bold">4²</text>
+        
+        <polygon points="45,-15 65,15 25,15" fill="#9c27b0" stroke="#6a1b9a" stroke-width="2"/>
+        <text x="45" y="8" text-anchor="middle" font-family="Arial" font-size="10" fill="white">△</text>
+        
+        <circle cx="-90" cy="30" r="12" fill="#ff9800" stroke="#e65100" stroke-width="2"/>
+        <text x="-90" y="35" text-anchor="middle" font-family="Arial" font-size="10" fill="white">○</text>
+        
+        <rect x="60" y="20" width="24" height="24" fill="#00bcd4" stroke="#006064" stroke-width="1" rx="3"/>
+        <text x="72" y="35" text-anchor="middle" font-family="Arial" font-size="9" fill="white">□</text>
+      </g>
+      
+      <!-- Labels -->
+      <text x="110" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#37474f">Square</text>
+      <text x="200" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#37474f">Solution</text>
+      <text x="290" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#37474f">Triangle</text>
+      
+      <!-- Status message -->
+      <text x="200" y="250" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#1976d2" font-weight="bold">
+        Educational Diagram Active
+      </text>
+      <text x="200" y="270" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#42a5f5">
+        AI enhancement ready when API quota available
+      </text>
+    </svg>`;
+    
+    res.setHeader('Content-Type', 'image/svg+xml');
+    res.setHeader('Cache-Control', 'public, max-age=300');
+    res.send(modernEducationalSVG);
   });
 
   // Fast question generation using templates (no AI calls)
