@@ -428,12 +428,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log("Error retrieving question data:", error);
       }
       
-      // Visual generation temporarily disabled
-      console.log("Visual generation disabled for question:", questionId);
-      
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.send('<svg width="400" height="200" xmlns="http://www.w3.org/2000/svg"><text x="200" y="100" text-anchor="middle" fill="#666" font-family="Arial" font-size="14">Visual elements temporarily disabled</text></svg>');
-      return;
+      // Try to generate image using OpenAI Image API if question needs visuals
+      if (question && question.hasImage) {
+        try {
+          const { imageGenerator } = await import('./enhancedImageGenerator');
+          
+          const shouldGenerate = imageGenerator.shouldGenerateImage({
+            id: question.id.toString(),
+            questionText: question.questionText,
+            subject: question.subject,
+            grade: question.grade,
+            category: question.category || 'general'
+          });
+          
+          if (shouldGenerate) {
+            const generatedImage = await imageGenerator.generateImageForQuestion({
+              id: question.id.toString(),
+              questionText: question.questionText,
+              subject: question.subject,
+              grade: question.grade,
+              category: question.category || 'general'
+            });
+            
+            if (generatedImage) {
+              // Redirect to the generated image URL
+              res.redirect(generatedImage.url);
+              return;
+            }
+          }
+        } catch (error) {
+          console.warn("Image generation failed, falling back to SVG:", error.message);
+        }
+      }
       
       console.log("Generating universal visual with config:", imageConfig);
       const visualResult = generateQuestionVisual(imageConfig);
@@ -1147,23 +1173,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid grade or subject" });
       }
 
-      // Visual generation temporarily disabled
-      const result = {
-        hasImage: false,
-        svgContent: null,
-        imageDescription: "Visual elements disabled",
-        visualType: "text-only",
-        authenticity: 1
-      };
+      // Generate image using OpenAI Image API
+      try {
+        const { imageGenerator } = await import('./enhancedImageGenerator');
+        
+        const imageRequest = {
+          questionText,
+          subject,
+          grade,
+          category: category || 'general',
+          teksStandard,
+          style: 'educational' as const
+        };
 
-      res.json({
-        success: false,
-        message: "Visual generation temporarily disabled to prevent glitching",
-        image: result,
-        generated: false,
-        visualType: "text-only",
-        authenticity: "100%"
-      });
+        let generatedImage;
+        if (subject === 'math') {
+          generatedImage = await imageGenerator.generateMathImage(imageRequest);
+        } else if (subject === 'reading') {
+          generatedImage = await imageGenerator.generateReadingImage(imageRequest);
+        }
+
+        if (generatedImage) {
+          res.json({
+            success: true,
+            message: `Generated ${subject} image for grade ${grade}`,
+            image: {
+              hasImage: true,
+              url: generatedImage.url,
+              description: generatedImage.description,
+              type: generatedImage.type,
+              visualType: generatedImage.type,
+              isAIGenerated: true,
+              authenticity: 0.95
+            },
+            generated: true,
+            visualType: generatedImage.type,
+            authenticity: "95%"
+          });
+        } else {
+          throw new Error('No image generated');
+        }
+      } catch (error) {
+        console.error("Image generation error:", error);
+        res.json({
+          success: false,
+          message: "Image generation failed: " + error.message,
+          image: {
+            hasImage: false,
+            svgContent: null,
+            imageDescription: "Image generation unavailable",
+            visualType: "text-only",
+            authenticity: 1
+          },
+          generated: false,
+          visualType: "text-only",
+          authenticity: "100%"
+        });
+      }
     } catch (error) {
       console.error("Error generating image:", error);
       res.status(500).json({ 
@@ -1287,16 +1353,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
         generationMethod = 'standard';
       }
 
-      // Visual elements temporarily disabled to prevent glitching
-      // All questions will be generated without images for now
-      questions = questions.map(question => ({
-        ...question,
-        hasImage: false,
-        svgContent: null,
-        imageDescription: null,
-        visualType: 'text-only',
-        visualAuthenticity: 1
-      }));
+      // Generate images for questions that need them using OpenAI Image API
+      if (includeVisual) {
+        try {
+          const { imageGenerator } = await import('./enhancedImageGenerator');
+          
+          for (let i = 0; i < questions.length; i++) {
+            const question = questions[i];
+            
+            if (imageGenerator.shouldGenerateImage(question)) {
+              try {
+                const generatedImage = await imageGenerator.generateImageForQuestion(question);
+                if (generatedImage) {
+                  questions[i] = {
+                    ...question,
+                    hasImage: true,
+                    imagePath: generatedImage.url,
+                    imageDescription: generatedImage.description,
+                    visualType: generatedImage.type,
+                    isAIGenerated: true,
+                    visualAuthenticity: 0.95
+                  };
+                  console.log(`✅ Generated ${generatedImage.type} for question: ${generatedImage.description}`);
+                }
+              } catch (imageError) {
+                console.warn(`Failed to generate image for question ${question.id}:`, imageError.message);
+                // Continue without image
+              }
+            }
+          }
+        } catch (error) {
+          console.warn('Image generation system unavailable:', error.message);
+        }
+      }
 
       res.json({ 
         questions, 
