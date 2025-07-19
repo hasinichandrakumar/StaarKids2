@@ -317,7 +317,7 @@ export class AdvancedNeuralOptimizer {
       teksStandard: `${grade}.1A`,
       year: 2025,
       isFromRealSTAAR: false,
-      hasImage: ensembleResult.optimizationActions.includes('add_visual_elements'),
+      hasImage: false, // Visual elements temporarily disabled
       fineTunedGenerated: true,
       modelConfidence: ensembleResult.confidence,
       trainingPatterns: 5000 + Math.floor(Math.random() * 2000) // 5000-7000 patterns

@@ -428,20 +428,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log("Error retrieving question data:", error);
       }
       
-      // Use the universal visual generator for database questions that need visuals
-      const { generateQuestionVisual } = await import("./universalVisualGenerator");
+      // Visual generation temporarily disabled
+      console.log("Visual generation disabled for question:", questionId);
       
-      const imageConfig = {
-        questionId,
-        questionText: question?.questionText || "Mathematical diagram",
-        imageDescription: question?.imageDescription || "Visual element for math problem",
-        grade: question?.grade || Math.floor((questionId % 3) + 3),
-        subject: (question?.subject as "math" | "reading") || "math",
-        category: question?.category || "Number & Operations",
-        teksStandard: question?.teksStandard || "4.3A",
-        answerChoices: question?.answerChoices || [],
-        correctAnswer: question?.correctAnswer || "A"
-      };
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.send('<svg width="400" height="200" xmlns="http://www.w3.org/2000/svg"><text x="200" y="100" text-anchor="middle" fill="#666" font-family="Arial" font-size="14">Visual elements temporarily disabled</text></svg>');
+      return;
       
       console.log("Generating universal visual with config:", imageConfig);
       const visualResult = generateQuestionVisual(imageConfig);
@@ -1155,24 +1147,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid grade or subject" });
       }
 
-      const { generateQuestionImage } = await import('./enhancedImageGenerator');
-      
-      const result = generateQuestionImage({
-        grade,
-        subject,
-        questionText,
-        category: category || 'General',
-        answerChoices,
-        correctAnswer,
-        visualType
-      });
+      // Visual generation temporarily disabled
+      const result = {
+        hasImage: false,
+        svgContent: null,
+        imageDescription: "Visual elements disabled",
+        visualType: "text-only",
+        authenticity: 1
+      };
 
       res.json({
-        success: true,
+        success: false,
+        message: "Visual generation temporarily disabled to prevent glitching",
         image: result,
-        generated: result.hasImage,
-        visualType: result.visualType,
-        authenticity: `${(result.authenticity * 100).toFixed(1)}%`
+        generated: false,
+        visualType: "text-only",
+        authenticity: "100%"
       });
     } catch (error) {
       console.error("Error generating image:", error);
@@ -1207,7 +1197,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               subject,
               category,
               teksStandard,
-              requireVisual: includeVisual
+              requireVisual: false // Visual elements disabled
             });
             worldClassQuestions.push(question);
           }
@@ -1297,41 +1287,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         generationMethod = 'standard';
       }
 
-      // Enhance questions with visual elements if requested
-      if (includeVisual && questions.length > 0) {
-        try {
-          const { generateQuestionImage } = await import('./enhancedImageGenerator');
-          
-          questions = questions.map(question => {
-            try {
-              const imageResult = generateQuestionImage({
-                grade,
-                subject,
-                questionText: question.questionText,
-                category: question.category || category || 'General',
-                answerChoices: question.answerChoices,
-                correctAnswer: question.correctAnswer
-              });
-              
-              return {
-                ...question,
-                hasImage: imageResult.hasImage,
-                svgContent: imageResult.svgContent,
-                imageDescription: imageResult.imageDescription,
-                visualType: imageResult.visualType,
-                visualAuthenticity: imageResult.authenticity
-              };
-            } catch (error) {
-              console.log(`Image generation failed for question: ${error.message}`);
-              return question; // Return original question if image generation fails
-            }
-          });
-          
-          console.log(`Enhanced ${questions.filter(q => q.hasImage).length}/${questions.length} questions with visuals`);
-        } catch (error) {
-          console.log("Image generation module unavailable, returning questions without images");
-        }
-      }
+      // Visual elements temporarily disabled to prevent glitching
+      // All questions will be generated without images for now
+      questions = questions.map(question => ({
+        ...question,
+        hasImage: false,
+        svgContent: null,
+        imageDescription: null,
+        visualType: 'text-only',
+        visualAuthenticity: 1
+      }));
 
       res.json({ 
         questions, 
@@ -1740,6 +1705,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching questions by TEKS:", error);
       res.status(500).json({ message: "Failed to fetch questions" });
+    }
+  });
+
+  // Authentic STAAR Mock Exams API - EXACT replicas from original PDFs
+  app.get("/api/mock-exams", async (req, res) => {
+    try {
+      const { grade, subject } = req.query;
+      
+      if (!grade || !subject) {
+        return res.status(400).json({ message: "Grade and subject are required" });
+      }
+      
+      const gradeNum = parseInt(grade as string);
+      if (![3, 4, 5].includes(gradeNum)) {
+        return res.status(400).json({ message: "Grade must be 3, 4, or 5" });
+      }
+      
+      if (!["math", "reading"].includes(subject as string)) {
+        return res.status(400).json({ message: "Subject must be math or reading" });
+      }
+      
+      // Get authentic STAAR tests EXACTLY from original PDFs (2013-2019)
+      const { getAuthenticSTAARTestsByGradeSubject } = await import("./authenticSTAARExtractor");
+      const authenticTests = getAuthenticSTAARTestsByGradeSubject(gradeNum, subject as "math" | "reading");
+      
+      const mockExams = authenticTests.map(test => ({
+        id: test.id,
+        name: `${test.year} STAAR Grade ${test.grade} ${test.subject.charAt(0).toUpperCase() + test.subject.slice(1)} - AUTHENTIC`,
+        year: test.year,
+        grade: test.grade,
+        subject: test.subject,
+        totalQuestions: test.totalQuestions,
+        timeLimit: test.timeLimit,
+        difficulty: "Official STAAR Level",
+        description: `AUTHENTIC ${test.year} STAAR test - IDENTICAL to original Texas state assessment with exact questions, passages, and essays from the official PDF`,
+        isAvailable: true,
+        isAuthentic: true,
+        originalPDF: test.pdfPath,
+        hasOriginalImages: test.questions.some(q => q.hasImage),
+        hasPassages: test.passages && test.passages.length > 0,
+        hasEssays: test.essays && test.essays.length > 0,
+        questionTypes: subject === "math" 
+          ? ["Number Operations", "Algebraic Reasoning", "Geometry", "Measurement", "Data Analysis"]
+          : ["Literary Text", "Informational Text", "Vocabulary", "Author's Purpose", "Text Structures"]
+      }));
+      
+      res.json(mockExams);
+    } catch (error) {
+      console.error("Error fetching authentic mock exams:", error);
+      res.status(500).json({ message: "Failed to fetch authentic mock exams" });
+    }
+  });
+
+  // Get specific authentic STAAR exam with EXACT content from PDFs
+  app.get("/api/exam/:examId", async (req, res) => {
+    try {
+      const { examId } = req.params;
+      
+      console.log(`📋 Fetching AUTHENTIC exam data for: ${examId}`);
+      
+      // Get authentic test data from extractor
+      const { getAuthenticSTAARTest, convertAuthenticTestToMockExam } = await import("./authenticSTAARExtractor");
+      const authenticTest = getAuthenticSTAARTest(examId);
+      
+      if (!authenticTest) {
+        return res.status(404).json({ message: "Authentic STAAR test not found" });
+      }
+      
+      const examData = convertAuthenticTestToMockExam(examId);
+      
+      if (!examData) {
+        return res.status(500).json({ message: "Failed to convert authentic test to exam format" });
+      }
+      
+      console.log(`✅ Serving AUTHENTIC ${examData.year} STAAR exam: ${examData.questions.length} questions, ${examData.passages?.length || 0} passages, ${examData.essays?.length || 0} essays`);
+      
+      res.json(examData);
+      
+    } catch (error) {
+      console.error("❌ Error fetching authentic exam data:", error);
+      res.status(500).json({ 
+        message: "Failed to fetch authentic exam data",
+        error: error.message 
+      });
     }
   });
 

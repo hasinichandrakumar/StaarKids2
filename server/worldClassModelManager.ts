@@ -328,7 +328,7 @@ export class WorldClassModelManager {
       teksStandard: request.teksStandard || `${request.grade}.1A`,
       year: 2025,
       isFromRealSTAAR: false,
-      hasImage: request.requireVisual || false,
+      hasImage: false, // Visual elements temporarily disabled
       fineTunedGenerated: true,
       modelConfidence: model.confidenceScore,
       trainingPatterns: model.trainingExamples,
