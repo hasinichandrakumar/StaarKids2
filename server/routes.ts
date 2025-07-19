@@ -1317,9 +1317,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Enhanced Practice Set Generation with Grade-Specific Models
+  // Generate images for questions using OpenAI Image API
+  app.post('/api/generate/image', async (req, res) => {
+    try {
+      const { questionText, subject, grade, category, teksStandard } = req.body;
+      
+      if (!questionText || !subject || !grade) {
+        return res.status(400).json({ 
+          message: 'Missing required fields: questionText, subject, grade' 
+        });
+      }
+
+      const { imageGenerator } = await import('./enhancedImageGenerator');
+      
+      const imageRequest = {
+        questionText,
+        subject,
+        grade: parseInt(grade),
+        category: category || 'general',
+        teksStandard,
+        style: 'educational' as const
+      };
+
+      let generatedImage;
+      if (subject === 'math') {
+        generatedImage = await imageGenerator.generateMathImage(imageRequest);
+      } else if (subject === 'reading') {
+        generatedImage = await imageGenerator.generateReadingImage(imageRequest);
+      } else {
+        return res.status(400).json({ message: 'Subject must be math or reading' });
+      }
+
+      res.json({
+        success: true,
+        image: generatedImage,
+        message: `Generated ${subject} image for grade ${grade}`
+      });
+
+    } catch (error) {
+      console.error('Error generating image:', error);
+      res.status(500).json({ 
+        message: 'Failed to generate image',
+        error: error.message 
+      });
+    }
+  });
+
   app.post("/api/practice/generate", async (req, res) => {
     try {
-      const { grade, subject, count = 5, difficulty = "mixed", useNeural = false, useFineTuned = true, studentPattern = null } = req.body;
+      const { grade, subject, count = 5, difficulty = "mixed", useNeural = false, useFineTuned = true, studentPattern = null, generateImages = true } = req.body;
       
       if (![3, 4, 5].includes(grade) || !["math", "reading"].includes(subject)) {
         return res.status(400).json({ message: "Invalid grade or subject" });
@@ -1398,6 +1444,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const { generateMixedPracticeQuestions } = await import("./workingQuestionGenerator");
         result = await generateMixedPracticeQuestions(grade, subject, count);
         result.source = 'standard';
+      }
+
+      // Generate images for all practice questions using OpenAI Image API
+      if (generateImages && result?.questions) {
+        try {
+          const { imageGenerator } = await import('./enhancedImageGenerator');
+          const questionsWithImages = [];
+          
+          for (const question of result.questions) {
+            // Check if question should have an image
+            if (imageGenerator.shouldGenerateImage(question)) {
+              try {
+                const generatedImage = await imageGenerator.generateImageForQuestion(question);
+                if (generatedImage) {
+                  question.hasImage = true;
+                  question.imagePath = generatedImage.url;
+                  question.imageDescription = generatedImage.description;
+                  question.imageType = generatedImage.type;
+                  question.isAIGenerated = true;
+                  console.log(`✅ Generated ${generatedImage.type} image for ${question.subject} question: ${generatedImage.description}`);
+                }
+              } catch (imageError) {
+                console.warn(`Failed to generate image for question ${question.id}:`, imageError.message);
+                // Continue without image - don't fail the entire request
+              }
+            }
+            questionsWithImages.push(question);
+          }
+          
+          result.questions = questionsWithImages;
+          result.imagesGenerated = questionsWithImages.filter(q => q.hasImage && q.isAIGenerated).length;
+          
+        } catch (error) {
+          console.warn('Image generation failed, returning questions without images:', error.message);
+        }
       }
       
       res.json(result);

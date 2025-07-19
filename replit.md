@@ -27,9 +27,11 @@ Preferred communication style: Simple, everyday language.
 
 ### AI Integration
 - **OpenAI GPT-4o with Vision**: Advanced question generation learning from authentic STAAR test documents
+- **OpenAI DALL-E 3 Image Generation**: Automatic image generation for ALL practice questions using OpenAI Image API
 - **Authentic Pattern Learning**: AI analyzes real STAAR test images (2013-2019) to extract question patterns, visual elements, and language structures
 - **Document-Based Generation**: Questions generated using learned patterns from actual Texas state assessments
-- **Universal Visual System**: Fully integrated SVG generation for ALL math questions with 15+ diagram types
+- **Universal Visual System**: Dual approach - authentic STAAR images from PDFs + AI-generated visuals for practice questions
+- **Enhanced Image Generator**: Creates educational diagrams, charts, and illustrations for math and reading questions
 - **Template-Based Generation**: Fast, deterministic question creation for offline use (0.1ms per question)
 - **Visual Enhancement Integration**: All question generators automatically enhanced with appropriate visual elements
 - **Adaptive Learning**: AI-powered personalized learning paths based on authentic STAAR data
