@@ -7,30 +7,78 @@ import { useToast } from "@/hooks/use-toast";
 import { Lightbulb, X, Clock, CheckCircle, XCircle } from "lucide-react";
 import { StarIcon, SparklesIcon } from "@heroicons/react/24/solid";
 
-// SVG Display Component
-function SvgDisplay({ svgContent, description, questionId, hasImage, subject }: { 
+// SVG Display Component - Updated for OpenAI Image API Integration
+function SvgDisplay({ svgContent, description, questionId, hasImage, subject, imagePath, isAIGenerated }: { 
   svgContent?: string | null; 
   description?: string; 
   questionId?: number;
   hasImage?: boolean;
   subject?: string;
+  imagePath?: string;
+  isAIGenerated?: boolean;
 }) {
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [aiImageUrl, setAiImageUrl] = useState<string | null>(null);
+  const [generatingAI, setGeneratingAI] = useState(false);
 
-  // Don't show visuals for reading questions unless they have explicit SVG content
-  if (subject === "reading" && !svgContent) {
+  // Don't show visuals for reading questions unless they have explicit SVG content or AI-generated image
+  if (subject === "reading" && !svgContent && !imagePath && !hasImage) {
     return null;
   }
 
   // For math questions, show visual if hasImage is true OR if svgContent exists
-  const shouldShowVisual = svgContent || (subject === "math" && hasImage);
+  const shouldShowVisual = svgContent || imagePath || (subject === "math" && hasImage) || isAIGenerated;
   
   if (!shouldShowVisual) {
     return null;
   }
 
-  console.log('SvgDisplay rendering:', { questionId, hasImage, svgContent: !!svgContent, shouldShowVisual });
+  console.log('SvgDisplay rendering:', { questionId, hasImage, svgContent: !!svgContent, shouldShowVisual, imagePath, isAIGenerated });
+
+  // Try to generate AI image if question needs one but doesn't have imagePath
+  const generateAIImage = async () => {
+    if (generatingAI || aiImageUrl || svgContent || imagePath) return;
+    
+    setGeneratingAI(true);
+    try {
+      const response = await fetch('/api/generate/image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          questionText: description || `Grade ${subject} question`,
+          subject,
+          grade: 4, // Default grade
+          category: subject === 'math' ? 'Geometry and Measurement' : 'Reading Comprehension'
+        })
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        if (result.url) {
+          setAiImageUrl(result.url);
+          console.log('✅ Generated AI image:', result.url);
+        }
+      }
+    } catch (error) {
+      console.warn('AI image generation failed:', error);
+    } finally {
+      setGeneratingAI(false);
+    }
+  };
+
+  // Auto-generate AI image for math questions that need visuals
+  useEffect(() => {
+    if (subject === "math" && hasImage && !svgContent && !imagePath && !aiImageUrl) {
+      generateAIImage();
+    }
+  }, [subject, hasImage, svgContent, imagePath, aiImageUrl]);
+
+  const getImageSrc = () => {
+    if (imagePath) return imagePath;
+    if (aiImageUrl) return aiImageUrl;
+    return `/api/question-svg/${questionId}`;
+  };
 
   return (
     <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
@@ -43,39 +91,43 @@ function SvgDisplay({ svgContent, description, questionId, hasImage, subject }: 
             />
           ) : (
             <div className="relative">
-              {!imageLoaded && !imageError && (
+              {(!imageLoaded && !imageError) || generatingAI ? (
                 <div className="w-full h-64 flex items-center justify-center bg-gray-100">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                  <span className="ml-2 text-gray-600">Loading visual...</span>
+                  <span className="ml-2 text-gray-600">
+                    {generatingAI ? 'Generating visual with AI...' : 'Loading visual...'}
+                  </span>
                 </div>
+              ) : null}
+              
+              {!generatingAI && (
+                <img 
+                  src={getImageSrc()}
+                  alt={description || "Question diagram"}
+                  className={`w-full h-64 object-contain bg-white ${!imageLoaded ? 'hidden' : ''}`}
+                  style={{ maxWidth: '600px' }}
+                  onLoad={() => {
+                    console.log('Image loaded successfully for question', questionId);
+                    setImageLoaded(true);
+                  }}
+                  onError={(e) => {
+                    console.error('Image failed to load for question', questionId, e);
+                    setImageError(true);
+                  }}
+                />
               )}
-              <img 
-                src={`/api/question-svg/${questionId}`}
-                alt={description || "Question diagram"}
-                className={`w-full h-64 object-contain bg-white ${!imageLoaded ? 'hidden' : ''}`}
-                style={{ maxWidth: '600px' }}
-                onLoad={() => {
-                  console.log('Image loaded successfully for question', questionId);
-                  setImageLoaded(true);
-                }}
-                onError={(e) => {
-                  console.error('Image failed to load for question', questionId, e);
-                  setImageError(true);
-                }}
-              />
-              {imageError && (
-                <div className="w-full h-64 flex items-center justify-center bg-red-50 border-2 border-red-200 rounded">
+              
+              {imageError && !generatingAI && (
+                <div className="w-full h-64 flex items-center justify-center bg-yellow-50 border-2 border-yellow-200 rounded">
                   <div className="text-center">
-                    <div className="text-red-600 text-lg mb-2">⚠️ Visual loading failed</div>
-                    <div className="text-sm text-red-500">Question ID: {questionId}</div>
+                    <div className="text-yellow-600 text-lg mb-2">🎨 Generate AI Visual</div>
+                    <div className="text-sm text-yellow-600 mb-3">Create a diagram for this question</div>
                     <button 
-                      onClick={() => {
-                        setImageError(false);
-                        setImageLoaded(false);
-                      }}
-                      className="mt-2 px-3 py-1 bg-red-100 text-red-700 rounded text-sm hover:bg-red-200"
+                      onClick={generateAIImage}
+                      disabled={generatingAI}
+                      className="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-lg text-sm hover:bg-yellow-200 disabled:opacity-50"
                     >
-                      Retry
+                      {generatingAI ? 'Generating...' : 'Generate Visual'}
                     </button>
                   </div>
                 </div>
@@ -84,7 +136,10 @@ function SvgDisplay({ svgContent, description, questionId, hasImage, subject }: 
           )}
         </div>
         {description && (
-          <p className="text-sm text-gray-600 mt-2">{description}</p>
+          <p className="text-sm text-gray-600 mt-2">
+            {description}
+            {isAIGenerated && <span className="ml-2 text-xs text-blue-500 bg-blue-100 px-2 py-1 rounded">AI Generated</span>}
+          </p>
         )}
       </div>
     </div>
@@ -629,6 +684,8 @@ ${isCorrect ? '**Great job!** You demonstrated strong understanding of this conc
                   questionId={currentQuestion.id}
                   hasImage={currentQuestion.hasImage}
                   subject={subject}
+                  imagePath={currentQuestion.imagePath}
+                  isAIGenerated={currentQuestion.isAIGenerated}
                 />
 
                 {/* Answer Choices for Math */}

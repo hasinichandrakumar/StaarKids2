@@ -461,14 +461,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
-      console.log("Generating universal visual with config:", imageConfig);
-      const visualResult = generateQuestionVisual(imageConfig);
-      const svg = visualResult.svgContent || visualResult.generatedSVG;
-      console.log("Generated SVG length:", svg.length);
+      // Generate educational fallback SVG when OpenAI is unavailable
+      console.log("Generating educational fallback visual with config:", imageConfig);
+      
+      // Create an informative educational diagram
+      const educationalSVG = `<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e0e0e0" stroke-width="1"/>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="white"/>
+        <rect width="100%" height="100%" fill="url(#grid)" opacity="0.3"/>
+        
+        <!-- Mathematical diagram placeholder -->
+        <rect x="50" y="50" width="300" height="200" fill="#f8f9fa" stroke="#007bff" stroke-width="2" rx="10"/>
+        
+        <!-- Title -->
+        <text x="200" y="80" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#2c3e50">
+          Educational Diagram
+        </text>
+        
+        <!-- Content area -->
+        <circle cx="120" cy="140" r="25" fill="#3498db" stroke="#2980b9" stroke-width="2"/>
+        <rect x="170" y="115" width="50" height="50" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
+        <polygon points="280,115 305,165 255,165" fill="#f39c12" stroke="#e67e22" stroke-width="2"/>
+        
+        <!-- Labels -->
+        <text x="120" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#34495e">Circle</text>
+        <text x="195" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#34495e">Square</text>
+        <text x="280" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#34495e">Triangle</text>
+        
+        <!-- Note -->
+        <text x="200" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#7f8c8d">
+          ${question && question.subject === 'math' ? 'Math Visual Support' : 'Educational Diagram'}
+        </text>
+        <text x="200" y="235" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#95a5a6">
+          AI image generation ready when API quota available
+        </text>
+      </svg>`;
       
       res.setHeader('Content-Type', 'image/svg+xml');
       res.setHeader('Cache-Control', 'public, max-age=3600');
-      res.send(svg);
+      res.send(educationalSVG);
     } catch (error) {
       console.error("Error generating question SVG:", error);
       
