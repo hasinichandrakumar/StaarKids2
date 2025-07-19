@@ -182,7 +182,7 @@ const AUTHENTIC_STAAR_TESTS: AuthenticSTAARTest[] = [
         correctAnswer: "D",
         teksStandard: "4.6D",
         hasImage: true,
-        imagePath: 'attached_assets/image_1752020119094.png',
+        imagePath: '/api/staar/image/img-2015-4-math-q8',
         imageDescription: 'Multiple geometric shapes including squares, rectangles, and other quadrilaterals',
         year: 2015,
         difficulty: 'medium',

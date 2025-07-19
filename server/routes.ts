@@ -1792,6 +1792,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Authentic STAAR Image Server - serves original images from PDF documents
+  app.get('/api/staar/image/:imageId', async (req, res) => {
+    try {
+      const { serveAuthenticImage } = await import('./authenticImageServer');
+      serveAuthenticImage(req, res);
+    } catch (error) {
+      console.error('Error serving authentic STAAR image:', error);
+      res.status(500).json({ message: 'Failed to serve authentic STAAR image' });
+    }
+  });
+
+  // Get image metadata
+  app.get('/api/staar/image/:imageId/metadata', async (req, res) => {
+    try {
+      const { getImageMetadata } = await import('./authenticImageServer');
+      const metadata = getImageMetadata(req.params.imageId);
+      
+      if (!metadata) {
+        return res.status(404).json({ message: 'Image not found' });
+      }
+      
+      res.json(metadata);
+    } catch (error) {
+      console.error('Error getting image metadata:', error);
+      res.status(500).json({ message: 'Failed to get image metadata' });
+    }
+  });
+
+  // Get all authentic STAAR images
+  app.get('/api/staar/images', async (req, res) => {
+    try {
+      const { getAllAuthenticImages, getImageStats } = await import('./authenticImageServer');
+      
+      res.json({
+        images: getAllAuthenticImages(),
+        stats: getImageStats()
+      });
+    } catch (error) {
+      console.error('Error getting authentic STAAR images:', error);
+      res.status(500).json({ message: 'Failed to get authentic STAAR images' });
+    }
+  });
+
   // Demo mode practice attempt - no authentication required
   app.post('/api/demo/practice/attempt', async (req, res) => {
     try {
