@@ -41,27 +41,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // CRITICAL: Add OAuth callback route using API prefix to bypass Vite
-  app.get("/api/oauth/google/callback", async (req, res) => {
-    console.log("=== OAUTH GOOGLE CALLBACK REACHED ===");
+  // OAuth callback route for /oauthcallback
+  app.get("/oauthcallback", async (req, res) => {
+    console.log("=== OAUTH CALLBACK REACHED ===");
     console.log("Query params:", req.query);
     
     const { code, error } = req.query;
     
     if (error) {
       console.error("OAuth error:", error);
-      return res.redirect("/?error=oauth_error");
+      return res.redirect("/dashboard?error=oauth_error");
     }
     
     if (!code) {
       console.error("No authorization code received");
-      return res.redirect("/?error=no_code");
+      return res.redirect("/dashboard?error=no_code");
     }
 
     try {
       const clientId = "360300053613-74ena5t9acsmeq4fd5sn453nfcaovljq.apps.googleusercontent.com";
       const clientSecret = process.env.GOOGLE_CLIENT_SECRET_STAARKIDS!.trim();
-      const redirectUri = "https://staarkids.org/api/oauth/google/callback";
+      const redirectUri = "https://staarkids.org/oauthcallback";
 
       // Exchange code for tokens
       const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
@@ -83,7 +83,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!tokenResponse.ok) {
         console.error("Token exchange failed:", tokens);
-        return res.redirect("/?error=token_exchange_failed");
+        return res.redirect("/dashboard?error=token_exchange_failed");
       }
 
       // Get user info
@@ -101,7 +101,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!userResponse.ok) {
         console.error("Failed to get user info:", googleUser);
-        return res.redirect("/?error=user_info_failed");
+        return res.redirect("/dashboard?error=user_info_failed");
       }
 
       // Create or update user in database
@@ -118,10 +118,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       (req.session as any).userId = user.id;
       console.log("Session updated with user ID:", user.id);
       
-      res.redirect("/");
+      res.redirect("/dashboard");
     } catch (error) {
       console.error("OAuth callback error:", error);
-      res.redirect("/?error=callback_error");
+      res.redirect("/dashboard?error=callback_error");
     }
   });
 
