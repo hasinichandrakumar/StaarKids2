@@ -612,6 +612,352 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.send(modernEducationalSVG);
   });
 
+  // STUDENT MONITORING CODES - Generate unique code for parent access
+  app.post("/api/generate-monitoring-code", async (req, res) => {
+    try {
+      const userId = (req.session as any)?.userId;
+      if (!userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+
+      // Generate 6-character alphanumeric code
+      const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+      
+      const { db } = await import("./db");
+      const { studentMonitoringCodes } = await import("@shared/schema");
+      const { eq } = await import("drizzle-orm");
+
+      // Check if user already has a code, update it
+      const existingCode = await db
+        .select()
+        .from(studentMonitoringCodes)
+        .where(eq(studentMonitoringCodes.studentId, userId))
+        .limit(1);
+
+      if (existingCode.length > 0) {
+        await db
+          .update(studentMonitoringCodes)
+          .set({ code, regeneratedAt: new Date(), isActive: true })
+          .where(eq(studentMonitoringCodes.studentId, userId));
+      } else {
+        await db.insert(studentMonitoringCodes).values({
+          code,
+          studentId: userId,
+          isActive: true
+        });
+      }
+
+      res.json({ 
+        success: true, 
+        code,
+        message: "Monitoring code generated successfully"
+      });
+    } catch (error) {
+      console.error("Error generating monitoring code:", error);
+      res.status(500).json({ error: "Failed to generate monitoring code" });
+    }
+  });
+
+  // PARENT CONNECT - Use monitoring code to connect to student
+  app.post("/api/connect-to-student", async (req, res) => {
+    try {
+      const { code } = req.body;
+      const parentId = (req.session as any)?.userId;
+      
+      if (!parentId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+
+      if (!code) {
+        return res.status(400).json({ error: "Monitoring code is required" });
+      }
+
+      const { db } = await import("./db");
+      const { studentMonitoringCodes, studentParentRelations, users } = await import("@shared/schema");
+      const { eq, and } = await import("drizzle-orm");
+
+      // Find student by monitoring code
+      const studentCode = await db
+        .select({ studentId: studentMonitoringCodes.studentId })
+        .from(studentMonitoringCodes)
+        .where(and(
+          eq(studentMonitoringCodes.code, code.toUpperCase()),
+          eq(studentMonitoringCodes.isActive, true)
+        ))
+        .limit(1);
+
+      if (studentCode.length === 0) {
+        return res.status(404).json({ error: "Invalid or expired monitoring code" });
+      }
+
+      const studentId = studentCode[0].studentId;
+
+      // Check if relationship already exists
+      const existingRelation = await db
+        .select()
+        .from(studentParentRelations)
+        .where(and(
+          eq(studentParentRelations.studentId, studentId),
+          eq(studentParentRelations.parentId, parentId)
+        ))
+        .limit(1);
+
+      if (existingRelation.length > 0) {
+        return res.status(400).json({ error: "You are already connected to this student" });
+      }
+
+      // Create parent-student relationship
+      await db.insert(studentParentRelations).values({
+        studentId,
+        parentId,
+        relationshipType: "parent",
+        connectedViaCode: code.toUpperCase(),
+        isActive: true
+      });
+
+      // Get student info for response
+      const student = await db
+        .select({ firstName: users.firstName, lastName: users.lastName, currentGrade: users.currentGrade })
+        .from(users)
+        .where(eq(users.id, studentId))
+        .limit(1);
+
+      res.json({
+        success: true,
+        message: "Successfully connected to student",
+        student: student[0]
+      });
+    } catch (error) {
+      console.error("Error connecting to student:", error);
+      res.status(500).json({ error: "Failed to connect to student" });
+    }
+  });
+
+  // TEACHER CLASSROOM CREATION - Create join codes for classrooms
+  app.post("/api/create-classroom-code", async (req, res) => {
+    try {
+      const { className, grade, subject, maxStudents = 30 } = req.body;
+      const teacherId = (req.session as any)?.userId;
+      
+      if (!teacherId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+
+      if (!className || !grade) {
+        return res.status(400).json({ error: "Class name and grade are required" });
+      }
+
+      // Generate 8-character classroom code
+      const code = Math.random().toString(36).substring(2, 10).toUpperCase();
+      
+      const { db } = await import("./db");
+      const { classroomCodes } = await import("@shared/schema");
+
+      const classroom = await db.insert(classroomCodes).values({
+        code,
+        teacherId,
+        className,
+        grade: parseInt(grade),
+        subject: subject || "both",
+        maxStudents: parseInt(maxStudents),
+        isActive: true
+      }).returning();
+
+      res.json({
+        success: true,
+        classroom: classroom[0],
+        message: "Classroom created successfully"
+      });
+    } catch (error) {
+      console.error("Error creating classroom:", error);
+      res.status(500).json({ error: "Failed to create classroom" });
+    }
+  });
+
+  // STUDENT JOIN CLASSROOM - Use classroom code to join
+  app.post("/api/join-classroom-code", async (req, res) => {
+    try {
+      const { code } = req.body;
+      const studentId = (req.session as any)?.userId;
+      
+      if (!studentId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+
+      if (!code) {
+        return res.status(400).json({ error: "Classroom code is required" });
+      }
+
+      const { db } = await import("./db");
+      const { classroomCodes, classroomEnrollments, users } = await import("@shared/schema");
+      const { eq, and, count } = await import("drizzle-orm");
+
+      // Find classroom by code
+      const classroom = await db
+        .select()
+        .from(classroomCodes)
+        .where(and(
+          eq(classroomCodes.code, code.toUpperCase()),
+          eq(classroomCodes.isActive, true)
+        ))
+        .limit(1);
+
+      if (classroom.length === 0) {
+        return res.status(404).json({ error: "Invalid or inactive classroom code" });
+      }
+
+      const classroomData = classroom[0];
+
+      // Check if already enrolled
+      const existingEnrollment = await db
+        .select()
+        .from(classroomEnrollments)
+        .where(and(
+          eq(classroomEnrollments.studentId, studentId),
+          eq(classroomEnrollments.classroomId, classroomData.id)
+        ))
+        .limit(1);
+
+      if (existingEnrollment.length > 0) {
+        return res.status(400).json({ error: "You are already enrolled in this classroom" });
+      }
+
+      // Check if classroom is full
+      const enrollmentCount = await db
+        .select({ count: count() })
+        .from(classroomEnrollments)
+        .where(eq(classroomEnrollments.classroomId, classroomData.id));
+
+      if (enrollmentCount[0].count >= classroomData.maxStudents) {
+        return res.status(400).json({ error: "Classroom is full" });
+      }
+
+      // Enroll student
+      await db.insert(classroomEnrollments).values({
+        studentId,
+        classroomId: classroomData.id,
+        isActive: true
+      });
+
+      res.json({
+        success: true,
+        classroom: {
+          name: classroomData.className,
+          grade: classroomData.grade,
+          subject: classroomData.subject
+        },
+        message: "Successfully joined classroom"
+      });
+    } catch (error) {
+      console.error("Error joining classroom:", error);
+      res.status(500).json({ error: "Failed to join classroom" });
+    }
+  });
+
+  // GET STUDENT PROGRESS FOR PARENTS - View child's progress
+  app.get("/api/student-progress/:studentId", async (req, res) => {
+    try {
+      const { studentId } = req.params;
+      const parentId = (req.session as any)?.userId;
+      
+      if (!parentId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+
+      const { db } = await import("./db");
+      const { studentParentRelations, userProgress, users, practiceAttempts, examAttempts } = await import("@shared/schema");
+      const { eq, and, desc } = await import("drizzle-orm");
+
+      // Verify parent-student relationship
+      const relationship = await db
+        .select()
+        .from(studentParentRelations)
+        .where(and(
+          eq(studentParentRelations.parentId, parentId),
+          eq(studentParentRelations.studentId, studentId),
+          eq(studentParentRelations.isActive, true)
+        ))
+        .limit(1);
+
+      if (relationship.length === 0) {
+        return res.status(403).json({ error: "You don't have access to this student's data" });
+      }
+
+      // Get student info and progress
+      const [student, progress, recentPractice, recentExams] = await Promise.all([
+        db.select().from(users).where(eq(users.id, studentId)).limit(1),
+        db.select().from(userProgress).where(eq(userProgress.userId, studentId)),
+        db.select().from(practiceAttempts).where(eq(practiceAttempts.userId, studentId))
+          .orderBy(desc(practiceAttempts.createdAt)).limit(10),
+        db.select().from(examAttempts).where(eq(examAttempts.userId, studentId))
+          .orderBy(desc(examAttempts.startedAt)).limit(5)
+      ]);
+
+      res.json({
+        success: true,
+        student: student[0],
+        progress,
+        recentPractice,
+        recentExams
+      });
+    } catch (error) {
+      console.error("Error getting student progress:", error);
+      res.status(500).json({ error: "Failed to get student progress" });
+    }
+  });
+
+  // GET TEACHER CLASSROOMS - View all created classrooms
+  app.get("/api/my-classroom-codes", async (req, res) => {
+    try {
+      const teacherId = (req.session as any)?.userId;
+      
+      if (!teacherId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+
+      const { db } = await import("./db");
+      const { classroomCodes, classroomEnrollments, users } = await import("@shared/schema");
+      const { eq, count } = await import("drizzle-orm");
+
+      const classrooms = await db
+        .select({
+          id: classroomCodes.id,
+          code: classroomCodes.code,
+          className: classroomCodes.className,
+          grade: classroomCodes.grade,
+          subject: classroomCodes.subject,
+          maxStudents: classroomCodes.maxStudents,
+          isActive: classroomCodes.isActive,
+          createdAt: classroomCodes.createdAt
+        })
+        .from(classroomCodes)
+        .where(eq(classroomCodes.teacherId, teacherId));
+
+      // Get enrollment count for each classroom
+      const classroomsWithCounts = await Promise.all(
+        classrooms.map(async (classroom) => {
+          const enrollmentCount = await db
+            .select({ count: count() })
+            .from(classroomEnrollments)
+            .where(eq(classroomEnrollments.classroomId, classroom.id));
+          
+          return {
+            ...classroom,
+            enrolledStudents: enrollmentCount[0].count
+          };
+        })
+      );
+
+      res.json({
+        success: true,
+        classrooms: classroomsWithCounts
+      });
+    } catch (error) {
+      console.error("Error getting classrooms:", error);
+      res.status(500).json({ error: "Failed to get classrooms" });
+    }
+  });
+
   // Fast question generation using templates (no AI calls)
   app.post("/api/questions/generate-fast", async (req, res) => {
     try {

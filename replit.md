@@ -8,6 +8,16 @@ StaarKids is a comprehensive web-based educational platform designed to help Tex
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes (July 2025)
+
+### Student Monitoring & Classroom Management System
+- **Student Monitoring Codes**: Students can generate unique 6-character codes for parent access
+- **Parent Dashboard**: Parents enter monitoring codes to view child's progress and test results
+- **Teacher Classroom Codes**: Teachers create 8-character classroom codes for student enrollment
+- **Settings Page**: Central hub for code management and account connections
+- **Database Schema**: Added tables for monitoring codes, classroom codes, enrollments, and parent-student relationships
+- **API Endpoints**: Complete backend support for code generation, validation, and relationship management
+
 ## System Architecture
 
 ### Frontend Architecture

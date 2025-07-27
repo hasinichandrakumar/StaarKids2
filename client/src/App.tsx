@@ -7,6 +7,9 @@ import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import ExamPage from "@/pages/exam";
+import Settings from "@/pages/Settings";
+import TeacherDashboard from "@/pages/TeacherDashboard";
+import ParentDashboard from "@/pages/ParentDashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -19,6 +22,15 @@ function Router() {
     <Switch>
       <Route path="/dashboard">
         <Dashboard />
+      </Route>
+      <Route path="/settings">
+        <Settings />
+      </Route>
+      <Route path="/teacher">
+        <TeacherDashboard />
+      </Route>
+      <Route path="/parent">
+        <ParentDashboard />
       </Route>
       <Route path="/exam/:examId" component={ExamPage} />
       {(isLoading || (!isAuthenticated && !isDemo)) ? (

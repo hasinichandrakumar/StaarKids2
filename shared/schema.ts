@@ -206,6 +206,16 @@ export const classroomEnrollments = pgTable("classroom_enrollments", {
   uniqueEnrollment: index("unique_student_classroom").on(table.studentId, table.classroomId),
 }));
 
+// Student monitoring codes - every student gets a unique code for parent access
+export const studentMonitoringCodes = pgTable("student_monitoring_codes", {
+  id: serial("id").primaryKey(),
+  code: varchar("code", { length: 6 }).notNull().unique(), // 6-character code for parents
+  studentId: varchar("student_id").notNull().references(() => users.id),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  regeneratedAt: timestamp("regenerated_at"), // When code was last regenerated
+});
+
 // Student-parent relationships
 export const studentParentRelations = pgTable("student_parent_relations", {
   id: serial("id").primaryKey(),
@@ -213,6 +223,7 @@ export const studentParentRelations = pgTable("student_parent_relations", {
   parentId: varchar("parent_id").notNull().references(() => users.id),
   relationshipType: varchar("relationship_type").default("parent"), // parent, guardian, etc.
   isActive: boolean("is_active").default(true),
+  connectedViaCode: varchar("connected_via_code"), // The monitoring code used to connect
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -233,9 +244,14 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   examAttempts: many(examAttempts),
   userProgress: many(userProgress),
   starPowerHistory: many(starPowerHistory),
+  // Student monitoring code
+  monitoringCode: one(studentMonitoringCodes),
   // Parent-student relationships
   parentRelations: many(studentParentRelations, { relationName: "parent" }),
   studentRelations: many(studentParentRelations, { relationName: "student" }),
+  // Classroom relationships
+  teacherClassrooms: many(classroomCodes),
+  studentEnrollments: many(classroomEnrollments),
   // Organization relationships
   organizationRelations: many(organizationStudentRelations),
   organization: one(organizations, {
@@ -324,6 +340,36 @@ export const starPowerHistoryRelations = relations(starPowerHistory, ({ one }) =
 export const organizationsRelations = relations(organizations, ({ many }) => ({
   students: many(organizationStudentRelations),
   teachers: many(users),
+}));
+
+export const studentMonitoringCodesRelations = relations(studentMonitoringCodes, ({ one }) => ({
+  student: one(users, {
+    fields: [studentMonitoringCodes.studentId],
+    references: [users.id],
+  }),
+}));
+
+export const classroomCodesRelations = relations(classroomCodes, ({ one, many }) => ({
+  teacher: one(users, {
+    fields: [classroomCodes.teacherId],
+    references: [users.id],
+  }),
+  organization: one(organizations, {
+    fields: [classroomCodes.organizationId],
+    references: [organizations.id],
+  }),
+  enrollments: many(classroomEnrollments),
+}));
+
+export const classroomEnrollmentsRelations = relations(classroomEnrollments, ({ one }) => ({
+  student: one(users, {
+    fields: [classroomEnrollments.studentId],
+    references: [users.id],
+  }),
+  classroom: one(classroomCodes, {
+    fields: [classroomEnrollments.classroomId],
+    references: [classroomCodes.id],
+  }),
 }));
 
 export const studentParentRelationsRelations = relations(studentParentRelations, ({ one }) => ({
@@ -416,6 +462,12 @@ export const insertClassroomEnrollmentSchema = createInsertSchema(classroomEnrol
   enrolledAt: true,
 });
 
+export const insertStudentMonitoringCodeSchema = createInsertSchema(studentMonitoringCodes).omit({
+  id: true,
+  createdAt: true,
+  regeneratedAt: true,
+});
+
 export const insertStudentParentRelationSchema = createInsertSchema(studentParentRelations).omit({
   id: true,
   createdAt: true,
@@ -440,6 +492,10 @@ export const updateUserSchema = createInsertSchema(users).pick({
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
+export type StudentMonitoringCode = typeof studentMonitoringCodes.$inferSelect;
+export type ClassroomCode = typeof classroomCodes.$inferSelect;
+export type ClassroomEnrollment = typeof classroomEnrollments.$inferSelect;
+export type StudentParentRelation = typeof studentParentRelations.$inferSelect;
 export type ReadingPassage = typeof readingPassages.$inferSelect;
 export type InsertReadingPassage = z.infer<typeof insertReadingPassageSchema>;
 export type Question = typeof questions.$inferSelect;
@@ -459,11 +515,9 @@ export type InsertStarPowerHistory = z.infer<typeof insertStarPowerHistorySchema
 export type UpdateUser = z.infer<typeof updateUserSchema>;
 export type Organization = typeof organizations.$inferSelect;
 export type InsertOrganization = z.infer<typeof insertOrganizationSchema>;
-export type ClassroomCode = typeof classroomCodes.$inferSelect;
 export type InsertClassroomCode = z.infer<typeof insertClassroomCodeSchema>;
-export type ClassroomEnrollment = typeof classroomEnrollments.$inferSelect;
 export type InsertClassroomEnrollment = z.infer<typeof insertClassroomEnrollmentSchema>;
-export type StudentParentRelation = typeof studentParentRelations.$inferSelect;
+export type InsertStudentMonitoringCode = z.infer<typeof insertStudentMonitoringCodeSchema>;
 export type InsertStudentParentRelation = z.infer<typeof insertStudentParentRelationSchema>;
 export type OrganizationStudentRelation = typeof organizationStudentRelations.$inferSelect;
 export type InsertOrganizationStudentRelation = z.infer<typeof insertOrganizationStudentRelationSchema>;
