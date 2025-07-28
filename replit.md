@@ -10,13 +10,20 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (July 2025)
 
+### Application Stability & Core Features (January 28, 2025)
+- **Critical Crash Fix**: Resolved OpenAI quota exhaustion crashes by implementing graceful AI system bypassing
+- **React Key Conflicts**: Fixed duplicate key warnings in ParentDashboard and Settings components
+- **Basic Mode Operation**: App now runs reliably in basic mode with core monitoring features
+- **Production Stability**: Application successfully handles authentication and database operations
+
 ### Student Monitoring & Classroom Management System
 - **Student Monitoring Codes**: Students can generate unique 6-character codes for parent access
-- **Parent Dashboard**: Parents enter monitoring codes to view child's progress and test results
+- **Parent Dashboard**: Parents enter monitoring codes to view comprehensive child analytics and progress
 - **Teacher Classroom Codes**: Teachers create 8-character classroom codes for student enrollment
 - **Settings Page**: Central hub for code management and account connections
 - **Database Schema**: Added tables for monitoring codes, classroom codes, enrollments, and parent-student relationships
 - **API Endpoints**: Complete backend support for code generation, validation, and relationship management
+- **Analytics System**: Detailed progress tracking by TEKS standards, subject performance, and activity history
 
 ## System Architecture
 
