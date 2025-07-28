@@ -313,7 +313,7 @@ export default function ParentDashboard() {
                   {studentData.progress
                     .filter(p => p.subject === 'math')
                     .map((progress) => (
-                      <div key={progress.id} className="border-b pb-4 last:border-b-0">
+                      <div key={`math-${progress.id}-${progress.teksStandard}`} className="border-b pb-4 last:border-b-0">
                         <div className="flex justify-between items-start mb-2">
                           <div>
                             <p className="font-medium">{progress.teksStandard}</p>
@@ -344,7 +344,7 @@ export default function ParentDashboard() {
                   {studentData.progress
                     .filter(p => p.subject === 'reading')
                     .map((progress) => (
-                      <div key={progress.id} className="border-b pb-4 last:border-b-0">
+                      <div key={`reading-${progress.id}-${progress.teksStandard}`} className="border-b pb-4 last:border-b-0">
                         <div className="flex justify-between items-start mb-2">
                           <div>
                             <p className="font-medium">{progress.teksStandard}</p>
