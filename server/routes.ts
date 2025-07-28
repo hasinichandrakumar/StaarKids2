@@ -2,6 +2,7 @@ import express, { type Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupLocalAuth, registerLocalAuthRoutes } from "./localAuth";
 import { setupGoogleAuth } from "./googleAuth";
 import { insertPracticeAttemptSchema, insertExamAttemptSchema, updateUserSchema } from "@shared/schema";
 import { z } from "zod";
@@ -2314,6 +2315,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware (Replit auth)
   console.log("Setting up Replit auth...");
   await setupAuth(app);
+  
+  // Setup local authentication
+  setupLocalAuth();
+  registerLocalAuthRoutes(app);
   
   // Setup Google OAuth routes for login
   console.log("Setting up Google OAuth login routes...");

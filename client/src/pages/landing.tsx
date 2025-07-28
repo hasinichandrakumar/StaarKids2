@@ -79,11 +79,11 @@ export default function Landing() {
   }, []);
 
   const handleLogin = () => {
-    window.location.href = "/auth/google/login";
+    setLocation('/login');
   };
 
   const handleGoogleSignIn = () => {
-    window.location.href = "/auth/google/login";
+    window.location.href = "/api/google-auth";
   };
 
   const stats = [

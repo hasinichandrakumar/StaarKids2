@@ -10,6 +10,8 @@ import ExamPage from "@/pages/exam";
 import Settings from "@/pages/Settings";
 import TeacherDashboard from "@/pages/TeacherDashboard";
 import ParentDashboard from "@/pages/ParentDashboard";
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -20,14 +22,22 @@ function Router() {
 
   return (
     <Switch>
+      <Route path="/login" component={Login} />
+      <Route path="/register" component={Register} />
       <Route path="/dashboard">
         <Dashboard />
       </Route>
       <Route path="/settings">
         <Settings />
       </Route>
+      <Route path="/teacher-dashboard">
+        <TeacherDashboard />
+      </Route>
       <Route path="/teacher">
         <TeacherDashboard />
+      </Route>
+      <Route path="/parent-dashboard">
+        <ParentDashboard />
       </Route>
       <Route path="/parent">
         <ParentDashboard />

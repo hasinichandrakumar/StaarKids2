@@ -11,6 +11,7 @@ import {
   organizations,
   studentParentRelations,
   organizationStudentRelations,
+  studentMonitoringCodes,
   type User,
   type UpsertUser,
   type Question,
@@ -50,6 +51,12 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
   updateUserProfile(id: string, updates: UpdateUser): Promise<User>;
+  // Local authentication methods
+  getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createLocalUser(userData: any): Promise<User>;
+  updateUserLastActive(userId: string): Promise<void>;
+  createStudentMonitoringCode(studentId: string): Promise<void>;
   
   // Question operations
   getQuestionsByGradeAndSubject(grade: number, subject: string): Promise<Question[]>;
@@ -1159,7 +1166,7 @@ export class DatabaseStorage implements IStorage {
         createdAt: practiceAttempts.createdAt,
         subject: questions.subject,
         grade: questions.grade,
-        studentName: users.fullName
+        studentName: sql<string>`CONCAT(${users.firstName}, ' ', ${users.lastName})`
       })
       .from(practiceAttempts)
       .innerJoin(questions, eq(practiceAttempts.questionId, questions.id))
@@ -1182,6 +1189,88 @@ export class DatabaseStorage implements IStorage {
       },
       recentActivity
     };
+  }
+
+  // Local authentication methods
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  async createLocalUser(userData: {
+    username: string;
+    passwordHash: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    role: string;
+    authMethod: string;
+    currentGrade?: number | null;
+  }): Promise<User> {
+    const { nanoid } = await import('nanoid');
+    const userId = nanoid();
+    
+    const [user] = await db
+      .insert(users)
+      .values({
+        id: userId,
+        username: userData.username,
+        passwordHash: userData.passwordHash,
+        email: userData.email,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        role: userData.role,
+        authMethod: userData.authMethod,
+        currentGrade: userData.currentGrade,
+        starPower: 0,
+        avatarType: "moon",
+        avatarColor: "#4F46E5",
+        userRank: "Cadet",
+        isVerified: false,
+        lastActiveAt: new Date(),
+      })
+      .returning();
+    
+    return user;
+  }
+
+  async updateUserLastActive(userId: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ lastActiveAt: new Date() })
+      .where(eq(users.id, userId));
+  }
+
+  async createStudentMonitoringCode(studentId: string): Promise<void> {
+    
+    // Generate unique 6-character code
+    const generateCode = () => Math.random().toString(36).substring(2, 8).toUpperCase();
+    let code = generateCode();
+    
+    // Ensure code is unique
+    let existingCode = await db
+      .select()
+      .from(studentMonitoringCodes)
+      .where(eq(studentMonitoringCodes.code, code));
+    
+    while (existingCode.length > 0) {
+      code = generateCode();
+      existingCode = await db
+        .select()
+        .from(studentMonitoringCodes)
+        .where(eq(studentMonitoringCodes.code, code));
+    }
+    
+    await db.insert(studentMonitoringCodes).values({
+      code,
+      studentId,
+      isActive: true,
+    });
   }
 }
 
