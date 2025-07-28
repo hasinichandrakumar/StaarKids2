@@ -63,15 +63,17 @@ export default function Register() {
   const selectedRole = form.watch('role');
 
   const registerMutation = useMutation({
-    mutationFn: (data: RegisterForm) =>
-      apiRequest('/api/auth/register', {
+    mutationFn: async (data: RegisterForm) => {
+      const response = await apiRequest('/api/auth/register', {
         method: 'POST',
         body: JSON.stringify({
           ...data,
           grade: data.role === 'student' ? parseInt(data.grade || '4') : undefined,
         }),
-      }),
-    onSuccess: (data) => {
+      });
+      return response.json();
+    },
+    onSuccess: (data: any) => {
       if (data.success) {
         toast({
           title: 'Account Created!',
@@ -93,7 +95,7 @@ export default function Register() {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = '/api/google-auth';
+    window.location.href = '/api/auth/google';
   };
 
   const getRoleIcon = (role: string) => {

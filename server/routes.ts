@@ -16,6 +16,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ message: "API routes are working", timestamp: new Date().toISOString() });
   });
 
+  // Complete Google OAuth registration with role selection
+  app.post("/api/auth/complete-google-registration", async (req, res) => {
+    try {
+      console.log("=== COMPLETING GOOGLE OAUTH REGISTRATION ===");
+      const { role, grade } = req.body;
+      
+      const googleUserInfo = (req.session as any).googleUserInfo;
+      if (!googleUserInfo) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "No Google user info found in session" 
+        });
+      }
+
+      // Create user with role
+      const user = await storage.upsertUser({
+        id: googleUserInfo.id,
+        email: googleUserInfo.email,
+        firstName: googleUserInfo.firstName,
+        lastName: googleUserInfo.lastName,
+        profileImageUrl: googleUserInfo.profileImageUrl,
+        role: role,
+        currentGrade: grade || null,
+        authMethod: 'google'
+      });
+
+      // Set session
+      (req.session as any).userId = user.id;
+      delete (req.session as any).googleUserInfo; // Clean up temp data
+      
+      console.log("Google OAuth registration completed for:", user.id, user.role);
+      
+      res.json({
+        success: true,
+        user: user,
+        message: `Welcome to StaarKids, ${user.firstName}!`
+      });
+
+    } catch (error: any) {
+      console.error("Error completing Google registration:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: error.message || "Registration failed" 
+      });
+    }
+  });
+
   // Test accurate SVG generation
   app.get("/api/test-svg", async (req, res) => {
     try {
@@ -107,19 +154,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Create or update user in database
       const { storage } = await import("./storage");
-      const user = await storage.upsertUser({
-        id: googleUser.id,
-        email: googleUser.email,
-        firstName: googleUser.given_name || "",
-        lastName: googleUser.family_name || "",
-        profileImageUrl: googleUser.picture || "",
-      });
-
-      // Set session
-      (req.session as any).userId = user.id;
-      console.log("Session updated with user ID:", user.id);
       
-      res.redirect("/dashboard");
+      // Check if user already exists
+      const existingUser = await storage.getUser(googleUser.id);
+      
+      if (existingUser) {
+        // User exists, log them in directly
+        const user = await storage.upsertUser({
+          id: googleUser.id,
+          email: googleUser.email,
+          firstName: googleUser.given_name || "",
+          lastName: googleUser.family_name || "",
+          profileImageUrl: googleUser.picture || "",
+        });
+
+        // Set session
+        (req.session as any).userId = user.id;
+        console.log("Existing user logged in:", user.id);
+        
+        // Redirect based on user role
+        if (user.role === 'teacher') {
+          res.redirect("/teacher-dashboard");
+        } else if (user.role === 'parent') {
+          res.redirect("/parent-dashboard");
+        } else {
+          res.redirect("/dashboard");
+        }
+      } else {
+        // New user, store Google info in session and redirect to role selection
+        (req.session as any).googleUserInfo = {
+          id: googleUser.id,
+          email: googleUser.email,
+          firstName: googleUser.given_name || "",
+          lastName: googleUser.family_name || "",
+          profileImageUrl: googleUser.picture || "",
+        };
+        console.log("New Google user, redirecting to role selection");
+        res.redirect("/role-selection");
+      }
     } catch (error) {
       console.error("OAuth callback error:", error);
       res.redirect("/dashboard?error=callback_error");

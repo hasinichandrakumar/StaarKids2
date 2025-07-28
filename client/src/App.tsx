@@ -12,6 +12,7 @@ import TeacherDashboard from "@/pages/TeacherDashboard";
 import ParentDashboard from "@/pages/ParentDashboard";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
+import RoleSelection from "@/pages/RoleSelection";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -24,6 +25,7 @@ function Router() {
     <Switch>
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
+      <Route path="/role-selection" component={RoleSelection} />
       <Route path="/dashboard">
         <Dashboard />
       </Route>

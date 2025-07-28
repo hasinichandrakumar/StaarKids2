@@ -36,12 +36,14 @@ export default function Login() {
   });
 
   const loginMutation = useMutation({
-    mutationFn: (data: LoginForm) =>
-      apiRequest('/api/auth/login', {
+    mutationFn: async (data: LoginForm) => {
+      const response = await apiRequest('/api/auth/login', {
         method: 'POST',
         body: JSON.stringify(data),
-      }),
-    onSuccess: (data) => {
+      });
+      return response.json();
+    },
+    onSuccess: (data: any) => {
       if (data.success) {
         toast({
           title: 'Welcome back!',
@@ -50,7 +52,7 @@ export default function Login() {
         // Redirect based on user role
         if (data.user.role === 'teacher') {
           setLocation('/teacher-dashboard');
-        } else if (data.user.role === 'parent') {
+        } else if (data.user.role === 'parent') {         
           setLocation('/parent-dashboard');
         } else {
           setLocation('/');
@@ -60,7 +62,7 @@ export default function Login() {
       }
     },
     onError: (error: any) => {
-      setError(error.message || 'Login failed');
+      setError(error.message || 'Registration failed');
     },
   });
 
@@ -70,7 +72,7 @@ export default function Login() {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = '/api/google-auth';
+    window.location.href = '/api/auth/google';
   };
 
   return (
